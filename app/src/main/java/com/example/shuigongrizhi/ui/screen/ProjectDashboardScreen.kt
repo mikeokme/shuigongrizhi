@@ -114,6 +114,11 @@ fun ProjectDashboardScreen(
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
+                // 项目信息卡片
+                dashboardState.project?.let { project ->
+                    ProjectInfoCard(project)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
                 // 日历视图
                 CalendarView(
                     currentMonth = dashboardState.currentMonth,
@@ -360,6 +365,55 @@ fun LogSummaryCard(
                 ) {
                     Text("创建日志")
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProjectInfoCard(project: com.example.shuigongrizhi.data.entity.Project) {
+    val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = project.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = project.type.name,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            if (!project.manager.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "负责人：${project.manager}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "${project.startDate.let { dateFormat.format(it) }}" +
+                    (project.endDate?.let { " - ${dateFormat.format(it)}" } ?: ""),
+                style = MaterialTheme.typography.bodySmall
+            )
+            if (!project.description.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = project.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 4
+                )
             }
         }
     }

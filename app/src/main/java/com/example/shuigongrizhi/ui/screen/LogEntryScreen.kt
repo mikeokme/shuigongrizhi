@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
@@ -25,7 +24,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
@@ -206,7 +204,7 @@ fun LogEntryScreen(
                             )) {
                                 PackageManager.PERMISSION_GRANTED -> {
                                     // 创建临时文件并拍照
-                                    viewModel.createTempImageFile()?.let { uri ->
+                                    viewModel.createTempImageFile(context)?.let { uri ->
                                         takePictureLauncher.launch(uri)
                                     }
                                 }
@@ -222,7 +220,7 @@ fun LogEntryScreen(
                             )) {
                                 PackageManager.PERMISSION_GRANTED -> {
                                     // 创建临时文件并录像
-                                    viewModel.createTempVideoFile()?.let { uri ->
+                                    viewModel.createTempVideoFile(context)?.let { uri ->
                                         takeVideoLauncher.launch(uri)
                                     }
                                 }
@@ -237,7 +235,9 @@ fun LogEntryScreen(
                         onSelectVideo = {
                             selectVideoLauncher.launch("video/*")
                         },
-                        onDeleteMedia = viewModel::removeMediaFile
+                        onDeleteMedia = { mediaFile ->
+                            viewModel.removeMediaFile(mediaFile)
+                        }
                     )
                 }
             }
@@ -245,6 +245,7 @@ fun LogEntryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoCard(
     weatherCondition: String,
@@ -353,6 +354,7 @@ fun WeatherInfoCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConstructionInfoCard(
     constructionSite: String,
@@ -436,6 +438,7 @@ fun ConstructionInfoCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaFilesCard(
     mediaFiles: List<com.example.shuigongrizhi.data.entity.MediaFile>,
@@ -443,7 +446,7 @@ fun MediaFilesCard(
     onTakeVideo: () -> Unit,
     onSelectFromGallery: () -> Unit,
     onSelectVideo: () -> Unit,
-    onDeleteMedia: (Long) -> Unit
+    onDeleteMedia: (com.example.shuigongrizhi.data.entity.MediaFile) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -535,7 +538,7 @@ fun MediaFilesCard(
                     items(mediaFiles) { mediaFile ->
                         MediaFileItem(
                             mediaFile = mediaFile,
-                            onDelete = { onDeleteMedia(mediaFile.id) }
+                            onDelete = { onDeleteMedia(mediaFile) }
                         )
                     }
                 }

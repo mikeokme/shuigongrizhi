@@ -16,6 +16,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
+import androidx.core.content.FileProvider
+import java.io.File
 
 data class LogEntryState(
     val date: Date = Date(),
@@ -122,10 +127,32 @@ class LogEntryViewModel @Inject constructor(
         fetchWeatherData()
     }
 
-    fun createTempImageFile(): android.net.Uri? {
-        // This should be implemented to create a temporary file for camera capture
-        // For now, returning null as a placeholder
-        return null
+    fun createTempImageFile(context: Context): Uri? {
+        val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val file = File.createTempFile(
+            "IMG_${System.currentTimeMillis()}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        )
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+    }
+
+    fun createTempVideoFile(context: Context): Uri? {
+        val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        val file = File.createTempFile(
+            "VID_${System.currentTimeMillis()}_", /* prefix */
+            ".mp4", /* suffix */
+            storageDir /* directory */
+        )
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
     }
 
     fun updateConstructionLocation(location: String) {
@@ -148,41 +175,32 @@ class LogEntryViewModel @Inject constructor(
         _logState.value = _logState.value.copy(safetyNotes = notes)
     }
 
-    fun fetchWeatherData(location: String = "北京") {
+    fun fetchWeatherData(lat: Double = 39.9042, lon: Double = 116.4074) { // 默认北京
         viewModelScope.launch {
             _logState.value = _logState.value.copy(isLoadingWeather = true)
             try {
-                // 注意：这里需要实际的API密钥
                 val response = NetworkModule.weatherService.getCurrentWeather(
-                    location = location,
-                    apiKey = "YOUR_API_KEY_HERE" // 需要替换为实际的API密钥
+                    lat = lat,
+                    lon = lon,
+                    apiKey = "ad01985ba99a733396e2b6c25e55806f"
                 )
-                
-                if (response.isSuccessful) {
-                    response.body()?.let { weather ->
-                        val condition = when (weather.weather.firstOrNull()?.main?.lowercase()) {
-                            "clear" -> WeatherCondition.SUNNY.displayName
-                            "clouds" -> WeatherCondition.CLOUDY.displayName
-                            "rain" -> WeatherCondition.RAINY.displayName
-                            "snow" -> WeatherCondition.SNOWY.displayName
-                            else -> WeatherCondition.CLOUDY.displayName
-                        }
-                        
-                        val temp = "${weather.main.temp_min.toInt()} ~ ${weather.main.temp_max.toInt()} °C"
-                        val windDirection = getWindDirection(weather.wind.deg)
-                        val windSpeed = "${(weather.wind.speed * 3.6).toInt()}级/$windDirection"
-                        
-                        _logState.value = _logState.value.copy(
-                            weatherCondition = condition,
-                            temperature = temp,
-                            wind = windSpeed
-                        )
-                    }
-                } else {
-                    _error.value = "获取天气信息失败"
+                val condition = when (response.weather.firstOrNull()?.main?.lowercase()) {
+                    "clear" -> WeatherCondition.SUNNY.displayName
+                    "clouds" -> WeatherCondition.CLOUDY.displayName
+                    "rain" -> WeatherCondition.RAINY.displayName
+                    "snow" -> WeatherCondition.SNOWY.displayName
+                    else -> WeatherCondition.CLOUDY.displayName
                 }
+                val temp = "${response.main.temp.toInt()} °C"
+                val windSpeed = "${response.wind.speed} m/s"
+                _logState.value = _logState.value.copy(
+                    weatherCondition = condition,
+                    temperature = temp,
+                    wind = windSpeed
+                )
+                _error.value = null
             } catch (e: Exception) {
-                _error.value = "网络连接失败：${e.message}"
+                _error.value = "获取天气信息失败: ${e.message}"
             } finally {
                 _logState.value = _logState.value.copy(isLoadingWeather = false)
             }

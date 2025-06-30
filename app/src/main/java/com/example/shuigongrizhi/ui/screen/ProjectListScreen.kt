@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,14 +17,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.shuigongrizhi.R
 import com.example.shuigongrizhi.data.entity.Project
-import com.example.shuigongrizhi.data.entity.ProjectStatus
-import com.example.shuigongrizhi.ui.component.GradientCard
-import com.example.shuigongrizhi.ui.component.ProjectTypeCard
+import com.example.shuigongrizhi.data.entity.ProjectType
+import com.example.shuigongrizhi.ui.components.GradientCard
+import com.example.shuigongrizhi.ui.components.ProjectTypeCard
 import com.example.shuigongrizhi.ui.theme.DeepPurple
 import com.example.shuigongrizhi.ui.theme.TextWhite
 import com.example.shuigongrizhi.ui.viewmodel.ProjectListViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -160,100 +162,100 @@ fun ProjectCard(
     onDelete: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    ProjectTypeCard(
-        projectType = project.projectType,
-        title = project.name,
-        onClick = onClick,
-        onLongClick = { showDeleteDialog = true },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { showMenu = true },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "编号：${project.number}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextWhite.copy(alpha = 0.8f)
-                    )
-                    
-                    ProjectStatusChip(
-                        status = project.status
-                    )
-                }
-                
-                if (project.location.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "地点：${project.location}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextWhite.copy(alpha = 0.7f)
-                    )
-                }
-                
-                if (project.startDate != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "开工：${dateFormat.format(project.startDate)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextWhite.copy(alpha = 0.7f)
-                    )
-                }
+                Text(
+                    text = project.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = project.type.name,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            if (!project.manager.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "负责人：${project.manager}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "${project.startDate.let { dateFormat.format(it) }}" +
+                    (project.endDate?.let { " - ${dateFormat.format(it)}" } ?: ""),
+                style = MaterialTheme.typography.bodySmall
+            )
+            if (!project.description.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = project.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
-    )
-
-    // 删除确认对话框
+    }
+    DropdownMenu(
+        expanded = showMenu,
+        onDismissRequest = { showMenu = false }
+    ) {
+        DropdownMenuItem(
+            text = { Text("进入详情") },
+            onClick = {
+                showMenu = false
+                onClick()
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("导出") },
+            onClick = {
+                showMenu = false
+                // TODO: 导出操作，可在此处实现
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("删除") },
+            onClick = {
+                showMenu = false
+                showDeleteDialog = true
+            }
+        )
+    }
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("删除项目") },
-            text = { Text("确定要删除项目 \"${project.name}\" 吗？此操作不可撤销。") },
+            text = { Text("确定要删除该项目吗？") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete()
-                        showDeleteDialog = false
-                    }
-                ) {
-                    Text(stringResource(R.string.delete))
+                TextButton(onClick = {
+                    onDelete()
+                    showDeleteDialog = false
+                }) {
+                    Text("删除")
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showDeleteDialog = false }
-                ) {
-                    Text(stringResource(R.string.cancel))
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("取消")
                 }
             }
-        )
-    }
-}
-
-@Composable
-fun ProjectStatusChip(
-    status: ProjectStatus
-) {
-    val (text, color) = when (status) {
-        ProjectStatus.ONGOING -> stringResource(R.string.project_status_ongoing) to MaterialTheme.colorScheme.primary
-        ProjectStatus.COMPLETED -> stringResource(R.string.project_status_completed) to MaterialTheme.colorScheme.secondary
-    }
-    
-    Surface(
-        color = color.copy(alpha = 0.3f),
-        shape = MaterialTheme.shapes.small,
-        modifier = Modifier.padding(4.dp)
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall,
-            color = TextWhite,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }

@@ -12,12 +12,14 @@ import com.example.shuigongrizhi.ui.viewmodel.*
 
 // 导航路由常量
 object NavigationRoutes {
+    const val MAIN = "main"
     const val PROJECT_LIST = "project_list"
     const val PROJECT_FORM = "project_form"
     const val PROJECT_FORM_WITH_ID = "project_form/{projectId}"
     const val PROJECT_DASHBOARD = "project_dashboard/{projectId}"
     const val LOG_ENTRY = "log_entry/{projectId}/{date}"
     const val EXPORT = "export/{projectId}"
+    const val WEATHER_DETAIL = "weather_detail"
 }
 
 @Composable
@@ -26,8 +28,20 @@ fun AppNavigation(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavigationRoutes.PROJECT_LIST
+        startDestination = NavigationRoutes.MAIN
     ) {
+        // 主界面
+        composable(NavigationRoutes.MAIN) {
+            MainScreen(
+                onLogClick = { navController.navigate(NavigationRoutes.PROJECT_LIST) },
+                onWeatherClick = { navController.navigate(NavigationRoutes.WEATHER_DETAIL) },
+                onCameraClick = { /* TODO: 跳转到拍照录像页面 */ },
+                onLocationClick = { /* TODO: 跳转到位置服务页面 */ },
+                onMediaClick = { /* TODO: 跳转到媒体管理页面 */ },
+                onProjectClick = { navController.navigate(NavigationRoutes.PROJECT_LIST) },
+                onSettingsClick = { /* TODO: 跳转到设置页面 */ }
+            )
+        }
         // 项目列表页面
         composable(NavigationRoutes.PROJECT_LIST) {
             val viewModel: ProjectListViewModel = hiltViewModel()
@@ -146,6 +160,17 @@ fun AppNavigation(
                 onExportPdf = { pId, exportType, startDate, endDate ->
                     // TODO: 实现PDF导出功能
                     // 这里可以调用PDF生成服务
+                    navController.popBackStack()
+                }
+            )
+        }
+        
+        // 天气详情页面
+        composable(NavigationRoutes.WEATHER_DETAIL) {
+            val viewModel: WeatherViewModel = hiltViewModel()
+            WeatherDetailScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
                     navController.popBackStack()
                 }
             )

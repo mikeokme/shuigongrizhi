@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.shuigongrizhi.R
-import com.example.shuigongrizhi.data.entity.ProjectStatus
+import com.example.shuigongrizhi.data.entity.ProjectType
 import com.example.shuigongrizhi.ui.viewmodel.ProjectFormViewModel
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
+import androidx.compose.ui.text.input.TextFieldValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,7 +87,7 @@ fun ProjectFormScreen(
                 actions = {
                     TextButton(
                         onClick = { viewModel.saveProject() },
-                        enabled = !isLoading && formState.name.isNotBlank() && formState.number.isNotBlank()
+                        enabled = !isLoading && formState.name.isNotBlank() && formState.startDate != null
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
@@ -113,53 +114,59 @@ fun ProjectFormScreen(
             OutlinedTextField(
                 value = formState.name,
                 onValueChange = viewModel::updateName,
-                label = { Text(stringResource(R.string.project_name)) },
+                label = { Text("项目名称") },
                 modifier = Modifier.fillMaxWidth(),
                 isError = formState.nameError != null,
                 supportingText = formState.nameError?.let { { Text(it) } }
             )
 
-            // 项目编号
-            OutlinedTextField(
-                value = formState.number,
-                onValueChange = viewModel::updateNumber,
-                label = { Text(stringResource(R.string.project_number)) },
-                modifier = Modifier.fillMaxWidth(),
-                isError = formState.numberError != null,
-                supportingText = formState.numberError?.let { { Text(it) } }
-            )
+            // 项目类型
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = formState.type.name,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("项目类型") },
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    ProjectType.values().forEach { type ->
+                        DropdownMenuItem(
+                            text = { Text(type.name) },
+                            onClick = {
+                                viewModel.updateType(type)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
-            // 施工单位
+            // 负责人
             OutlinedTextField(
-                value = formState.constructionUnit,
-                onValueChange = viewModel::updateConstructionUnit,
-                label = { Text(stringResource(R.string.construction_unit)) },
+                value = formState.manager,
+                onValueChange = viewModel::updateManager,
+                label = { Text("负责人") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // 监理单位
-            OutlinedTextField(
-                value = formState.supervisionUnit,
-                onValueChange = viewModel::updateSupervisionUnit,
-                label = { Text(stringResource(R.string.supervision_unit)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // 项目地点
-            OutlinedTextField(
-                value = formState.location,
-                onValueChange = viewModel::updateLocation,
-                label = { Text(stringResource(R.string.project_location)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // 开工日期
+            // 开始日期
             OutlinedTextField(
                 value = formState.startDate?.let { dateFormat.format(it) } ?: "",
-                onValueChange = { },
-                label = { Text(stringResource(R.string.start_date)) },
+                onValueChange = {},
+                label = { Text("开始日期") },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
+                isError = formState.startDateError != null,
+                supportingText = formState.startDateError?.let { { Text(it) } },
                 trailingIcon = {
                     IconButton(onClick = { startDateDialogState.show() }) {
                         Icon(
@@ -169,12 +176,24 @@ fun ProjectFormScreen(
                     }
                 }
             )
+            MaterialDialog(
+                dialogState = startDateDialogState,
+                buttons = {
+                    positiveButton("确定")
+                    negativeButton("取消")
+                }
+            ) {
+                datepicker { date: LocalDate ->
+                    val selectedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
+                    viewModel.updateStartDate(selectedDate)
+                }
+            }
 
-            // 计划竣工日期
+            // 结束日期
             OutlinedTextField(
-                value = formState.plannedCompletionDate?.let { dateFormat.format(it) } ?: "",
-                onValueChange = { },
-                label = { Text(stringResource(R.string.planned_completion_date)) },
+                value = formState.endDate?.let { dateFormat.format(it) } ?: "",
+                onValueChange = {},
+                label = { Text("结束日期") },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = {
@@ -186,96 +205,27 @@ fun ProjectFormScreen(
                     }
                 }
             )
-
-            // 项目状态
-            Card(
-                modifier = Modifier.fillMaxWidth()
+            MaterialDialog(
+                dialogState = endDateDialogState,
+                buttons = {
+                    positiveButton("确定")
+                    negativeButton("取消")
+                }
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.project_type),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    
-                    // 项目类型选择
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        val projectTypes = listOf("水库", "河道", "灌区", "水电站", "泵站")
-                        projectTypes.forEach { type ->
-                            Row {
-                                RadioButton(
-                                    selected = formState.projectType == type,
-                                    onClick = { viewModel.updateProjectType(type) }
-                                )
-                                Text(
-                                    text = type,
-                                    modifier = Modifier.padding(start = 4.dp, end = 16.dp)
-                                )
-                            }
-                        }
-                    }
-                    
-                    Text(
-                        text = stringResource(R.string.project_status),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-                    )
-                    
-                    Row {
-                        ProjectStatus.values().forEach { status ->
-                            Row {
-                                RadioButton(
-                                    selected = formState.status == status,
-                                    onClick = { viewModel.updateStatus(status) }
-                                )
-                                Text(
-                                    text = when (status) {
-                                        ProjectStatus.ONGOING -> stringResource(R.string.project_status_ongoing)
-                                        ProjectStatus.COMPLETED -> stringResource(R.string.project_status_completed)
-                                    },
-                                    modifier = Modifier.padding(start = 4.dp, end = 16.dp)
-                                )
-                            }
-                        }
-                    }
+                datepicker { date: LocalDate ->
+                    val selectedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
+                    viewModel.updateEndDate(selectedDate)
                 }
             }
-        }
-    }
 
-    // 开工日期选择对话框
-    MaterialDialog(
-        dialogState = startDateDialogState,
-        buttons = {
-            positiveButton(text = "确定")
-            negativeButton(text = "取消")
-        }
-    ) {
-        datepicker(
-            initialDate = formState.startDate?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate() ?: LocalDate.now(),
-            title = "选择开工日期"
-        ) { date ->
-            val selectedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
-            viewModel.updateStartDate(selectedDate)
-        }
-    }
-
-    // 计划竣工日期选择对话框
-    MaterialDialog(
-        dialogState = endDateDialogState,
-        buttons = {
-            positiveButton(text = "确定")
-            negativeButton(text = "取消")
-        }
-    ) {
-        datepicker(
-            initialDate = formState.plannedCompletionDate?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate() ?: LocalDate.now(),
-            title = "选择计划竣工日期"
-        ) { date ->
-            val selectedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
-            viewModel.updatePlannedCompletionDate(selectedDate)
+            // 描述
+            OutlinedTextField(
+                value = formState.description,
+                onValueChange = viewModel::updateDescription,
+                label = { Text("项目描述") },
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 4
+            )
         }
     }
 }

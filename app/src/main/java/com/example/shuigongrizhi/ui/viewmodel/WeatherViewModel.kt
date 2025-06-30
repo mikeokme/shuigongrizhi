@@ -1,0 +1,132 @@
+package com.example.shuigongrizhi.ui.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.shuigongrizhi.data.entity.WeatherCondition
+import com.example.shuigongrizhi.data.repository.WeatherRepository
+import com.example.shuigongrizhi.network.WeatherResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+data class WeatherState(
+    val isLoading: Boolean = false,
+    val weatherCondition: String = "",
+    val temperature: String = "",
+    val humidity: String = "",
+    val windSpeed: String = "",
+    val windDirection: String = "",
+    val pressure: String = "",
+    val visibility: String = "",
+    val cityName: String = "",
+    val description: String = "",
+    val feelsLike: String = "",
+    val uvIndex: String = "",
+    val sunrise: String = "",
+    val sunset: String = "",
+    val lastUpdated: String = "",
+    val error: String? = null
+)
+
+@HiltViewModel
+class WeatherViewModel @Inject constructor(
+    private val weatherRepository: WeatherRepository
+) : ViewModel() {
+    
+    private val _weatherState = MutableStateFlow(WeatherState())
+    val weatherState: StateFlow<WeatherState> = _weatherState.asStateFlow()
+    
+    fun getCurrentWeather(lat: Double = 39.9042, lon: Double = 116.4074) {
+        viewModelScope.launch {
+            _weatherState.value = _weatherState.value.copy(isLoading = true, error = null)
+            
+            weatherRepository.getCurrentWeather(lat, lon)
+                .onSuccess { response ->
+                    updateWeatherState(response)
+                }
+                .onFailure { exception ->
+                    _weatherState.value = _weatherState.value.copy(
+                        isLoading = false,
+                        error = "获取天气信息失败: ${exception.message}"
+                    )
+                }
+        }
+    }
+    
+    fun getWeatherByCity(cityName: String) {
+        viewModelScope.launch {
+            _weatherState.value = _weatherState.value.copy(isLoading = true, error = null)
+            
+            weatherRepository.getWeatherByCity(cityName)
+                .onSuccess { response ->
+                    updateWeatherState(response)
+                }
+                .onFailure { exception ->
+                    _weatherState.value = _weatherState.value.copy(
+                        isLoading = false,
+                        error = "获取天气信息失败: ${exception.message}"
+                    )
+                }
+        }
+    }
+    
+    private fun updateWeatherState(response: WeatherResponse) {
+        val condition = when (response.weather.firstOrNull()?.main?.lowercase()) {
+            "clear" -> WeatherCondition.SUNNY.displayName
+            "clouds" -> WeatherCondition.CLOUDY.displayName
+            "rain" -> WeatherCondition.RAINY.displayName
+            "snow" -> WeatherCondition.SNOWY.displayName
+            "thunderstorm" -> "雷雨"
+            "drizzle" -> "小雨"
+            "mist", "fog" -> "雾"
+            else -> WeatherCondition.CLOUDY.displayName
+        }
+        
+        val windDirection = getWindDirection(response.wind.deg)
+        val currentTime = java.text.SimpleDateFormat(
+            "yyyy-MM-dd HH:mm", 
+            java.util.Locale.getDefault()
+        ).format(java.util.Date())
+        
+        _weatherState.value = WeatherState(
+            isLoading = false,
+            weatherCondition = condition,
+            temperature = "${response.main.temp.toInt()}°C",
+            humidity = "${response.main.humidity}%",
+            windSpeed = "${response.wind.speed} m/s",
+            windDirection = windDirection,
+            pressure = "${response.main.pressure} hPa",
+            visibility = "${response.visibility / 1000} km",
+            cityName = response.name,
+            description = response.weather.firstOrNull()?.description ?: "",
+            feelsLike = "${response.main.feels_like.toInt()}°C",
+            lastUpdated = currentTime,
+            error = null
+        )
+    }
+    
+    private fun getWindDirection(degrees: Int): String {
+        return when (degrees) {
+            in 0..22, in 338..360 -> "北风"
+            in 23..67 -> "东北风"
+            in 68..112 -> "东风"
+            in 113..157 -> "东南风"
+            in 158..202 -> "南风"
+            in 203..247 -> "西南风"
+            in 248..292 -> "西风"
+            in 293..337 -> "西北风"
+            else -> "无风"
+        }
+    }
+    
+    fun clearError() {
+        _weatherState.value = _weatherState.value.copy(error = null)
+    }
+    
+    fun refreshWeather() {
+        getCurrentWeather()
+    }
+}

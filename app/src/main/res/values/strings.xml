@@ -77,4 +77,9 @@
     <!-- 成功信息 -->
     <string name="success_saved">保存成功</string>
     <string name="success_exported">导出成功</string>
+    
+    <string name="wind_info">风力/风向</string>
+    <string name="construction_site">施工部位</string>
+    <string name="machinery">使用机械</string>
+    <string name="media_files">现场照片/视频</string>
 </resources>
