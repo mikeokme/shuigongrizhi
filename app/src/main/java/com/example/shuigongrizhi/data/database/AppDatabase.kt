@@ -15,7 +15,7 @@ import com.example.shuigongrizhi.data.entity.Project
 
 @Database(
     entities = [Project::class, ConstructionLog::class, MediaFile::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -34,7 +34,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "construction_log_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration() // 开发阶段允许重建数据库
+                .build()
                 INSTANCE = instance
                 instance
             }

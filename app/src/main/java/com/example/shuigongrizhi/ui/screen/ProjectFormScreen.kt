@@ -40,6 +40,11 @@ fun ProjectFormScreen(
     val startDateDialogState = rememberMaterialDialogState()
     val endDateDialogState = rememberMaterialDialogState()
 
+    // 错误处理和成功提示
+    var showSnackbar by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf("") }
+    var isErrorSnackbar by remember { mutableStateOf(false) }
+
     // 加载现有项目数据
     LaunchedEffect(projectId) {
         projectId?.let {
@@ -50,15 +55,23 @@ fun ProjectFormScreen(
     // 处理保存结果
     LaunchedEffect(saveResult) {
         if (saveResult == true) {
+            // 显示成功提示
+            snackbarMessage = if (projectId == null) "项目创建成功！" else "项目更新成功！"
+            isErrorSnackbar = false
+            showSnackbar = true
+            
+            // 延迟导航，确保数据库操作和UI更新完成，并让用户看到成功提示
+            kotlinx.coroutines.delay(1500)
             onNavigateBack()
             viewModel.clearSaveResult()
         }
     }
-
-    // 错误处理
+    
     error?.let { errorMessage ->
         LaunchedEffect(errorMessage) {
-            // 显示错误信息
+            snackbarMessage = errorMessage
+            isErrorSnackbar = true
+            showSnackbar = true
             viewModel.clearError()
         }
     }
@@ -100,6 +113,32 @@ fun ProjectFormScreen(
                     }
                 }
             )
+        },
+        snackbarHost = {
+            if (showSnackbar) {
+                Snackbar(
+                    action = {
+                        TextButton(onClick = { showSnackbar = false }) {
+                            Text("确定")
+                        }
+                    },
+                    modifier = Modifier.padding(8.dp),
+                    containerColor = if (isErrorSnackbar) {
+                        MaterialTheme.colorScheme.errorContainer
+                    } else {
+                        MaterialTheme.colorScheme.primaryContainer
+                    }
+                ) {
+                    Text(
+                        text = snackbarMessage,
+                        color = if (isErrorSnackbar) {
+                            MaterialTheme.colorScheme.onErrorContainer
+                        } else {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        }
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         Column(

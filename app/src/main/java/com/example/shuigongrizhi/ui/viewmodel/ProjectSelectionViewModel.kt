@@ -12,52 +12,54 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ProjectListViewModel @Inject constructor(private val projectRepository: ProjectRepository) : ViewModel() {
+class ProjectSelectionViewModel @Inject constructor(
+    private val projectRepository: ProjectRepository
+) : ViewModel() {
+    
+    private val _selectedProject = MutableStateFlow<Project?>(null)
+    val selectedProject: StateFlow<Project?> = _selectedProject.asStateFlow()
+    
     private val _projects = MutableStateFlow<List<Project>>(emptyList())
     val projects: StateFlow<List<Project>> = _projects.asStateFlow()
-
+    
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
+    
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
-
+    
     init {
         loadProjects()
     }
-
+    
     private fun loadProjects() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 projectRepository.getAllProjects().collect { projectList ->
-                    android.util.Log.d("ProjectList", "收到项目列表更新，数量: ${projectList.size}")
                     _projects.value = projectList
-                    _isLoading.value = false
                 }
             } catch (e: Exception) {
-                _error.value = e.message
+                _error.value = e.message ?: "加载项目列表失败"
+            } finally {
                 _isLoading.value = false
             }
         }
     }
-
-    fun deleteProject(project: Project) {
-        viewModelScope.launch {
-            try {
-                projectRepository.deleteProject(project)
-            } catch (e: Exception) {
-                _error.value = e.message
-            }
-        }
+    
+    fun selectProject(project: Project) {
+        _selectedProject.value = project
     }
-
-    fun refreshProjects() {
-        android.util.Log.d("ProjectList", "开始刷新项目列表")
-        loadProjects()
+    
+    fun clearSelection() {
+        _selectedProject.value = null
     }
-
+    
     fun clearError() {
         _error.value = null
+    }
+    
+    fun refreshProjects() {
+        loadProjects()
     }
 }

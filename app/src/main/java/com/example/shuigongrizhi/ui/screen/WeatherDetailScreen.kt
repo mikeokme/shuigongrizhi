@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,16 +28,18 @@ fun WeatherDetailScreen(
     onNavigateBack: () -> Unit
 ) {
     val weatherState by viewModel.weatherState.collectAsState()
+    val weatherData by viewModel.weatherData.collectAsState()
     
+    val context = LocalContext.current
     // 自动加载天气数据
     LaunchedEffect(Unit) {
-        viewModel.getCurrentWeather()
+        viewModel.getCurrentWeatherAuto(context)
     }
     
     // 错误处理
-    weatherState.error?.let { error ->
-        LaunchedEffect(error) {
-            viewModel.clearError()
+    LaunchedEffect(weatherState) {
+        if (weatherState is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Error) {
+            // 可以在这里显示错误消息
         }
     }
     
@@ -86,61 +89,108 @@ fun WeatherDetailScreen(
             )
         )
         
-        if (weatherState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Color.White)
+        when (weatherState) {
+            is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color.White)
+                }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // 主要天气信息卡片
-                item {
-                    MainWeatherCard(
-                        cityName = weatherState.cityName,
-                        temperature = weatherState.temperature,
-                        condition = weatherState.weatherCondition,
-                        description = weatherState.description,
-                        feelsLike = weatherState.feelsLike
-                    )
-                }
-                
-                // 详细信息网格
-                item {
-                    WeatherDetailsGrid(
-                        humidity = weatherState.humidity,
-                        windSpeed = weatherState.windSpeed,
-                        windDirection = weatherState.windDirection,
-                        pressure = weatherState.pressure,
-                        visibility = weatherState.visibility
-                    )
-                }
-                
-                // 更新时间
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.2f)
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Text(
-                            text = "最后更新: ${weatherState.lastUpdated}",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            textAlign = TextAlign.Center,
-                            color = Color.White,
-                            fontSize = 14.sp
+            is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Success -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // 主要天气信息卡片
+                    item {
+                        MainWeatherCard(
+                            cityName = weatherData.cityName,
+                            temperature = weatherData.temperature,
+                            condition = weatherData.weatherCondition,
+                            description = weatherData.description,
+                            feelsLike = weatherData.feelsLike
                         )
                     }
+                    
+                    // 详细信息网格
+                    item {
+                        WeatherDetailsGrid(
+                            humidity = weatherData.humidity,
+                            windSpeed = weatherData.windSpeed,
+                            windDirection = weatherData.windDirection,
+                            pressure = weatherData.pressure,
+                            visibility = weatherData.visibility
+                        )
+                    }
+                    
+                    // 更新时间
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White.copy(alpha = 0.2f)
+                            ),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(
+                                text = "最后更新: ${weatherData.lastUpdated}",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center,
+                                color = Color.White,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
+            }
+            is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Error -> {
+                val errorState = weatherState as com.example.shuigongrizhi.ui.viewmodel.WeatherState.Error
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Error,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = errorState.message,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { viewModel.getCurrentWeather() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White.copy(alpha = 0.2f)
+                            )
+                        ) {
+                            Text("重试", color = Color.White)
+                        }
+                    }
+                }
+            }
+            else -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "点击刷新获取天气信息",
+                        color = Color.White
+                    )
                 }
             }
         }

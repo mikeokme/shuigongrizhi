@@ -39,6 +39,17 @@ fun ProjectListScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    // 每次进入页面时刷新项目列表
+    LaunchedEffect(Unit) {
+        viewModel.refreshProjects()
+    }
+    
+    // 监听项目列表变化，确保数据实时更新
+    LaunchedEffect(projects) {
+        // 当项目列表发生变化时，这里可以添加额外的处理逻辑
+        // 例如日志记录或状态更新
+    }
+
     // 错误处理
     error?.let { errorMessage ->
         LaunchedEffect(errorMessage) {

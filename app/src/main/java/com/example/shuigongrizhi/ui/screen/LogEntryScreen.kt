@@ -48,6 +48,11 @@ fun LogEntryScreen(
     val saveResult by viewModel.saveResult.collectAsState()
     val context = LocalContext.current
 
+    // 保存成功提示状态
+    var showSnackbar by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf("") }
+    var isErrorSnackbar by remember { mutableStateOf(false) }
+
     // 权限请求
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -81,7 +86,8 @@ fun LogEntryScreen(
     ) { uri: Uri? ->
         uri?.let {
             val fileName = "image_${System.currentTimeMillis()}.jpg"
-            viewModel.addMediaFile(it.toString(), fileName, MediaType.PHOTO)
+            val newList = logState.mediaFiles.toMutableList().apply { add(it.toString()) }
+            viewModel.updateMediaFiles(newList)
         }
     }
 
@@ -91,7 +97,8 @@ fun LogEntryScreen(
     ) { uri: Uri? ->
         uri?.let {
             val fileName = "video_${System.currentTimeMillis()}.mp4"
-            viewModel.addMediaFile(it.toString(), fileName, MediaType.VIDEO)
+            val newList = logState.mediaFiles.toMutableList().apply { add(it.toString()) }
+            viewModel.updateMediaFiles(newList)
         }
     }
 
@@ -106,6 +113,13 @@ fun LogEntryScreen(
     saveResult?.let { success ->
         LaunchedEffect(success) {
             if (success) {
+                // 显示成功提示
+                snackbarMessage = "施工日志保存成功！"
+                isErrorSnackbar = false
+                showSnackbar = true
+                
+                // 延迟导航，确保用户看到成功提示
+                kotlinx.coroutines.delay(1500)
                 onNavigateBack()
             }
             viewModel.clearSaveResult()
@@ -115,6 +129,9 @@ fun LogEntryScreen(
     // 错误处理
     error?.let { errorMessage ->
         LaunchedEffect(errorMessage) {
+            snackbarMessage = errorMessage
+            isErrorSnackbar = true
+            showSnackbar = true
             viewModel.clearError()
         }
     }
@@ -123,10 +140,18 @@ fun LogEntryScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "${formatDate(date)} 施工日志",
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column {
+                        Text(
+                            text = "淮工集团施工日志",
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = formatDate(date),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -145,6 +170,32 @@ fun LogEntryScreen(
                     }
                 }
             )
+        },
+        snackbarHost = {
+            if (showSnackbar) {
+                Snackbar(
+                    action = {
+                        TextButton(onClick = { showSnackbar = false }) {
+                            Text("确定")
+                        }
+                    },
+                    modifier = Modifier.padding(8.dp),
+                    containerColor = if (isErrorSnackbar) {
+                        MaterialTheme.colorScheme.errorContainer
+                    } else {
+                        MaterialTheme.colorScheme.primaryContainer
+                    }
+                ) {
+                    Text(
+                        text = snackbarMessage,
+                        color = if (isErrorSnackbar) {
+                            MaterialTheme.colorScheme.onErrorContainer
+                        } else {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        }
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         if (isLoading) {
@@ -169,11 +220,11 @@ fun LogEntryScreen(
                     WeatherInfoCard(
                         weatherCondition = logState.weatherCondition,
                         temperature = logState.temperature,
-                        windInfo = logState.windInfo,
+                        wind = logState.wind,
                         onWeatherConditionChange = viewModel::updateWeatherCondition,
                         onTemperatureChange = viewModel::updateTemperature,
-                        onWindInfoChange = viewModel::updateWindInfo,
-                        onGetWeatherClick = { viewModel.getCurrentWeather() }
+                        onWindChange = viewModel::updateWind,
+                        onGetWeatherClick = { viewModel.fetchWeatherData() }
                     )
                 }
 
@@ -181,15 +232,15 @@ fun LogEntryScreen(
                 item {
                     ConstructionInfoCard(
                         constructionSite = logState.constructionSite,
-                        mainWorkContent = logState.mainWorkContent,
-                        constructionPersonnel = logState.constructionPersonnel,
-                        machinery = logState.machinery,
-                        safetyNotes = logState.safetyNotes,
+                        mainContent = logState.mainContent,
+                        personnelEquipment = logState.personnelEquipment,
+                        qualityManagement = logState.qualityManagement,
+                        safetyManagement = logState.safetyManagement,
                         onConstructionSiteChange = viewModel::updateConstructionSite,
-                        onMainWorkContentChange = viewModel::updateMainWorkContent,
-                        onConstructionPersonnelChange = viewModel::updateConstructionPersonnel,
-                        onMachineryChange = viewModel::updateMachinery,
-                        onSafetyNotesChange = viewModel::updateSafetyNotes
+                        onMainContentChange = viewModel::updateMainContent,
+                        onPersonnelEquipmentChange = viewModel::updatePersonnelEquipment,
+                        onQualityManagementChange = viewModel::updateQualityManagement,
+                        onSafetyManagementChange = viewModel::updateSafetyManagement
                     )
                 }
 
@@ -197,46 +248,13 @@ fun LogEntryScreen(
                 item {
                     MediaFilesCard(
                         mediaFiles = logState.mediaFiles,
-                        onTakePhoto = {
-                            when (ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.CAMERA
-                            )) {
-                                PackageManager.PERMISSION_GRANTED -> {
-                                    // 创建临时文件并拍照
-                                    viewModel.createTempImageFile(context)?.let { uri ->
-                                        takePictureLauncher.launch(uri)
-                                    }
-                                }
-                                else -> {
-                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                }
-                            }
+                        onAddMedia = { uri ->
+                            val newList = logState.mediaFiles.toMutableList().apply { add(uri) }
+                            viewModel.updateMediaFiles(newList)
                         },
-                        onTakeVideo = {
-                            when (ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.CAMERA
-                            )) {
-                                PackageManager.PERMISSION_GRANTED -> {
-                                    // 创建临时文件并录像
-                                    viewModel.createTempVideoFile(context)?.let { uri ->
-                                        takeVideoLauncher.launch(uri)
-                                    }
-                                }
-                                else -> {
-                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                }
-                            }
-                        },
-                        onSelectFromGallery = {
-                            selectImageLauncher.launch("image/*")
-                        },
-                        onSelectVideo = {
-                            selectVideoLauncher.launch("video/*")
-                        },
-                        onDeleteMedia = { mediaFile ->
-                            viewModel.removeMediaFile(mediaFile)
+                        onRemoveMedia = { uri ->
+                            val newList = logState.mediaFiles.toMutableList().apply { remove(uri) }
+                            viewModel.updateMediaFiles(newList)
                         }
                     )
                 }
@@ -250,10 +268,10 @@ fun LogEntryScreen(
 fun WeatherInfoCard(
     weatherCondition: String,
     temperature: String,
-    windInfo: String,
+    wind: String,
     onWeatherConditionChange: (String) -> Unit,
     onTemperatureChange: (String) -> Unit,
-    onWindInfoChange: (String) -> Unit,
+    onWindChange: (String) -> Unit,
     onGetWeatherClick: () -> Unit
 ) {
     Card(
@@ -344,8 +362,8 @@ fun WeatherInfoCard(
             
             // 风力/风向
             OutlinedTextField(
-                value = windInfo,
-                onValueChange = onWindInfoChange,
+                value = wind,
+                onValueChange = onWindChange,
                 label = { Text(stringResource(R.string.wind_info)) },
                 placeholder = { Text("例如：3级/东南风") },
                 modifier = Modifier.fillMaxWidth()
@@ -358,15 +376,15 @@ fun WeatherInfoCard(
 @Composable
 fun ConstructionInfoCard(
     constructionSite: String,
-    mainWorkContent: String,
-    constructionPersonnel: String,
-    machinery: String,
-    safetyNotes: String,
+    mainContent: String,
+    personnelEquipment: String,
+    qualityManagement: String,
+    safetyManagement: String,
     onConstructionSiteChange: (String) -> Unit,
-    onMainWorkContentChange: (String) -> Unit,
-    onConstructionPersonnelChange: (String) -> Unit,
-    onMachineryChange: (String) -> Unit,
-    onSafetyNotesChange: (String) -> Unit
+    onMainContentChange: (String) -> Unit,
+    onPersonnelEquipmentChange: (String) -> Unit,
+    onQualityManagementChange: (String) -> Unit,
+    onSafetyManagementChange: (String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -395,8 +413,8 @@ fun ConstructionInfoCard(
             
             // 主要施工内容
             OutlinedTextField(
-                value = mainWorkContent,
-                onValueChange = onMainWorkContentChange,
+                value = mainContent,
+                onValueChange = onMainContentChange,
                 label = { Text(stringResource(R.string.main_work_content)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
@@ -407,8 +425,8 @@ fun ConstructionInfoCard(
             
             // 施工人员
             OutlinedTextField(
-                value = constructionPersonnel,
-                onValueChange = onConstructionPersonnelChange,
+                value = personnelEquipment,
+                onValueChange = onPersonnelEquipmentChange,
                 label = { Text(stringResource(R.string.construction_personnel)) },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -417,8 +435,8 @@ fun ConstructionInfoCard(
             
             // 使用机械
             OutlinedTextField(
-                value = machinery,
-                onValueChange = onMachineryChange,
+                value = qualityManagement,
+                onValueChange = onQualityManagementChange,
                 label = { Text(stringResource(R.string.machinery)) },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -427,8 +445,8 @@ fun ConstructionInfoCard(
             
             // 安全记事
             OutlinedTextField(
-                value = safetyNotes,
-                onValueChange = onSafetyNotesChange,
+                value = safetyManagement,
+                onValueChange = onSafetyManagementChange,
                 label = { Text(stringResource(R.string.safety_notes)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2,
@@ -441,12 +459,9 @@ fun ConstructionInfoCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaFilesCard(
-    mediaFiles: List<com.example.shuigongrizhi.data.entity.MediaFile>,
-    onTakePhoto: () -> Unit,
-    onTakeVideo: () -> Unit,
-    onSelectFromGallery: () -> Unit,
-    onSelectVideo: () -> Unit,
-    onDeleteMedia: (com.example.shuigongrizhi.data.entity.MediaFile) -> Unit
+    mediaFiles: List<String>,
+    onAddMedia: (String) -> Unit,
+    onRemoveMedia: (String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -469,7 +484,9 @@ fun MediaFilesCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = onTakePhoto,
+                    onClick = {
+                        // 实现添加媒体文件的逻辑
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
@@ -478,53 +495,7 @@ fun MediaFilesCard(
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("拍照")
-                }
-                
-                OutlinedButton(
-                    onClick = onTakeVideo,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Videocam,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("录像")
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onSelectFromGallery,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Photo,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("选择图片")
-                }
-                
-                OutlinedButton(
-                    onClick = onSelectVideo,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Videocam,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("选择视频")
+                    Text("添加媒体文件")
                 }
             }
             
@@ -538,7 +509,7 @@ fun MediaFilesCard(
                     items(mediaFiles) { mediaFile ->
                         MediaFileItem(
                             mediaFile = mediaFile,
-                            onDelete = { onDeleteMedia(mediaFile) }
+                            onDelete = { onRemoveMedia(mediaFile) }
                         )
                     }
                 }
@@ -549,7 +520,7 @@ fun MediaFilesCard(
 
 @Composable
 fun MediaFileItem(
-    mediaFile: com.example.shuigongrizhi.data.entity.MediaFile,
+    mediaFile: String,
     onDelete: () -> Unit
 ) {
     Card(
@@ -558,8 +529,8 @@ fun MediaFileItem(
     ) {
         Box {
             AsyncImage(
-                model = mediaFile.filePath,
-                contentDescription = mediaFile.description,
+                model = mediaFile,
+                contentDescription = "Media File",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )

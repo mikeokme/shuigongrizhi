@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 应用私有存储目录 -->
+    <files-path name="app_files" path="." />
+    
+    <!-- 应用私有缓存目录 -->
+    <cache-path name="app_cache" path="." />
+    
+    <!-- 外部存储应用私有目录 -->
+    <external-files-path name="external_files" path="." />
+    
+    <!-- 外部存储应用私有缓存目录 -->
+    <external-cache-path name="external_cache" path="." />
+    
+    <!-- 项目数据存储目录 -->
+    <external-files-path name="project_data" path="ProjectData" />
+    
+    <!-- 图片存储目录 -->
+    <external-files-path name="pictures" path="Pictures" />
+    
+    <!-- 视频存储目录 -->
+    <external-files-path name="movies" path="Movies" />
+    
+    <!-- 文档存储目录 -->
+    <external-files-path name="documents" path="Documents" />
+</paths>

@@ -19,4 +19,23 @@ class MediaFileRepository(private val mediaFileDao: MediaFileDao) {
     suspend fun deleteMediaFileById(id: Long) = mediaFileDao.deleteMediaFileById(id)
 
     suspend fun deleteMediaFilesByLogId(logId: Long) = mediaFileDao.deleteMediaFilesByLogId(logId)
+
+    // 媒体浏览相关方法
+    fun getMediaFilesByProjectId(projectId: Long): Flow<List<MediaFile>> = 
+        mediaFileDao.getMediaFilesByProjectId(projectId)
+
+    suspend fun getMediaFileCountByProjectId(projectId: Long): Int = 
+        mediaFileDao.getMediaFileCountByProjectId(projectId)
+
+    fun getMediaFilesByProjectIdAndType(projectId: Long, fileType: String): Flow<List<MediaFile>> = 
+        mediaFileDao.getMediaFilesByProjectIdAndType(projectId, fileType)
+
+    suspend fun getLatestMediaFileByProjectId(projectId: Long): MediaFile? = 
+        mediaFileDao.getLatestMediaFileByProjectId(projectId)
+
+    fun searchMediaFilesByProjectId(projectId: Long, searchQuery: String): Flow<List<MediaFile>> = 
+        mediaFileDao.searchMediaFilesByProjectId(projectId, searchQuery)
+
+    fun getMediaFilesByProjectIdAndDateRange(projectId: Long, startDate: Long, endDate: Long): Flow<List<MediaFile>> = 
+        mediaFileDao.getMediaFilesByProjectIdAndDateRange(projectId, startDate, endDate)
 }

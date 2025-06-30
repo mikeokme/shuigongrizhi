@@ -3,6 +3,7 @@ package com.example.shuigongrizhi.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.MediaFile
@@ -10,10 +11,13 @@ import com.example.shuigongrizhi.data.entity.MediaType
 import com.example.shuigongrizhi.data.entity.WeatherCondition
 import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
 import com.example.shuigongrizhi.data.repository.MediaFileRepository
+import com.example.shuigongrizhi.data.repository.ProjectRepository
 import com.example.shuigongrizhi.network.NetworkModule
+import com.example.shuigongrizhi.utils.ProjectDataManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Date
 import android.content.Context
@@ -27,23 +31,23 @@ data class LogEntryState(
     val weatherCondition: String = "",
     val temperature: String = "",
     val wind: String = "",
-    val windInfo: String = "",
-    val constructionLocation: String = "",
     val constructionSite: String = "",
-    val mainWorkContent: String = "",
-    val constructionPersonnel: String = "",
-    val machineryUsed: String = "",
-    val machinery: String = "",
-    val safetyNotes: String = "",
-    val mediaFiles: List<MediaFile> = emptyList(),
+    val mainContent: String = "",
+    val personnelEquipment: String = "",
+    val qualityManagement: String = "",
+    val safetyManagement: String = "",
+    val mediaFiles: List<String> = emptyList(),
     val isLoadingWeather: Boolean = false
 )
 
 @HiltViewModel
 class LogEntryViewModel @Inject constructor(
     private val constructionLogRepository: ConstructionLogRepository,
-    private val mediaFileRepository: MediaFileRepository
+    private val projectRepository: ProjectRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+    
+    private val projectDataManager = ProjectDataManager(context)
     
     private val _logState = MutableStateFlow(LogEntryState())
     val logState: StateFlow<LogEntryState> = _logState.asStateFlow()
@@ -81,17 +85,13 @@ class LogEntryViewModel @Inject constructor(
                         weatherCondition = it.weatherCondition,
                         temperature = it.temperature,
                         wind = it.wind,
-                        constructionLocation = it.constructionLocation,
-                        mainWorkContent = it.mainWorkContent,
-                        constructionPersonnel = it.constructionPersonnel,
-                        machineryUsed = it.machineryUsed,
-                        safetyNotes = it.safetyNotes
+                        constructionSite = it.constructionSite,
+                        mainContent = it.mainContent,
+                        personnelEquipment = it.personnelEquipment,
+                        qualityManagement = it.qualityManagement,
+                        safetyManagement = it.safetyManagement,
+                        mediaFiles = it.mediaFiles
                     )
-                    
-                    // 加载媒体文件
-                    mediaFileRepository.getMediaFilesByLogId(logId).collect { mediaFiles ->
-                        _logState.value = _logState.value.copy(mediaFiles = mediaFiles)
-                    }
                 }
             } catch (e: Exception) {
                 _error.value = e.message
@@ -111,16 +111,28 @@ class LogEntryViewModel @Inject constructor(
         _logState.value = _logState.value.copy(wind = wind)
     }
 
-    fun updateWindInfo(windInfo: String) {
-        _logState.value = _logState.value.copy(windInfo = windInfo)
-    }
-
     fun updateConstructionSite(site: String) {
         _logState.value = _logState.value.copy(constructionSite = site)
     }
 
-    fun updateMachinery(machinery: String) {
-        _logState.value = _logState.value.copy(machinery = machinery)
+    fun updateMainContent(content: String) {
+        _logState.value = _logState.value.copy(mainContent = content)
+    }
+
+    fun updatePersonnelEquipment(value: String) {
+        _logState.value = _logState.value.copy(personnelEquipment = value)
+    }
+
+    fun updateQualityManagement(value: String) {
+        _logState.value = _logState.value.copy(qualityManagement = value)
+    }
+
+    fun updateSafetyManagement(value: String) {
+        _logState.value = _logState.value.copy(safetyManagement = value)
+    }
+
+    fun updateMediaFiles(files: List<String>) {
+        _logState.value = _logState.value.copy(mediaFiles = files)
     }
 
     fun getCurrentWeather() {
@@ -155,27 +167,7 @@ class LogEntryViewModel @Inject constructor(
         )
     }
 
-    fun updateConstructionLocation(location: String) {
-        _logState.value = _logState.value.copy(constructionLocation = location)
-    }
-
-    fun updateMainWorkContent(content: String) {
-        _logState.value = _logState.value.copy(mainWorkContent = content)
-    }
-
-    fun updateConstructionPersonnel(personnel: String) {
-        _logState.value = _logState.value.copy(constructionPersonnel = personnel)
-    }
-
-    fun updateMachineryUsed(machinery: String) {
-        _logState.value = _logState.value.copy(machineryUsed = machinery)
-    }
-
-    fun updateSafetyNotes(notes: String) {
-        _logState.value = _logState.value.copy(safetyNotes = notes)
-    }
-
-    fun fetchWeatherData(lat: Double = 39.9042, lon: Double = 116.4074) { // 默认北京
+    fun fetchWeatherData(lat: Double = 39.9042, lon: Double = 116.4074) {
         viewModelScope.launch {
             _logState.value = _logState.value.copy(isLoadingWeather = true)
             try {
@@ -207,122 +199,71 @@ class LogEntryViewModel @Inject constructor(
         }
     }
 
-    private fun getWindDirection(degrees: Int): String {
-        return when (degrees) {
-            in 0..22, in 338..360 -> "北风"
-            in 23..67 -> "东北风"
-            in 68..112 -> "东风"
-            in 113..157 -> "东南风"
-            in 158..202 -> "南风"
-            in 203..247 -> "西南风"
-            in 248..292 -> "西风"
-            in 293..337 -> "西北风"
-            else -> "无风"
-        }
-    }
-
-    fun addMediaFile(filePath: String, fileName: String, mediaType: MediaType) {
-        viewModelScope.launch {
-            try {
-                if (editingLogId != null) {
-                    val mediaFile = MediaFile(
-                        logId = editingLogId!!,
-                        filePath = filePath,
-                        fileName = fileName,
-                        fileType = mediaType
-                    )
-                    mediaFileRepository.insertMediaFile(mediaFile)
-                } else {
-                    // 如果还没有保存日志，先临时存储
-                    val tempMediaFile = MediaFile(
-                        logId = 0, // 临时ID
-                        filePath = filePath,
-                        fileName = fileName,
-                        fileType = mediaType
-                    )
-                    val currentFiles = _logState.value.mediaFiles.toMutableList()
-                    currentFiles.add(tempMediaFile)
-                    _logState.value = _logState.value.copy(mediaFiles = currentFiles)
-                }
-            } catch (e: Exception) {
-                _error.value = "添加媒体文件失败：${e.message}"
-            }
-        }
-    }
-
-    fun removeMediaFile(mediaFile: MediaFile) {
-        viewModelScope.launch {
-            try {
-                if (mediaFile.id > 0) {
-                    mediaFileRepository.deleteMediaFile(mediaFile)
-                } else {
-                    // 移除临时文件
-                    val currentFiles = _logState.value.mediaFiles.toMutableList()
-                    currentFiles.remove(mediaFile)
-                    _logState.value = _logState.value.copy(mediaFiles = currentFiles)
-                }
-            } catch (e: Exception) {
-                _error.value = "删除媒体文件失败：${e.message}"
-            }
-        }
-    }
-
     fun saveLog() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val state = _logState.value
-                val log = if (editingLogId != null) {
-                    ConstructionLog(
-                        id = editingLogId!!,
-                        projectId = projectId,
-                        date = state.date,
-                        weatherCondition = state.weatherCondition,
-                        temperature = state.temperature,
-                        wind = state.wind,
-                        constructionLocation = state.constructionLocation,
-                        mainWorkContent = state.mainWorkContent,
-                        constructionPersonnel = state.constructionPersonnel,
-                        machineryUsed = state.machineryUsed,
-                        safetyNotes = state.safetyNotes,
-                        updatedAt = Date()
-                    )
-                } else {
-                    ConstructionLog(
-                        projectId = projectId,
-                        date = state.date,
-                        weatherCondition = state.weatherCondition,
-                        temperature = state.temperature,
-                        wind = state.wind,
-                        constructionLocation = state.constructionLocation,
-                        mainWorkContent = state.mainWorkContent,
-                        constructionPersonnel = state.constructionPersonnel,
-                        machineryUsed = state.machineryUsed,
-                        safetyNotes = state.safetyNotes
-                    )
+                // 一项目一日志一日唯一性校验
+                val existing = constructionLogRepository.getLogByProjectAndDate(projectId, state.date)
+                if (editingLogId == null && existing != null) {
+                    _error.value = "该项目当天日志已存在，自动切换为编辑模式。"
+                    editingLogId = existing.id
+                    loadExistingLog(existing.id)
+                    _isLoading.value = false
+                    return@launch
                 }
-
-                val logId = if (editingLogId != null) {
+                val log = ConstructionLog(
+                    id = editingLogId ?: 0,
+                    projectId = projectId,
+                    date = state.date,
+                    weatherCondition = state.weatherCondition,
+                    temperature = state.temperature,
+                    wind = state.wind,
+                    constructionSite = state.constructionSite,
+                    mainContent = state.mainContent,
+                    personnelEquipment = state.personnelEquipment,
+                    qualityManagement = state.qualityManagement,
+                    safetyManagement = state.safetyManagement,
+                    mediaFiles = state.mediaFiles,
+                    updatedAt = Date()
+                )
+                val result = if (editingLogId != null) {
                     constructionLogRepository.updateLog(log)
-                    editingLogId!!
+                    android.util.Log.d("LogEntry", "Log updated successfully for project $projectId")
+                    "updated"
                 } else {
-                    val newLogId = constructionLogRepository.insertLog(log)
-                    editingLogId = newLogId
-                    
-                    // 保存临时媒体文件
-                    state.mediaFiles.forEach { mediaFile ->
-                        if (mediaFile.id == 0L) {
-                            val newMediaFile = mediaFile.copy(logId = newLogId)
-                            mediaFileRepository.insertMediaFile(newMediaFile)
+                    val logId = constructionLogRepository.insertLog(log)
+                    android.util.Log.d("LogEntry", "Log inserted with ID: $logId for project $projectId")
+                    logId.toString()
+                }
+                
+                // 验证保存是否成功
+                kotlinx.coroutines.delay(100) // 给数据库操作一些时间
+                android.util.Log.d("LogEntry", "Save operation completed: $result")
+                
+                // 自动备份项目数据（包含新保存的日志）
+                try {
+                    val project = projectRepository.getProjectById(projectId)
+                    project?.let { proj ->
+                        // 获取项目的所有日志（包括刚保存的）
+                        val logs = constructionLogRepository.getLogsByProjectId(projectId).first()
+                        
+                        // 执行自动备份
+                        val backupSuccess = projectDataManager.autoBackupProject(proj, logs)
+                        if (backupSuccess) {
+                            android.util.Log.d("LogEntry", "项目数据自动备份成功")
+                        } else {
+                            android.util.Log.w("LogEntry", "项目数据自动备份失败")
                         }
                     }
-                    
-                    newLogId
+                } catch (e: Exception) {
+                    android.util.Log.e("LogEntry", "自动备份过程中发生错误", e)
                 }
                 
                 _saveResult.value = true
             } catch (e: Exception) {
-                _error.value = "保存失败：${e.message}"
+                _error.value = e.message
                 _saveResult.value = false
             } finally {
                 _isLoading.value = false

@@ -334,10 +334,10 @@ fun LogSummaryCard(
                     )
                 }
                 
-                if (selectedLog.mainWorkContent.isNotBlank()) {
+                if (selectedLog.mainContent.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "主要工作：${selectedLog.mainWorkContent.take(50)}${if (selectedLog.mainWorkContent.length > 50) "..." else ""}",
+                        text = "主要工作：${selectedLog.mainContent.take(50)}${if (selectedLog.mainContent.length > 50) "..." else ""}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

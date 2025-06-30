@@ -1,10 +1,13 @@
 package com.example.shuigongrizhi.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shuigongrizhi.data.entity.WeatherCondition
 import com.example.shuigongrizhi.data.repository.WeatherRepository
 import com.example.shuigongrizhi.network.WeatherResponse
+import com.example.shuigongrizhi.config.ApiConfig
+import com.example.shuigongrizhi.utils.LocationUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +15,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class WeatherState(
+sealed class WeatherState {
+    object Idle : WeatherState()
+    object Loading : WeatherState()
+    data class Success(val weather: WeatherResponse) : WeatherState()
+    data class Error(val message: String) : WeatherState()
+}
+
+data class WeatherData(
     val isLoading: Boolean = false,
     val weatherCondition: String = "",
     val temperature: String = "",
@@ -36,44 +46,59 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository
 ) : ViewModel() {
     
-    private val _weatherState = MutableStateFlow(WeatherState())
+    private val _weatherState = MutableStateFlow<WeatherState>(WeatherState.Idle)
     val weatherState: StateFlow<WeatherState> = _weatherState.asStateFlow()
+    
+    private val _weatherData = MutableStateFlow(WeatherData())
+    val weatherData: StateFlow<WeatherData> = _weatherData.asStateFlow()
     
     fun getCurrentWeather(lat: Double = 39.9042, lon: Double = 116.4074) {
         viewModelScope.launch {
-            _weatherState.value = _weatherState.value.copy(isLoading = true, error = null)
+            _weatherState.value = WeatherState.Loading
             
             weatherRepository.getCurrentWeather(lat, lon)
                 .onSuccess { response ->
-                    updateWeatherState(response)
+                    _weatherState.value = WeatherState.Success(response)
+                    updateWeatherData(response)
                 }
                 .onFailure { exception ->
-                    _weatherState.value = _weatherState.value.copy(
-                        isLoading = false,
-                        error = "获取天气信息失败: ${exception.message}"
-                    )
+                    _weatherState.value = WeatherState.Error("获取天气信息失败: ${exception.message}")
                 }
         }
     }
     
     fun getWeatherByCity(cityName: String) {
         viewModelScope.launch {
-            _weatherState.value = _weatherState.value.copy(isLoading = true, error = null)
+            _weatherState.value = WeatherState.Loading
             
-            weatherRepository.getWeatherByCity(cityName)
+            weatherRepository.getCurrentWeatherByCity(cityName)
                 .onSuccess { response ->
-                    updateWeatherState(response)
+                    _weatherState.value = WeatherState.Success(response)
+                    updateWeatherData(response)
                 }
                 .onFailure { exception ->
-                    _weatherState.value = _weatherState.value.copy(
-                        isLoading = false,
-                        error = "获取天气信息失败: ${exception.message}"
-                    )
+                    _weatherState.value = WeatherState.Error("获取天气信息失败: ${exception.message}")
                 }
         }
     }
     
-    private fun updateWeatherState(response: WeatherResponse) {
+    fun getCurrentWeatherAuto(context: Context) {
+        viewModelScope.launch {
+            _weatherState.value = WeatherState.Loading
+            val loc = LocationUtils.getBestLocation(context)
+            val (lat, lon) = loc ?: Pair(ApiConfig.DEFAULT_LATITUDE, ApiConfig.DEFAULT_LONGITUDE)
+            weatherRepository.getCurrentWeather(lat, lon)
+                .onSuccess { response ->
+                    _weatherState.value = WeatherState.Success(response)
+                    updateWeatherData(response)
+                }
+                .onFailure { exception ->
+                    _weatherState.value = WeatherState.Error("获取天气信息失败: ${exception.message}")
+                }
+        }
+    }
+    
+    private fun updateWeatherData(response: WeatherResponse) {
         val condition = when (response.weather.firstOrNull()?.main?.lowercase()) {
             "clear" -> WeatherCondition.SUNNY.displayName
             "clouds" -> WeatherCondition.CLOUDY.displayName
@@ -91,7 +116,7 @@ class WeatherViewModel @Inject constructor(
             java.util.Locale.getDefault()
         ).format(java.util.Date())
         
-        _weatherState.value = WeatherState(
+        _weatherData.value = WeatherData(
             isLoading = false,
             weatherCondition = condition,
             temperature = "${response.main.temp.toInt()}°C",
@@ -123,7 +148,7 @@ class WeatherViewModel @Inject constructor(
     }
     
     fun clearError() {
-        _weatherState.value = _weatherState.value.copy(error = null)
+        _weatherState.value = WeatherState.Idle
     }
     
     fun refreshWeather() {
