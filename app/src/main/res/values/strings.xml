@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">水利施工日志</string>
+    
+    <!-- 通用 -->
+    <string name="save">保存</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="back">返回</string>
+    <string name="settings">设置</string>
+    <string name="export">导出</string>
+    
+    <!-- 项目列表 -->
+    <string name="project_list_title">水利施工日志</string>
+    <string name="no_projects_hint">您还没有任何项目，点击右下角"+"开始创建</string>
+    <string name="create_project">创建项目</string>
+    
+    <!-- 项目创建/编辑 -->
+    <string name="create_new_project">创建新项目</string>
+    <string name="edit_project">编辑项目</string>
+    <string name="project_name">项目名称</string>
+    <string name="project_number">项目编号</string>
+    <string name="construction_unit">施工单位</string>
+    <string name="supervision_unit">监理单位</string>
+    <string name="project_location">项目地点</string>
+    <string name="start_date">开工日期</string>
+    <string name="planned_completion_date">计划竣工日期</string>
+    <string name="project_type">项目类型</string>
+    <string name="project_status">项目状态</string>
+    <string name="project_status_ongoing">进行中</string>
+    <string name="project_status_completed">已竣工</string>
+    
+    <!-- 项目主控台 -->
+    <string name="export_logs">导出日志</string>
+    <string name="no_log_today">今日尚未记录，请点击创建</string>
+    
+    <!-- 施工日志 -->
+    <string name="construction_log">施工日志</string>
+    <string name="weather_info">天气信息</string>
+    <string name="auto_get_weather">自动获取今日天气</string>
+    <string name="weather_condition">天气状况</string>
+    <string name="temperature">温度</string>
+    <string name="wind">风力/风向</string>
+    <string name="construction_details">施工详情</string>
+    <string name="construction_location">施工部位</string>
+    <string name="main_work_content">主要施工内容</string>
+    <string name="construction_personnel">施工人员</string>
+    <string name="machinery_used">使用机械</string>
+    <string name="safety_notes">安全记事</string>
+    <string name="site_media">现场照片/视频</string>
+    <string name="take_photo">拍照</string>
+    <string name="record_video">录像</string>
+    <string name="select_from_gallery">从相册选择</string>
+    
+    <!-- 天气状况选项 -->
+    <string name="weather_sunny">晴</string>
+    <string name="weather_cloudy">多云</string>
+    <string name="weather_overcast">阴</string>
+    <string name="weather_rainy">雨</string>
+    <string name="weather_snowy">雪</string>
+    
+    <!-- 导出 -->
+    <string name="export_construction_logs">导出施工日志</string>
+    <string name="export_by_week">按周</string>
+    <string name="export_by_month">按月</string>
+    <string name="export_by_quarter">按季度</string>
+    <string name="export_by_year">按年度</string>
+    <string name="generate_pdf_report">生成PDF报告</string>
+    <string name="generating_report">正在生成报告，请稍候...</string>
+    
+    <!-- 错误信息 -->
+    <string name="error_required_field">此字段为必填项</string>
+    <string name="error_network">网络连接失败</string>
+    <string name="error_permission_denied">权限被拒绝</string>
+    <string name="error_save_failed">保存失败</string>
+    
+    <!-- 成功信息 -->
+    <string name="success_saved">保存成功</string>
+    <string name="success_exported">导出成功</string>
+</resources>
