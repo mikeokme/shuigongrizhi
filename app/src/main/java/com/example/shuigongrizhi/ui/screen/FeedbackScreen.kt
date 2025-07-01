@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackScreen(
     onNavigateBack: () -> Unit = {}
@@ -25,40 +26,40 @@ fun FeedbackScreen(
     val context = LocalContext.current
     val authorEmail = "yb89725@hotmail.com"
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF231942))
-    ) {
-        // 顶部栏
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
-        ) {
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = Modifier.align(Alignment.CenterStart)
+    Scaffold(
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "返回",
-                    tint = Color(0xFF8D6EFF)
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "返回",
+                        tint = Color(0xFF8D6EFF)
+                    )
+                }
+                Text(
+                    text = "反馈",
+                    color = Color(0xFF8D6EFF),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
-            Text(
-                text = "反馈",
-                color = Color(0xFF8D6EFF),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-        
+        },
+        containerColor = Color(0xFF231942)
+    ) { paddingValues ->
         // 反馈内容
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(paddingValues)
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -109,8 +110,5 @@ fun FeedbackScreen(
                 )
             }
         }
-        
-        // 添加底部空间，确保内容不被底部导航栏遮挡
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
