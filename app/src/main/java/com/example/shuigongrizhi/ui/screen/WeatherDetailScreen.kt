@@ -26,7 +26,8 @@ import com.example.shuigongrizhi.ui.screen.WeatherAnimation
 @Composable
 fun WeatherDetailScreen(
     viewModel: WeatherViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val weatherState by viewModel.weatherState.collectAsState()
     val weatherData by viewModel.weatherData.collectAsState()
@@ -81,6 +82,15 @@ fun WeatherDetailScreen(
                     Icon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = "刷新",
+                        tint = Color.White
+                    )
+                }
+                IconButton(
+                    onClick = onNavigateToSettings
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "设置",
                         tint = Color.White
                     )
                 }

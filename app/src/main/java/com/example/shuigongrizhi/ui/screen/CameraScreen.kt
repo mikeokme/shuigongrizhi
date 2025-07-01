@@ -15,11 +15,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.shuigongrizhi.ui.theme.ChampagneStart
+import com.example.shuigongrizhi.ui.theme.ChampagneEnd
+import com.example.shuigongrizhi.ui.theme.SparklingStart
+import com.example.shuigongrizhi.ui.theme.SparklingEnd
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.R
@@ -230,11 +235,18 @@ fun CameraScreen(
                 )
                 
                 // 拍照按钮
-                Card(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        .padding(vertical = 8.dp)
+                        .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(ChampagneStart, ChampagneEnd),
+                                start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                end = androidx.compose.ui.geometry.Offset(1000f, 1000f)
+                            )
+                        )
                 ) {
                     Row(
                         modifier = Modifier
@@ -246,7 +258,7 @@ fun CameraScreen(
                             imageVector = Icons.Default.CameraAlt,
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = Color.White
                         )
                         
                         Spacer(modifier = Modifier.width(16.dp))
@@ -257,12 +269,13 @@ fun CameraScreen(
                             Text(
                                 text = "拍照",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
                             Text(
                                 text = "拍摄施工现场照片",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color.White.copy(alpha = 0.8f)
                             )
                         }
                         
@@ -276,7 +289,11 @@ fun CameraScreen(
                                     isErrorSnackbar = true
                                     showSnackbar = true
                                 }
-                            }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White.copy(alpha = 0.2f),
+                                contentColor = Color.White
+                            )
                         ) {
                             Text("拍照")
                         }
@@ -284,11 +301,18 @@ fun CameraScreen(
                 }
                 
                 // 录像按钮
-                Card(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        .padding(vertical = 8.dp)
+                        .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(SparklingStart, SparklingEnd),
+                                start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                end = androidx.compose.ui.geometry.Offset(1000f, 1000f)
+                            )
+                        )
                 ) {
                     Row(
                         modifier = Modifier
@@ -300,7 +324,7 @@ fun CameraScreen(
                             imageVector = Icons.Default.Videocam,
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.secondary
+                            tint = Color.White
                         )
                         
                         Spacer(modifier = Modifier.width(16.dp))
@@ -311,12 +335,13 @@ fun CameraScreen(
                             Text(
                                 text = "录像",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
                             Text(
                                 text = "录制施工过程视频",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color.White.copy(alpha = 0.8f)
                             )
                         }
                         
@@ -332,7 +357,8 @@ fun CameraScreen(
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary
+                                containerColor = Color.White.copy(alpha = 0.2f),
+                                contentColor = Color.White
                             )
                         ) {
                             Text("录像")

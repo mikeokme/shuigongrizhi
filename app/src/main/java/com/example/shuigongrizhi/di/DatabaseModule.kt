@@ -9,6 +9,7 @@ import com.example.shuigongrizhi.data.dao.ProjectDao
 import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
 import com.example.shuigongrizhi.data.repository.MediaFileRepository
 import com.example.shuigongrizhi.data.repository.ProjectRepository
+import com.example.shuigongrizhi.core.AppConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,5 +73,13 @@ object DatabaseModule {
         mediaFileDao: MediaFileDao
     ): MediaFileRepository {
         return MediaFileRepository(mediaFileDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAppConfig(
+        @ApplicationContext context: Context
+    ): AppConfig {
+        return AppConfig(context)
     }
 }

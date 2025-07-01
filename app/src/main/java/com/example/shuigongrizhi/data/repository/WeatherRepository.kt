@@ -1,8 +1,13 @@
 package com.example.shuigongrizhi.data.repository
 
 import com.example.shuigongrizhi.config.ApiConfig
+import com.example.shuigongrizhi.core.AppConfig
+import com.example.shuigongrizhi.network.CaiyunWeatherResponse
+import com.example.shuigongrizhi.network.RealtimeWeather
 import com.example.shuigongrizhi.network.WeatherResponse
+import com.example.shuigongrizhi.network.WeatherResult
 import com.example.shuigongrizhi.network.WeatherService
+import com.example.shuigongrizhi.network.WindData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -11,49 +16,116 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.random.Random
 
 @Singleton
 class WeatherRepository @Inject constructor(
-    private val weatherService: WeatherService
+    private val weatherService: WeatherService,
+    private val appConfig: AppConfig
 ) {
     
     /**
+     * 获取当前使用的API Token
+     */
+    private fun getCurrentToken(): String {
+        return appConfig.weatherApiToken.takeIf { it.isNotEmpty() } ?: ApiConfig.CAIYUN_API_TOKEN
+    }
+    
+    /**
+     * 检查是否启用无API模式
+     */
+    private fun isNoApiMode(): Boolean {
+        return appConfig.weatherApiToken.isEmpty() && ApiConfig.CAIYUN_API_TOKEN.isEmpty()
+    }
+    
+    /**
+     * 生成模拟天气数据
+     */
+    private fun generateMockWeatherData(
+        latitude: Double = ApiConfig.DEFAULT_LATITUDE,
+        longitude: Double = ApiConfig.DEFAULT_LONGITUDE
+    ): WeatherResponse {
+        return CaiyunWeatherResponse(
+            status = "ok",
+            api_version = "v2.5",
+            api_status = "active",
+            lang = "zh_CN",
+            unit = "metric",
+            tzshift = 28800,
+            timezone = "Asia/Shanghai",
+            server_time = System.currentTimeMillis() / 1000,
+            location = listOf(longitude, latitude),
+            result = WeatherResult(
+                realtime = RealtimeWeather(
+                    status = "ok",
+                    temperature = Random.nextDouble(15.0, 25.0),
+                    humidity = Random.nextDouble(0.4, 0.8),
+                    cloudrate = Random.nextDouble(0.1, 0.9),
+                    skycon = listOf("CLEAR_DAY", "PARTLY_CLOUDY_DAY", "CLOUDY", "LIGHT_RAIN").random(),
+                    visibility = Random.nextDouble(5.0, 15.0),
+                    dswrf = Random.nextDouble(100.0, 800.0),
+                    wind = WindData(
+                        speed = Random.nextDouble(1.0, 10.0),
+                        direction = Random.nextDouble(0.0, 360.0)
+                    ),
+                    pressure = Random.nextDouble(1000.0, 1020.0),
+                    apparent_temperature = Random.nextDouble(15.0, 25.0)
+                )
+            )
+        )
+    }
+    
+    /**
      * 获取当前天气信息（通过经纬度）
-     * 使用彩云天气API
+     * 支持API模式和无API模式
      */
     suspend fun getCurrentWeather(
         latitude: Double = ApiConfig.DEFAULT_LATITUDE,
         longitude: Double = ApiConfig.DEFAULT_LONGITUDE
     ): Result<WeatherResponse> = withContext(Dispatchers.IO) {
-        executeWithRetry {
-            weatherService.getCurrentWeather(
-                token = ApiConfig.CAIYUN_API_TOKEN,
-                longitude = longitude,
-                latitude = latitude,
-                lang = ApiConfig.DEFAULT_LANG,
-                unit = ApiConfig.DEFAULT_UNIT,
-                granu = ApiConfig.DEFAULT_GRANU
-            )
+        if (isNoApiMode()) {
+            // 无API模式，返回模拟数据
+            delay(500) // 模拟网络延迟
+            Result.success(generateMockWeatherData(latitude, longitude))
+        } else {
+            // API模式，调用真实API
+            executeWithRetry {
+                weatherService.getCurrentWeather(
+                    token = getCurrentToken(),
+                    longitude = longitude,
+                    latitude = latitude,
+                    lang = ApiConfig.DEFAULT_LANG,
+                    unit = ApiConfig.DEFAULT_UNIT,
+                    granu = ApiConfig.DEFAULT_GRANU
+                )
+            }
         }
     }
     
     /**
      * 获取当前天气信息（通过城市名）
-     * 彩云天气API支持经纬度查询，这里使用默认坐标
+     * 支持API模式和无API模式
      */
     suspend fun getCurrentWeatherByCity(
         cityName: String = ApiConfig.DEFAULT_CITY
     ): Result<WeatherResponse> = withContext(Dispatchers.IO) {
-        executeWithRetry {
-            // 使用默认坐标，实际应用中可以先通过地理编码API获取坐标
-            weatherService.getCurrentWeather(
-                token = ApiConfig.CAIYUN_API_TOKEN,
-                longitude = ApiConfig.DEFAULT_LONGITUDE,
-                latitude = ApiConfig.DEFAULT_LATITUDE,
-                lang = ApiConfig.DEFAULT_LANG,
-                unit = ApiConfig.DEFAULT_UNIT,
-                granu = ApiConfig.DEFAULT_GRANU
-            )
+        if (isNoApiMode()) {
+            // 无API模式，返回模拟数据
+            delay(500) // 模拟网络延迟
+            Result.success(generateMockWeatherData())
+        } else {
+            // API模式，调用真实API
+            executeWithRetry {
+                // 使用默认坐标，实际应用中可以先通过地理编码API获取坐标
+                weatherService.getCurrentWeather(
+                    token = getCurrentToken(),
+                    longitude = ApiConfig.DEFAULT_LONGITUDE,
+                    latitude = ApiConfig.DEFAULT_LATITUDE,
+                    lang = ApiConfig.DEFAULT_LANG,
+                    unit = ApiConfig.DEFAULT_UNIT,
+                    granu = ApiConfig.DEFAULT_GRANU
+                )
+            }
         }
     }
     
@@ -64,15 +136,22 @@ class WeatherRepository @Inject constructor(
         latitude: Double = ApiConfig.DEFAULT_LATITUDE,
         longitude: Double = ApiConfig.DEFAULT_LONGITUDE
     ): Result<WeatherResponse> = withContext(Dispatchers.IO) {
-        executeWithRetry {
-            weatherService.getCurrentWeather(
-                token = ApiConfig.CAIYUN_API_TOKEN,
-                longitude = longitude,
-                latitude = latitude,
-                lang = ApiConfig.DEFAULT_LANG,
-                unit = ApiConfig.DEFAULT_UNIT,
-                granu = "realtime"
-            )
+        if (isNoApiMode()) {
+            // 无API模式，返回模拟数据
+            delay(500) // 模拟网络延迟
+            Result.success(generateMockWeatherData(latitude, longitude))
+        } else {
+            // API模式，调用真实API
+            executeWithRetry {
+                weatherService.getCurrentWeather(
+                    token = getCurrentToken(),
+                    longitude = longitude,
+                    latitude = latitude,
+                    lang = ApiConfig.DEFAULT_LANG,
+                    unit = ApiConfig.DEFAULT_UNIT,
+                    granu = "realtime"
+                )
+            }
         }
     }
     
@@ -83,15 +162,22 @@ class WeatherRepository @Inject constructor(
         latitude: Double = ApiConfig.DEFAULT_LATITUDE,
         longitude: Double = ApiConfig.DEFAULT_LONGITUDE
     ): Result<WeatherResponse> = withContext(Dispatchers.IO) {
-        executeWithRetry {
-            weatherService.getCurrentWeather(
-                token = ApiConfig.CAIYUN_API_TOKEN,
-                longitude = longitude,
-                latitude = latitude,
-                lang = ApiConfig.DEFAULT_LANG,
-                unit = ApiConfig.DEFAULT_UNIT,
-                granu = "hourly"
-            )
+        if (isNoApiMode()) {
+            // 无API模式，返回模拟数据
+            delay(500) // 模拟网络延迟
+            Result.success(generateMockWeatherData(latitude, longitude))
+        } else {
+            // API模式，调用真实API
+            executeWithRetry {
+                weatherService.getCurrentWeather(
+                    token = getCurrentToken(),
+                    longitude = longitude,
+                    latitude = latitude,
+                    lang = ApiConfig.DEFAULT_LANG,
+                    unit = ApiConfig.DEFAULT_UNIT,
+                    granu = "hourly"
+                )
+            }
         }
     }
     
@@ -102,15 +188,22 @@ class WeatherRepository @Inject constructor(
         latitude: Double = ApiConfig.DEFAULT_LATITUDE,
         longitude: Double = ApiConfig.DEFAULT_LONGITUDE
     ): Result<WeatherResponse> = withContext(Dispatchers.IO) {
-        executeWithRetry {
-            weatherService.getCurrentWeather(
-                token = ApiConfig.CAIYUN_API_TOKEN,
-                longitude = longitude,
-                latitude = latitude,
-                lang = ApiConfig.DEFAULT_LANG,
-                unit = ApiConfig.DEFAULT_UNIT,
-                granu = "daily"
-            )
+        if (isNoApiMode()) {
+            // 无API模式，返回模拟数据
+            delay(500) // 模拟网络延迟
+            Result.success(generateMockWeatherData(latitude, longitude))
+        } else {
+            // API模式，调用真实API
+            executeWithRetry {
+                weatherService.getCurrentWeather(
+                    token = getCurrentToken(),
+                    longitude = longitude,
+                    latitude = latitude,
+                    lang = ApiConfig.DEFAULT_LANG,
+                    unit = ApiConfig.DEFAULT_UNIT,
+                    granu = "daily"
+                )
+            }
         }
     }
     
@@ -182,7 +275,7 @@ class WeatherRepository @Inject constructor(
             } catch (e: Exception) {
                 lastException = e
                 // 其他异常，不重试
-                break
+                return Result.failure(Exception("获取天气信息失败: ${e.message}"))
             }
         }
         
@@ -199,5 +292,41 @@ class WeatherRepository @Inject constructor(
         }
         
         return Result.failure(Exception(errorMessage))
+    }
+    
+    /**
+     * 测试API Token是否有效
+     */
+    suspend fun testToken(token: String): Result<String> = withContext(Dispatchers.IO) {
+        if (token.isEmpty()) {
+            // 无API模式
+            delay(300) // 模拟验证延迟
+            Result.success("无API模式已启用，将使用模拟天气数据")
+        } else {
+            // API模式，测试真实Token
+            try {
+                val response = weatherService.getCurrentWeather(
+                    token = token,
+                    longitude = ApiConfig.DEFAULT_LONGITUDE,
+                    latitude = ApiConfig.DEFAULT_LATITUDE,
+                    lang = ApiConfig.DEFAULT_LANG,
+                    unit = ApiConfig.DEFAULT_UNIT,
+                    granu = ApiConfig.DEFAULT_GRANU
+                )
+                
+                // 如果请求成功，返回成功信息
+                Result.success("Token验证成功，可以正常获取天气数据")
+            } catch (e: HttpException) {
+                val errorMessage = when (e.code()) {
+                    401 -> "Token无效，请检查API密钥"
+                    403 -> "Token权限不足，请检查账户状态"
+                    429 -> "API调用频率超限，Token有效但需要等待"
+                    else -> "Token测试失败: HTTP ${e.code()}"
+                }
+                Result.failure(Exception(errorMessage))
+            } catch (e: Exception) {
+                Result.failure(Exception("Token测试失败: ${e.message}"))
+            }
+        }
     }
 }

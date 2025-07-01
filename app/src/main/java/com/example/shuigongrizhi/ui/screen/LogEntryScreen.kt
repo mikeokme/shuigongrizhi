@@ -44,7 +44,8 @@ fun LogEntryScreen(
     viewModel: LogEntryViewModel,
     projectId: Long,
     date: String,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToPhotoDescription: (Uri, Long) -> Unit = { _, _ -> }
 ) {
     val logState by viewModel.logState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -77,7 +78,10 @@ fun LogEntryScreen(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            // 照片拍摄成功
+            // 照片拍摄成功，导航到照片说明页面
+            viewModel.currentImageUri?.let { uri ->
+                onNavigateToPhotoDescription(uri, projectId)
+            }
         }
     }
 
@@ -279,6 +283,22 @@ fun LogEntryScreen(
                         onRemoveMedia = { uri ->
                             val newList = logState.mediaFiles.toMutableList().apply { remove(uri) }
                             viewModel.updateMediaFiles(newList)
+                        },
+                        onTakePhoto = {
+                            // 检查相机权限
+                            if (ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                // 创建临时图片文件并启动拍照
+                                viewModel.createTempImageFile()?.let { uri ->
+                                    takePictureLauncher.launch(uri)
+                                }
+                            } else {
+                                // 请求相机权限
+                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
                         }
                     )
                 }
@@ -547,7 +567,8 @@ fun ConstructionInfoCard(
 fun MediaFilesCard(
     mediaFiles: List<String>,
     onAddMedia: (String) -> Unit,
-    onRemoveMedia: (String) -> Unit
+    onRemoveMedia: (String) -> Unit,
+    onTakePhoto: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -570,9 +591,7 @@ fun MediaFilesCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = {
-                        // 实现添加媒体文件的逻辑
-                    },
+                    onClick = onTakePhoto,
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(

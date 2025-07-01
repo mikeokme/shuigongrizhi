@@ -128,51 +128,53 @@ class ProjectListViewModel @Inject constructor(
     private suspend fun createDefaultProject() {
         Logger.business("创建默认项目")
         
-        // 检查是否已存在默认项目
-        when (val result = projectRepository.getAllProjects().first()) {
-            is Result.Success -> {
-                val existingProjects = result.data
-                val defaultProjectExists = existingProjects.any { project -> 
-                    isDefaultProject(project)
-                }
-                
-                if (defaultProjectExists) {
-                    Logger.business("默认项目已存在，跳过创建")
-                    _uiState.value = UiState.success(existingProjects)
+        // 使用同步方式检查是否已存在默认项目，避免并发创建
+        try {
+            val existingProjects = when (val result = projectRepository.getAllProjects().first()) {
+                is Result.Success -> result.data
+                is Result.Error -> {
+                    Logger.exception(result.exception, "检查现有项目失败")
+                    _uiState.value = UiState.error("检查现有项目失败")
                     return
                 }
+                is Result.Loading -> emptyList()
             }
-            is Result.Error -> {
-                Logger.exception(result.exception, "检查现有项目失败")
-                _uiState.value = UiState.error("检查现有项目失败")
+            
+            val defaultProjectExists = existingProjects.any { project -> 
+                isDefaultProject(project)
+            }
+            
+            if (defaultProjectExists) {
+                Logger.business("默认项目已存在，跳过创建")
+                _uiState.value = UiState.success(existingProjects)
                 return
             }
-            is Result.Loading -> {
-                // 继续执行
+            
+            // 创建默认项目
+            val defaultProject = createDefaultProjectEntity()
+            
+            when (val insertResult = projectRepository.insertProject(defaultProject)) {
+                is Result.Success -> {
+                    val projectId = insertResult.data
+                    Logger.business("默认项目创建成功，ID: $projectId")
+                    
+                    // 创建默认施工日志
+                    createDefaultConstructionLog(projectId)
+                    
+                    // 项目创建成功，Flow会自动更新UI，无需手动调用loadProjects()
+                    Logger.business("默认项目和日志创建完成，等待Flow自动更新")
+                }
+                is Result.Error -> {
+                    Logger.exception(insertResult.exception, "创建默认项目失败")
+                    _uiState.value = UiState.error("创建默认项目失败: ${insertResult.exception.message}")
+                }
+                is Result.Loading -> {
+                    // 通常不会到达这里
+                }
             }
-        }
-        
-        // 创建默认项目
-        val defaultProject = createDefaultProjectEntity()
-        
-        when (val insertResult = projectRepository.insertProject(defaultProject)) {
-            is Result.Success -> {
-                val projectId = insertResult.data
-                Logger.business("默认项目创建成功，ID: $projectId")
-                
-                // 创建默认施工日志
-                createDefaultConstructionLog(projectId)
-                
-                // 重新加载项目列表
-                loadProjects()
-            }
-            is Result.Error -> {
-                Logger.exception(insertResult.exception, "创建默认项目失败")
-                _uiState.value = UiState.error("创建默认项目失败: ${insertResult.exception.message}")
-            }
-            is Result.Loading -> {
-                // 通常不会到达这里
-            }
+        } catch (e: Exception) {
+            Logger.exception(e, "创建默认项目过程中发生异常")
+            _uiState.value = UiState.error("创建默认项目失败: ${e.message}")
         }
     }
     

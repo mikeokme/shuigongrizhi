@@ -40,10 +40,7 @@ fun ProjectListScreen(
     val isLoading = uiState.isLoading
     val error = uiState.error
 
-    // 每次进入页面时刷新项目列表
-    LaunchedEffect(Unit) {
-        viewModel.refreshProjects()
-    }
+    // ViewModel在init中已经自动加载项目列表，无需重复刷新
     
     // 监听项目列表变化，确保数据实时更新
     LaunchedEffect(projects) {

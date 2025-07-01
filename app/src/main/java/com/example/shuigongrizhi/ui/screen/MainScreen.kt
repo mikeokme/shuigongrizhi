@@ -85,11 +85,10 @@ fun MainScreen(
         // 功能区 - 3x3宫格布局
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding = PaddingValues(20.dp), // 增加内边距
+            horizontalArrangement = Arrangement.spacedBy(20.dp), // 增加间距
+            verticalArrangement = Arrangement.spacedBy(20.dp), // 增加间距
+            modifier = Modifier.fillMaxWidth()
         ) {
             items(9) { index ->
                 when (index) {
@@ -161,7 +160,7 @@ fun MainScreen(
         // 下移对联和项目信息说明
         Spacer(modifier = Modifier.weight(1f))
 
-        // 企业文化对联
+        // 企业文化对联 - 优化字体一致性和对比度
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -172,12 +171,12 @@ fun MainScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "生如蝼蚁，当有鸿鹄之志；\n命如纸薄，应有不屈之心。",
-                    color = Color(0xFFFFD700),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFF5F5F5), // 改为更高对比度的浅色
+                    fontSize = 20.sp, // 稍微减小字体大小
+                    fontWeight = FontWeight.Medium, // 使用Medium权重保持一致性
                     textAlign = TextAlign.Center,
-                    letterSpacing = 2.sp,
-                    style = MaterialTheme.typography.titleLarge,
+                    letterSpacing = 1.sp, // 减少字间距
+                    style = MaterialTheme.typography.titleMedium, // 使用一致的字体样式
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -185,7 +184,7 @@ fun MainScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 项目信息说明
+        // 项目信息说明 - 缩小并优化显示
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -200,14 +199,18 @@ fun MainScreen(
             ) {
                 Text(
                     text = "版本号：bate1.0",
-                    color = Color.White,
-                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.7f), // 降低透明度减少视觉干扰
+                    fontSize = 12.sp, // 缩小字体
+                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
                     text = "开发者：醉生梦死",
-                    color = Color.White,
-                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.End
                 )
@@ -220,14 +223,18 @@ fun MainScreen(
             ) {
                 Text(
                     text = "开发单位：淮工集团",
-                    color = Color.White,
-                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
                     text = "射阳盐场项目出品",
-                    color = Color.White,
-                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.End
                 )
@@ -254,14 +261,14 @@ fun WeatherCard(
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable(onClick = onClick)
-            .padding(16.dp),
+            .padding(20.dp), // 增加内边距
         contentAlignment = Alignment.Center
     ) {
         when (weatherState) {
             is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Loading -> {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(28.dp), // 稍微增大加载指示器
+                    strokeWidth = 3.dp,
                     color = Color.White
                 )
             }
@@ -269,17 +276,30 @@ fun WeatherCard(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "${weatherState.weather.result.realtime.temperature.toInt()}°C",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    // 温度显示在独立的框内
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                Color.White.copy(alpha = 0.2f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "${weatherState.weather.result.realtime.temperature.toInt()}°C",
+                            fontSize = 24.sp, // 增大字体
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "天气",
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.8f)
+                        fontSize = 16.sp, // 增大标签字体
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -291,13 +311,15 @@ fun WeatherCard(
                         imageVector = Icons.Default.CloudOff,
                         contentDescription = "天气错误",
                         tint = Color.White,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(28.dp) // 增大图标
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "天气",
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.8f)
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -309,13 +331,15 @@ fun WeatherCard(
                         imageVector = Icons.Default.Cloud,
                         contentDescription = "天气",
                         tint = Color.White,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(28.dp)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "天气",
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.8f)
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }

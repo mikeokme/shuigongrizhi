@@ -38,11 +38,13 @@ object NavigationRoutes {
     const val CAMERA = "camera/{projectId}"
     const val MEDIA_GALLERY = "media_gallery/{projectId}"
     const val MEDIA_DETAIL = "media_detail/{mediaFileId}"
+    const val PHOTO_DESCRIPTION = "photo_description/{photoUri}/{projectId}"
     const val LOCATION = "location"
     const val PDF_VIEWER = "pdf_viewer"
     const val DESKTOP = "desktop"
     const val DISCOVERY = "discovery"
     const val FEEDBACK = "feedback"
+    const val WEATHER_SETTINGS = "weather_settings"
 }
 
 @Composable
@@ -86,11 +88,6 @@ fun AppNavigation(
             // 项目列表页面
             composable(NavigationRoutes.PROJECT_LIST) {
                 val viewModel: ProjectListViewModel = hiltViewModel()
-                
-                // 监听导航返回，强制刷新数据
-                LaunchedEffect(navController.currentBackStackEntry) {
-                    viewModel.refreshProjects()
-                }
                 
                 ProjectListScreen(
                     viewModel = viewModel,
@@ -219,6 +216,9 @@ fun AppNavigation(
                     date = date,
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onNavigateToPhotoDescription = { uri, pId ->
+                        navController.navigateToPhotoDescription(uri, pId)
                     }
                 )
             }
@@ -333,6 +333,35 @@ fun AppNavigation(
                 }
             }
             
+            // 照片描述页面
+            composable(
+                route = NavigationRoutes.PHOTO_DESCRIPTION,
+                arguments = listOf(
+                    navArgument("photoUri") {
+                        type = NavType.StringType
+                    },
+                    navArgument("projectId") {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val photoUriString = backStackEntry.arguments?.getString("photoUri") ?: ""
+                val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
+                val photoUri = android.net.Uri.parse(photoUriString)
+                val viewModel: PhotoDescriptionViewModel = hiltViewModel()
+                PhotoDescriptionScreen(
+                    photoUri = photoUri,
+                    projectId = projectId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onSavePhoto = { uri, description, location, notes ->
+                        viewModel.savePhotoWithDescription(uri, projectId, description, location, notes)
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
             // 日志列表页面
             composable(
                 route = NavigationRoutes.LOG_LIST,
@@ -382,6 +411,18 @@ fun AppNavigation(
                 val viewModel: WeatherViewModel = hiltViewModel()
                 WeatherDetailScreen(
                     viewModel = viewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(NavigationRoutes.WEATHER_SETTINGS)
+                    }
+                )
+            }
+            
+            // 天气设置页面
+            composable(NavigationRoutes.WEATHER_SETTINGS) {
+                WeatherSettingsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }
@@ -475,4 +516,8 @@ fun NavHostController.navigateToLogList(projectId: Long) {
 
 fun NavHostController.navigateToLogDetail(logId: Long) {
     navigate("log_detail/$logId")
+}
+
+fun NavHostController.navigateToPhotoDescription(photoUri: android.net.Uri, projectId: Long) {
+    navigate("photo_description/${photoUri}/${projectId}")
 }

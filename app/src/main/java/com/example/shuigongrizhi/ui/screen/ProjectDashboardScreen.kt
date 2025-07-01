@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -135,7 +136,12 @@ fun ProjectDashboardScreen(
                     selectedDate = dashboardState.selectedDate,
                     logDates = dashboardState.logDates,
                     onDateSelected = viewModel::selectDate,
-                    onMonthChanged = viewModel::changeMonth
+                    onMonthChanged = viewModel::changeMonth,
+                    onViewLog = { date ->
+                        // 根据日期查找对应的日志ID并导航到详情页
+                        val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+                        onNavigateToLogEntry(projectId, dateString)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -161,7 +167,8 @@ fun CalendarView(
     selectedDate: Date,
     logDates: Set<String>,
     onDateSelected: (Date) -> Unit,
-    onMonthChanged: (Date) -> Unit
+    onMonthChanged: (Date) -> Unit,
+    onViewLog: ((Date) -> Unit)? = null
 ) {
     val calendar = Calendar.getInstance()
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -242,12 +249,16 @@ fun CalendarView(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(dates) { date ->
+                    val hasLog = logDates.contains(dateFormat.format(date))
                     CalendarDateItem(
                         date = date,
                         isSelected = dateFormat.format(date) == dateFormat.format(selectedDate),
-                        hasLog = logDates.contains(dateFormat.format(date)),
+                        hasLog = hasLog,
                         isCurrentMonth = isSameMonth(date, currentMonth),
-                        onClick = { onDateSelected(date) }
+                        onClick = { onDateSelected(date) },
+                        onViewLog = if (hasLog && onViewLog != null) {
+                            { onViewLog(date) }
+                        } else null
                     )
                 }
             }
@@ -261,11 +272,13 @@ fun CalendarDateItem(
     isSelected: Boolean,
     hasLog: Boolean,
     isCurrentMonth: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onViewLog: (() -> Unit)? = null
 ) {
     val calendar = Calendar.getInstance()
     calendar.time = date
     val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+    var showViewIcon by remember { mutableStateOf(false) }
     
     Box(
         modifier = Modifier
@@ -277,7 +290,13 @@ fun CalendarDateItem(
                     else -> Color.Transparent
                 }
             )
-            .clickable(enabled = isCurrentMonth) { onClick() },
+            .clickable(enabled = isCurrentMonth) { 
+                if (hasLog && onViewLog != null) {
+                    showViewIcon = true
+                } else {
+                    onClick()
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -307,6 +326,38 @@ fun CalendarDateItem(
                             }
                         )
                 )
+            }
+        }
+        
+        // 查看图标弹出层
+        if (showViewIcon && hasLog && onViewLog != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                        CircleShape
+                    )
+                    .clickable { 
+                        onViewLog()
+                        showViewIcon = false
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Visibility,
+                    contentDescription = "查看日志",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            
+            // 点击外部区域关闭图标
+            LaunchedEffect(showViewIcon) {
+                if (showViewIcon) {
+                    kotlinx.coroutines.delay(3000) // 3秒后自动隐藏
+                    showViewIcon = false
+                }
             }
         }
     }

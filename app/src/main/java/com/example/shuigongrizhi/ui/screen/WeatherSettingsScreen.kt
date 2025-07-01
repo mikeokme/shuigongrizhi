@@ -85,7 +85,33 @@ fun WeatherSettingsScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "为了获得更好的天气服务体验，您可以配置自己的彩云天气API Token。如果您想使用开发者提供的Token，需要输入验证码。",
+                        text = "您可以选择以下三种模式：\n" +
+                                "1. 无API模式：不需要Token，使用模拟天气数据（推荐新用户）\n" +
+                                "2. 自定义Token：配置您自己的彩云天气API Token\n" +
+                                "3. 开发者Token：使用开发者提供的Token（需要验证码）",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            
+            // 无API模式说明卡片
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "💡 无API模式",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "如果您不想配置API Token，可以直接使用无API模式。此模式下应用会生成模拟的天气数据，包括温度、湿度、风速等信息，让您可以正常体验应用的所有功能。要启用无API模式，只需将API Token留空即可。",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -177,14 +203,16 @@ fun WeatherSettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Token状态:")
+                        Text("当前模式:")
                         Text(
                             text = when {
-                                uiState.currentToken.isNotEmpty() && uiState.isTokenVerified -> "已配置并验证"
-                                uiState.currentToken.isNotEmpty() -> "已配置"
+                                uiState.currentToken.isEmpty() -> "无API模式（使用模拟数据）"
+                                uiState.currentToken.isNotEmpty() && uiState.isTokenVerified -> "API模式（已验证）"
+                                uiState.currentToken.isNotEmpty() -> "API模式（已配置）"
                                 else -> "未配置"
                             },
                             color = when {
+                                uiState.currentToken.isEmpty() -> MaterialTheme.colorScheme.tertiary
                                 uiState.currentToken.isNotEmpty() && uiState.isTokenVerified -> MaterialTheme.colorScheme.primary
                                 uiState.currentToken.isNotEmpty() -> MaterialTheme.colorScheme.secondary
                                 else -> MaterialTheme.colorScheme.error
@@ -243,7 +271,7 @@ fun WeatherSettingsScreen(
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isLoading && (
                         (showVerificationCode && verificationCode.isNotEmpty()) ||
-                        (!showVerificationCode && apiToken.isNotEmpty())
+                        !showVerificationCode // 允许保存空token以启用无API模式
                     )
                 ) {
                     if (uiState.isLoading) {
@@ -252,7 +280,7 @@ fun WeatherSettingsScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("保存")
+                        Text(if (apiToken.isEmpty() && !showVerificationCode) "启用无API模式" else "保存")
                     }
                 }
                 
@@ -269,10 +297,10 @@ fun WeatherSettingsScreen(
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isLoading && (
                         (showVerificationCode && verificationCode.isNotEmpty()) ||
-                        (!showVerificationCode && apiToken.isNotEmpty())
+                        !showVerificationCode // 允许测试空token以验证无API模式
                     )
                 ) {
-                    Text("测试")
+                    Text(if (apiToken.isEmpty() && !showVerificationCode) "测试无API模式" else "测试")
                 }
             }
             
@@ -282,7 +310,7 @@ fun WeatherSettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isLoading
             ) {
-                Text("重置为默认Token")
+                Text("切换到无API模式")
             }
         }
     }

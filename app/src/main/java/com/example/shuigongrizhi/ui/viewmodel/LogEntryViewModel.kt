@@ -1,9 +1,13 @@
 package com.example.shuigongrizhi.ui.viewmodel
 
+import android.net.Uri
+import android.os.Environment
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
 import javax.inject.Inject
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.MediaFile
@@ -44,7 +48,7 @@ data class LogEntryState(
 class LogEntryViewModel @Inject constructor(
     private val constructionLogRepository: ConstructionLogRepository,
     private val projectRepository: ProjectRepository,
-    private val weatherService: com.example.shuigongrizhi.network.WeatherService,
+    private val weatherRepository: com.example.shuigongrizhi.data.repository.WeatherRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     
@@ -61,6 +65,10 @@ class LogEntryViewModel @Inject constructor(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+    
+    // 当前拍摄的照片URI
+    var currentImageUri: Uri? = null
+        private set
 
     private var projectId: Long = 0
     private var editingLogId: Long? = null
@@ -209,18 +217,28 @@ class LogEntryViewModel @Inject constructor(
         fetchWeatherData()
     }
 
-    fun createTempImageFile(context: Context): Uri? {
-        val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val file = File.createTempFile(
-            "IMG_${System.currentTimeMillis()}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        )
-        return FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            file
-        )
+    /**
+     * 创建临时图片文件用于拍照
+     */
+    fun createTempImageFile(): Uri? {
+        return try {
+            val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val file = File.createTempFile(
+                "IMG_${System.currentTimeMillis()}_", /* prefix */
+                ".jpg", /* suffix */
+                storageDir /* directory */
+            )
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
+            currentImageUri = uri
+            uri
+        } catch (e: Exception) {
+            _error.value = "创建临时图片文件失败: ${e.message}"
+            null
+        }
     }
 
     fun createTempVideoFile(context: Context): Uri? {
@@ -241,51 +259,59 @@ class LogEntryViewModel @Inject constructor(
         viewModelScope.launch {
             _logState.value = _logState.value.copy(isLoadingWeather = true)
             try {
-                val response = weatherService.getCurrentWeather(
-                    token = com.example.shuigongrizhi.config.ApiConfig.CAIYUN_API_TOKEN,
-                    longitude = lon,
+                val result = weatherRepository.getCurrentWeather(
                     latitude = lat,
-                    lang = com.example.shuigongrizhi.config.ApiConfig.DEFAULT_LANG,
-                    unit = com.example.shuigongrizhi.config.ApiConfig.DEFAULT_UNIT,
-                    granu = com.example.shuigongrizhi.config.ApiConfig.DEFAULT_GRANU
+                    longitude = lon
                 )
                 
-                val realtime = response.result.realtime
+                if (result.isSuccess) {
+                    val response = result.getOrThrow()
+                    val realtime = response.result.realtime
                 
-                // 根据彩云天气的skycon字段映射天气状况
-                val condition = when (realtime.skycon.lowercase()) {
-                    "clear_day", "clear_night" -> WeatherCondition.SUNNY.displayName
-                    "partly_cloudy_day", "partly_cloudy_night" -> "多云"
-                    "cloudy" -> WeatherCondition.CLOUDY.displayName
-                    "light_rain" -> "小雨"
-                    "moderate_rain" -> "中雨"
-                    "heavy_rain" -> "大雨"
-                    "storm_rain" -> "暴雨"
-                    "light_snow" -> "小雪"
-                    "moderate_snow" -> "中雪"
-                    "heavy_snow" -> "大雪"
-                    "storm_snow" -> "暴雪"
-                    "fog" -> "雾"
-                    "dust" -> "浮尘"
-                    "sand" -> "沙尘"
-                    "wind" -> "大风"
-                    else -> WeatherCondition.CLOUDY.displayName
-                }
-                
-                val temp = "${realtime.temperature.toInt()} °C"
-                val windSpeed = "${realtime.wind.speed} m/s"
-                
-                _logState.value = _logState.value.copy(
-                    weatherCondition = condition,
-                    temperature = temp,
-                    wind = windSpeed
-                )
-                _error.value = null
-            } catch (e: Exception) {
-                _error.value = "获取天气信息失败: ${e.message}"
-            } finally {
-                _logState.value = _logState.value.copy(isLoadingWeather = false)
-            }
+                    // 根据彩云天气的skycon字段映射天气状况
+                    val weatherCondition = when (realtime.skycon) {
+                        "CLEAR_DAY" -> "晴天"
+                        "CLEAR_NIGHT" -> "晴夜"
+                        "PARTLY_CLOUDY_DAY" -> "多云"
+                        "PARTLY_CLOUDY_NIGHT" -> "多云"
+                        "CLOUDY" -> "阴天"
+                        "LIGHT_HAZE" -> "轻雾"
+                        "MODERATE_HAZE" -> "中雾"
+                        "HEAVY_HAZE" -> "重雾"
+                        "LIGHT_RAIN" -> "小雨"
+                        "MODERATE_RAIN" -> "中雨"
+                        "HEAVY_RAIN" -> "大雨"
+                        "STORM_RAIN" -> "暴雨"
+                        "LIGHT_SNOW" -> "小雪"
+                        "MODERATE_SNOW" -> "中雪"
+                        "HEAVY_SNOW" -> "大雪"
+                        "STORM_SNOW" -> "暴雪"
+                        "DUST" -> "浮尘"
+                        "SAND" -> "沙尘"
+                        "WIND" -> "大风"
+                        else -> "未知"
+                    }
+                    
+                    _logState.value = _logState.value.copy(
+                        weatherCondition = weatherCondition,
+                        temperature = "${realtime.temperature.toInt()}°C",
+                        wind = "${realtime.wind.speed} m/s"
+                    )
+                    _error.value = null
+                } else {
+                     // 处理API调用失败的情况
+                     val error = result.exceptionOrNull()
+                     android.util.Log.e("LogEntryViewModel", "获取天气信息失败: ${error?.message}", error)
+                     _logState.value = _logState.value.copy(
+                         isLoadingWeather = false
+                     )
+                 }
+             } catch (e: Exception) {
+                 android.util.Log.e("LogEntryViewModel", "获取天气信息失败", e)
+                 _logState.value = _logState.value.copy(
+                     isLoadingWeather = false
+                 )
+             }
         }
     }
 

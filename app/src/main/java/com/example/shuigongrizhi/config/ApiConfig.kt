@@ -1,14 +1,13 @@
 package com.example.shuigongrizhi.config
 
 object ApiConfig {
-    // 彩云天气 API Token
-    // 注意：在生产环境中，应该将API密钥存储在更安全的地方，如BuildConfig或环境变量
-    // 当前使用的是演示Token，免费版本有调用频率限制
-    // 如果遇到HTTP 429错误，请：
-    // 1. 注册彩云天气账号获取个人Token: https://dashboard.caiyunapp.com/
-    // 2. 或者减少API调用频率
-    // 3. 考虑升级到付费版本以获得更高的调用限额
-    const val CAIYUN_API_TOKEN = "TAkhjf8d1nlSlspN" // 演示Token，请替换为您的实际Token
+    // 彩云天气API Token
+    // 设置为空字符串启用无API模式，使用模拟天气数据
+    // 如需使用真实天气数据，请：
+    // 1. 获取个人API Token：访问 https://caiyunapp.com/api/ 注册账号并获取个人Token
+    // 2. 在应用设置中配置您的Token，或直接修改此处的CAIYUN_API_TOKEN值
+    // 3. 无API模式提供随机生成的模拟天气数据，适合演示和测试
+    const val CAIYUN_API_TOKEN = ""
     
     // 彩云天气 API 基础URL
     const val CAIYUN_BASE_URL = "https://api.caiyunapp.com/v2.5/"
