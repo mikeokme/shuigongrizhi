@@ -300,7 +300,7 @@ fun MediaInfoPanel(
 }
 
 @Composable
-fun InfoRow(
+private fun InfoRow(
     label: String,
     value: String
 ) {

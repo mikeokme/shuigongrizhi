@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">水利施工日志</string>
+    <string name="app_name">淮工集团施工日志系统</string>
     
     <!-- 通用 -->
     <string name="save">保存</string>
@@ -11,9 +11,14 @@
     <string name="export">导出</string>
     
     <!-- 项目列表 -->
-    <string name="project_list_title">水利施工日志</string>
+    <string name="project_list_title">淮工集团施工日志系统</string>
     <string name="no_projects_hint">您还没有任何项目，点击右下角"+"开始创建</string>
     <string name="create_project">创建项目</string>
+    <string name="default_project">默认项目</string>
+    <string name="default_project_name">淮工自营水利工程项目</string>
+    <string name="default_project_description">淮工集团自营水利工程项目，用于日常施工日志记录和管理。</string>
+    <string name="default_project_manager">自营</string>
+    <string name="cannot_delete_default_project">默认项目不能删除</string>
     
     <!-- 项目创建/编辑 -->
     <string name="create_new_project">创建新项目</string>

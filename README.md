@@ -1,4 +1,4 @@
-# 淮工施工日志系统 (HuaiGong Construction Log System)
+# 淮工集团施工日志系统 (HuaiGong Group Construction Log System)
 
 [![Android](https://img.shields.io/badge/Android-API%2024+-green.svg)](https://developer.android.com/about/versions/14)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg)](https://kotlinlang.org/)

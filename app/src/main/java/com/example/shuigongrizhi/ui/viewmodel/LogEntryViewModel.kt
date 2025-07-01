@@ -63,6 +63,14 @@ class LogEntryViewModel @Inject constructor(
 
     private var projectId: Long = 0
     private var editingLogId: Long? = null
+    
+    // 新拍摄的媒体文件信息
+    private val _newMediaFiles = MutableStateFlow<List<MediaFile>>(emptyList())
+    val newMediaFiles: StateFlow<List<MediaFile>> = _newMediaFiles.asStateFlow()
+    
+    // 是否显示照片信息填写引导
+    private val _showPhotoInfoGuide = MutableStateFlow(false)
+    val showPhotoInfoGuide: StateFlow<Boolean> = _showPhotoInfoGuide.asStateFlow()
 
     fun initializeLog(projectId: Long, date: Date, logId: Long? = null) {
         this.projectId = projectId
@@ -73,6 +81,67 @@ class LogEntryViewModel @Inject constructor(
         if (logId != null) {
             loadExistingLog(logId)
         }
+    }
+    
+    /**
+     * 处理新拍摄的媒体文件
+     * 自动引导用户填写照片信息
+     */
+    fun handleNewMediaFile(uri: Uri, mediaType: MediaType) {
+        viewModelScope.launch {
+            try {
+                // 创建临时媒体文件记录
+                val mediaFile = MediaFile(
+                    logId = editingLogId ?: 0L, // 如果是新日志，logId暂时为0
+                    filePath = uri.toString(),
+                    fileName = "${if (mediaType == MediaType.PHOTO) "照片" else "视频"}_${System.currentTimeMillis()}",
+                    fileType = mediaType,
+                    fileSize = 0L, // 实际大小需要后续计算
+                    createdAt = Date(),
+                    description = ""
+                )
+                
+                // 添加到新媒体文件列表
+                val currentList = _newMediaFiles.value.toMutableList()
+                currentList.add(mediaFile)
+                _newMediaFiles.value = currentList
+                
+                // 自动在主要内容中添加照片信息注明
+                val currentContent = _logState.value.mainContent
+                val photoInfo = if (mediaType == MediaType.PHOTO) {
+                    "\n\n📷 照片信息：\n- 拍摄时间：${java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(Date())}\n- 照片描述：[请填写照片内容描述]\n- 拍摄位置：[请填写拍摄位置]\n"
+                } else {
+                    "\n\n🎥 视频信息：\n- 录制时间：${java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(Date())}\n- 视频描述：[请填写视频内容描述]\n- 录制位置：[请填写录制位置]\n"
+                }
+                
+                _logState.value = _logState.value.copy(
+                    mainContent = currentContent + photoInfo
+                )
+                
+                // 显示照片信息填写引导
+                _showPhotoInfoGuide.value = true
+                
+            } catch (e: Exception) {
+                _error.value = "处理媒体文件失败: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 关闭照片信息填写引导
+     */
+    fun dismissPhotoInfoGuide() {
+        _showPhotoInfoGuide.value = false
+    }
+    
+    /**
+     * 自动滚动到照片信息注明位置
+     */
+    fun scrollToPhotoInfo(): Int {
+        val content = _logState.value.mainContent
+        val photoInfoIndex = content.lastIndexOf("📷 照片信息：")
+        val videoInfoIndex = content.lastIndexOf("🎥 视频信息：")
+        return maxOf(photoInfoIndex, videoInfoIndex)
     }
 
     private fun loadExistingLog(logId: Long) {

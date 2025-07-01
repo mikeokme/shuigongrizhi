@@ -58,7 +58,7 @@ fun MainScreen(
                     .align(Alignment.CenterStart)
             )
             Text(
-                text = "淮工施工日志系统",
+                text = "淮工集团施工日志系统",
                 color = Color(0xFF8D6EFF),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
@@ -146,23 +146,14 @@ fun MainScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "生如蝼蚁当有鸿鹄之志",
+                    text = "生如蝼蚁，当有鸿鹄之志；命如纸薄，应有不屈之心。",
                     color = Color(0xFFFFD700), // 金色
-                    fontSize = 20.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     letterSpacing = 2.sp,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "命如纸薄应有不屈之心",
-                    color = Color(0xFFFFD700),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 2.sp,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

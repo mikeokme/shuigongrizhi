@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
@@ -46,12 +50,18 @@ fun LogEntryScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val saveResult by viewModel.saveResult.collectAsState()
+    val showPhotoInfoGuide by viewModel.showPhotoInfoGuide.collectAsState()
+    val newMediaFiles by viewModel.newMediaFiles.collectAsState()
     val context = LocalContext.current
 
     // 保存成功提示状态
     var showSnackbar by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
     var isErrorSnackbar by remember { mutableStateOf(false) }
+    
+    // 滚动状态
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
     // 权限请求
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -107,6 +117,20 @@ fun LogEntryScreen(
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val parsedDate = dateFormat.parse(date) ?: Date()
         viewModel.initializeLog(projectId, parsedDate)
+    }
+    
+    // 处理照片信息填写引导
+    LaunchedEffect(showPhotoInfoGuide) {
+        if (showPhotoInfoGuide) {
+            // 自动滚动到照片信息注明位置
+            val photoInfoPosition = viewModel.scrollToPhotoInfo()
+            if (photoInfoPosition >= 0) {
+                coroutineScope.launch {
+                    kotlinx.coroutines.delay(500) // 等待UI更新
+                    scrollState.animateScrollTo(photoInfoPosition * 20) // 估算滚动位置
+                }
+            }
+        }
     }
 
     // 处理保存结果
@@ -259,6 +283,68 @@ fun LogEntryScreen(
                     )
                 }
             }
+        }
+        
+        // 照片信息填写引导对话框
+        if (showPhotoInfoGuide) {
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissPhotoInfoGuide() },
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("照片信息填写引导")
+                    }
+                },
+                text = {
+                    Column {
+                        Text(
+                            "📷 已为您在施工日志中添加照片信息注明栏！",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "请在主要内容中填写：",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            "• 照片内容描述\n• 拍摄位置\n• 相关说明",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.dismissPhotoInfoGuide()
+                            // 自动滚动到照片信息位置
+                            val photoInfoPosition = viewModel.scrollToPhotoInfo()
+                            if (photoInfoPosition >= 0) {
+                                coroutineScope.launch {
+                                    scrollState.animateScrollTo(photoInfoPosition * 20)
+                                }
+                            }
+                        }
+                    ) {
+                        Text("前往填写")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { viewModel.dismissPhotoInfoGuide() }
+                    ) {
+                        Text("稍后填写")
+                    }
+                }
+            )
         }
     }
 }

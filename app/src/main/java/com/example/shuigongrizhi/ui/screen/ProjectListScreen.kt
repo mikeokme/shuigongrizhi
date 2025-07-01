@@ -175,12 +175,21 @@ fun ProjectCard(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    
+    // 检查是否为默认项目
+    val isDefaultProject = project.name == "淮工自营水利工程项目" && project.manager == "自营"
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { showMenu = true },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDefaultProject) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -189,11 +198,30 @@ fun ProjectCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = project.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = project.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (isDefaultProject) {
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Text(
+                                text = "默认",
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = project.type.name,
                     style = MaterialTheme.typography.bodyMedium
@@ -241,13 +269,15 @@ fun ProjectCard(
                 // TODO: 导出操作，可在此处实现
             }
         )
-        DropdownMenuItem(
-            text = { Text("删除") },
-            onClick = {
-                showMenu = false
-                showDeleteDialog = true
-            }
-        )
+        if (!isDefaultProject) {
+            DropdownMenuItem(
+                text = { Text("删除") },
+                onClick = {
+                    showMenu = false
+                    showDeleteDialog = true
+                }
+            )
+        }
     }
     if (showDeleteDialog) {
         AlertDialog(

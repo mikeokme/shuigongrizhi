@@ -12,6 +12,7 @@ import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Calendar
@@ -59,9 +60,17 @@ class ProjectListViewModel @Inject constructor(
     fun deleteProject(project: Project) {
         viewModelScope.launch {
             try {
+                // 检查是否为默认项目，如果是则不允许删除
+                if (project.name == "淮工自营水利工程项目" && project.manager == "自营") {
+                    _error.value = "默认项目不能删除"
+                    return@launch
+                }
+                
                 projectRepository.deleteProject(project)
+                android.util.Log.d("ProjectList", "项目删除成功: ${project.name}")
             } catch (e: Exception) {
                 _error.value = e.message
+                android.util.Log.e("ProjectList", "删除项目失败", e)
             }
         }
     }
@@ -79,6 +88,18 @@ class ProjectListViewModel @Inject constructor(
         try {
             android.util.Log.d("ProjectList", "创建默认项目")
             
+            // 检查是否已存在默认项目
+            val existingProjects = projectRepository.getAllProjects().first()
+            val defaultProjectExists = existingProjects.any { project -> 
+                project.name == "淮工自营水利工程项目" && project.manager == "自营" 
+            }
+            
+            if (defaultProjectExists) {
+                android.util.Log.d("ProjectList", "默认项目已存在，跳过创建")
+                _isLoading.value = false
+                return
+            }
+            
             // 创建默认项目的开始日期（当前日期）
             val startDate = Date()
             
@@ -90,7 +111,7 @@ class ProjectListViewModel @Inject constructor(
             val defaultProject = Project(
                 name = "淮工自营水利工程项目",
                 type = ProjectType.水利,
-                description = "默认自营水利工程项目",
+                description = "淮工集团自营水利工程项目，用于日常施工日志记录和管理。",
                 startDate = startDate,
                 endDate = endDate,
                 manager = "自营"
@@ -138,5 +159,12 @@ class ProjectListViewModel @Inject constructor(
             android.util.Log.e("ProjectList", "创建默认施工日志失败: ${e.message}")
             // 不设置错误状态，因为项目已经创建成功
         }
+    }
+    
+    /**
+     * 检查是否为默认项目
+     */
+    fun isDefaultProject(project: Project): Boolean {
+        return project.name == "淮工自营水利工程项目" && project.manager == "自营"
     }
 }

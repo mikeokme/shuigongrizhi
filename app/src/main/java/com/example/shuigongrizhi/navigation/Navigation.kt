@@ -250,8 +250,9 @@ fun AppNavigation(
                         navController.navigateToMediaGallery(projectId)
                     },
                     onMediaCaptured = { uri, mediaType ->
-                        // 这里可以处理媒体文件捕获后的逻辑
-                        // 例如保存到数据库或显示预览
+                        // 拍照录像完成后自动导航到当日施工日志编辑页面
+                        val currentDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                        navController.navigateToLogEntry(projectId, currentDate)
                     }
                 )
             }
@@ -348,18 +349,10 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val logId = backStackEntry.arguments?.getLong("logId") ?: 0L
-                val viewModel: LogDetailViewModel = hiltViewModel()
                 LogDetailScreen(
-                    viewModel = viewModel,
                     logId = logId,
                     onNavigateBack = {
                         navController.popBackStack()
-                    },
-                    onNavigateToEdit = { projectId, date ->
-                        navController.navigateToLogEntry(projectId, date)
-                    },
-                    onNavigateToMediaGallery = { projectId ->
-                        navController.navigateToMediaGallery(projectId)
                     }
                 )
             }
