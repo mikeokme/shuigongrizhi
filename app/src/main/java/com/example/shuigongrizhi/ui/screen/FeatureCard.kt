@@ -9,11 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
-import androidx.compose.foundation.Image
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
@@ -38,26 +38,27 @@ fun FeatureCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (iconRes != null) {
-                Image(
+                Icon(
                     painter = painterResource(id = iconRes),
                     contentDescription = title,
+                    tint = Color.White,
                     modifier = Modifier.size(48.dp)
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = title,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = Color.White,
                     modifier = Modifier.size(48.dp)
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = title,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 16.sp,
+                color = Color.White,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
         }
     }
-} 
+}

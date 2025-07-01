@@ -100,37 +100,51 @@ class WeatherViewModel @Inject constructor(
     }
     
     private fun updateWeatherData(response: WeatherResponse) {
-        val condition = when (response.weather.firstOrNull()?.main?.lowercase()) {
-            "clear" -> WeatherCondition.SUNNY.displayName
-            "clouds" -> WeatherCondition.CLOUDY.displayName
-            "rain" -> WeatherCondition.RAINY.displayName
-            "snow" -> WeatherCondition.SNOWY.displayName
-            "thunderstorm" -> "雷雨"
-            "drizzle" -> "小雨"
-            "mist", "fog" -> "雾"
+        val realtime = response.result.realtime
+        
+        // 根据彩云天气的skycon字段映射天气状况
+        val condition = when (realtime.skycon.lowercase()) {
+            "clear_day", "clear_night" -> WeatherCondition.SUNNY.displayName
+            "partly_cloudy_day", "partly_cloudy_night" -> "多云"
+            "cloudy" -> WeatherCondition.CLOUDY.displayName
+            "light_rain" -> "小雨"
+            "moderate_rain" -> "中雨"
+            "heavy_rain" -> "大雨"
+            "storm_rain" -> "暴雨"
+            "light_snow" -> "小雪"
+            "moderate_snow" -> "中雪"
+            "heavy_snow" -> "大雪"
+            "storm_snow" -> "暴雪"
+            "fog" -> "雾"
+            "dust" -> "浮尘"
+            "sand" -> "沙尘"
+            "wind" -> "大风"
             else -> WeatherCondition.CLOUDY.displayName
         }
         
-        val windDirection = getWindDirection(response.wind.deg)
-                val windLevel = getWindLevel(response.wind.speed.toDouble())
+        val windDirection = getWindDirection(realtime.wind.direction.toInt())
+        val windLevel = getWindLevel(realtime.wind.speed)
         val currentTime = java.text.SimpleDateFormat(
             "yyyy-MM-dd HH:mm", 
             java.util.Locale.getDefault()
         ).format(java.util.Date())
         
+        // 根据经纬度获取城市名（简化处理）
+        val cityName = getCityNameFromLocation(response.location[1], response.location[0])
+        
         _weatherData.value = WeatherData(
             isLoading = false,
             weatherCondition = condition,
-            temperature = "${response.main.temp.toInt()}°C",
-            humidity = "${response.main.humidity}%",
-            windSpeed = "${response.wind.speed} m/s",
+            temperature = "${realtime.temperature.toInt()}°C",
+            humidity = "${(realtime.humidity * 100).toInt()}%",
+            windSpeed = "${realtime.wind.speed} m/s",
             windLevel = windLevel,
             windDirection = windDirection,
-            pressure = "${response.main.pressure} hPa",
-            visibility = "${response.visibility / 1000} km",
-            cityName = response.name,
-            description = response.weather.firstOrNull()?.description ?: "",
-            feelsLike = "${response.main.feels_like.toInt()}°C",
+            pressure = "${realtime.pressure.toInt()} hPa",
+            visibility = "${realtime.visibility.toInt()} km",
+            cityName = cityName,
+            description = getSkyconDescription(realtime.skycon),
+            feelsLike = "${realtime.apparent_temperature.toInt()}°C",
             lastUpdated = currentTime,
             error = null
         )
@@ -147,6 +161,41 @@ class WeatherViewModel @Inject constructor(
             in 248..292 -> "西风"
             in 293..337 -> "西北风"
             else -> "无风"
+        }
+    }
+    
+    private fun getSkyconDescription(skycon: String): String {
+        return when (skycon.lowercase()) {
+            "clear_day" -> "晴天"
+            "clear_night" -> "晴夜"
+            "partly_cloudy_day" -> "白天多云"
+            "partly_cloudy_night" -> "夜间多云"
+            "cloudy" -> "阴天"
+            "light_rain" -> "小雨"
+            "moderate_rain" -> "中雨"
+            "heavy_rain" -> "大雨"
+            "storm_rain" -> "暴雨"
+            "light_snow" -> "小雪"
+            "moderate_snow" -> "中雪"
+            "heavy_snow" -> "大雪"
+            "storm_snow" -> "暴雪"
+            "fog" -> "雾"
+            "dust" -> "浮尘"
+            "sand" -> "沙尘"
+            "wind" -> "大风"
+            else -> "未知"
+        }
+    }
+    
+    private fun getCityNameFromLocation(lat: Double, lon: Double): String {
+        // 简化处理，根据经纬度返回城市名
+        // 实际应用中可以使用地理编码API
+        return when {
+            lat > 39.8 && lat < 40.0 && lon > 116.3 && lon < 116.5 -> "北京"
+            lat > 31.1 && lat < 31.3 && lon > 121.4 && lon < 121.6 -> "上海"
+            lat > 22.4 && lat < 22.7 && lon > 113.9 && lon < 114.4 -> "深圳"
+            lat > 23.0 && lat < 23.3 && lon > 113.1 && lon < 113.5 -> "广州"
+            else -> "未知城市"
         }
     }
 

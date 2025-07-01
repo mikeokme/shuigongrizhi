@@ -28,8 +28,9 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "shuigong_database"
+            AppDatabase.DATABASE_NAME
         )
+            .addMigrations(AppDatabase.MIGRATION_3_4)
             .fallbackToDestructiveMigration()
             .build()
     }

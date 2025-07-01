@@ -54,7 +54,8 @@ class ProjectFormViewModel @Inject constructor(
     fun loadProject(projectId: Long) {
         viewModelScope.launch {
             try {
-                val project = projectRepository.getProjectById(projectId)
+                val projectResult = projectRepository.getProjectById(projectId)
+                val project = (projectResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                 project?.let {
                     editingProjectId = it.id
                     _formState.value = ProjectFormState(
@@ -163,11 +164,13 @@ class ProjectFormViewModel @Inject constructor(
                 // 自动备份项目数据
                 try {
                     val savedProject = if (editingProjectId != null) {
-                        projectRepository.getProjectById(editingProjectId!!)
+                        val result = projectRepository.getProjectById(editingProjectId!!)
+                        (result as? com.example.shuigongrizhi.core.Result.Success)?.data
                     } else {
                         // 获取刚创建的项目
-                        projectRepository.getAllProjects().first()
-                            .find { it.name == project.name && it.type == project.type }
+                        val allProjectsResult = projectRepository.getAllProjects().first()
+                        (allProjectsResult as? com.example.shuigongrizhi.core.Result.Success)?.data
+                            ?.find { it.name == project.name && it.type == project.type }
                     }
                     
                     savedProject?.let { proj ->

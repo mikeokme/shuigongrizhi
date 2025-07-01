@@ -36,8 +36,12 @@ class ProjectSelectionViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                projectRepository.getAllProjects().collect { projectList ->
-                    _projects.value = projectList
+                projectRepository.getAllProjects().collect { result ->
+                    if (result is com.example.shuigongrizhi.core.Result.Success) {
+                        _projects.value = result.data
+                    } else if (result is com.example.shuigongrizhi.core.Result.Error) {
+                        _error.value = result.exception.message ?: "加载项目列表失败"
+                    }
                 }
             } catch (e: Exception) {
                 _error.value = e.message ?: "加载项目列表失败"

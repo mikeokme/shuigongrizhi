@@ -4,7 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
+    id("kotlin-parcelize")
 }
 
 android {
@@ -24,20 +25,47 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // 启用矢量图支持
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+        
+        // 数据库schema导出
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true"
+                )
+            }
+        }
     }
 
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            // 启用构建配置字段
+            buildConfigField("boolean", "DEBUG_MODE", "true")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.openweathermap.org/data/2.5/\"")
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-        debug {
-            isMinifyEnabled = false
-            // 禁用R8以加快调试构建速度
-            isShrinkResources = false
+            buildConfigField("boolean", "DEBUG_MODE", "false")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.openweathermap.org/data/2.5/\"")
+            
+            // 签名配置（生产环境需要配置）
+            // signingConfig = signingConfigs.getByName("release")
         }
     }
     
@@ -54,6 +82,18 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+    
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8"
+    }
+    
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/gradle/incremental.annotation.processors"
+        }
     }
 }
 

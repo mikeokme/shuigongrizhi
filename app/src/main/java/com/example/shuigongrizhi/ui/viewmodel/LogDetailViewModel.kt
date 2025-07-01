@@ -59,7 +59,22 @@ class LogDetailViewModel @Inject constructor(
                 }
                 
                 // 加载项目信息
-                val project = projectRepository.getProjectById(log.projectId)
+                val projectResult = projectRepository.getProjectById(log.projectId)
+                val project = when (projectResult) {
+                    is com.example.shuigongrizhi.core.Result.Success -> projectResult.data
+                    is com.example.shuigongrizhi.core.Result.Error -> {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = "加载项目信息失败: ${projectResult.exception.message}"
+                        )
+                        return@launch
+                    }
+                    is com.example.shuigongrizhi.core.Result.Loading -> {
+                        // 继续等待
+                        return@launch
+                    }
+                }
+                
                 if (project == null) {
                     _state.value = _state.value.copy(
                         isLoading = false,

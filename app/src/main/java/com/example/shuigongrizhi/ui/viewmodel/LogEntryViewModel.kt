@@ -44,6 +44,7 @@ data class LogEntryState(
 class LogEntryViewModel @Inject constructor(
     private val constructionLogRepository: ConstructionLogRepository,
     private val projectRepository: ProjectRepository,
+    private val weatherService: com.example.shuigongrizhi.network.WeatherService,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     
@@ -240,20 +241,40 @@ class LogEntryViewModel @Inject constructor(
         viewModelScope.launch {
             _logState.value = _logState.value.copy(isLoadingWeather = true)
             try {
-                val response = NetworkModule.weatherService.getCurrentWeather(
-                    lat = lat,
-                    lon = lon,
-                    apiKey = "ad01985ba99a733396e2b6c25e55806f"
+                val response = weatherService.getCurrentWeather(
+                    token = com.example.shuigongrizhi.config.ApiConfig.CAIYUN_API_TOKEN,
+                    longitude = lon,
+                    latitude = lat,
+                    lang = com.example.shuigongrizhi.config.ApiConfig.DEFAULT_LANG,
+                    unit = com.example.shuigongrizhi.config.ApiConfig.DEFAULT_UNIT,
+                    granu = com.example.shuigongrizhi.config.ApiConfig.DEFAULT_GRANU
                 )
-                val condition = when (response.weather.firstOrNull()?.main?.lowercase()) {
-                    "clear" -> WeatherCondition.SUNNY.displayName
-                    "clouds" -> WeatherCondition.CLOUDY.displayName
-                    "rain" -> WeatherCondition.RAINY.displayName
-                    "snow" -> WeatherCondition.SNOWY.displayName
+                
+                val realtime = response.result.realtime
+                
+                // 根据彩云天气的skycon字段映射天气状况
+                val condition = when (realtime.skycon.lowercase()) {
+                    "clear_day", "clear_night" -> WeatherCondition.SUNNY.displayName
+                    "partly_cloudy_day", "partly_cloudy_night" -> "多云"
+                    "cloudy" -> WeatherCondition.CLOUDY.displayName
+                    "light_rain" -> "小雨"
+                    "moderate_rain" -> "中雨"
+                    "heavy_rain" -> "大雨"
+                    "storm_rain" -> "暴雨"
+                    "light_snow" -> "小雪"
+                    "moderate_snow" -> "中雪"
+                    "heavy_snow" -> "大雪"
+                    "storm_snow" -> "暴雪"
+                    "fog" -> "雾"
+                    "dust" -> "浮尘"
+                    "sand" -> "沙尘"
+                    "wind" -> "大风"
                     else -> WeatherCondition.CLOUDY.displayName
                 }
-                val temp = "${response.main.temp.toInt()} °C"
-                val windSpeed = "${response.wind.speed} m/s"
+                
+                val temp = "${realtime.temperature.toInt()} °C"
+                val windSpeed = "${realtime.wind.speed} m/s"
+                
                 _logState.value = _logState.value.copy(
                     weatherCondition = condition,
                     temperature = temp,
@@ -313,7 +334,8 @@ class LogEntryViewModel @Inject constructor(
                 
                 // 自动备份项目数据（包含新保存的日志）
                 try {
-                    val project = projectRepository.getProjectById(projectId)
+                    val projectResult = projectRepository.getProjectById(projectId)
+                    val project = (projectResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                     project?.let { proj ->
                         // 获取项目的所有日志（包括刚保存的）
                         val logs = constructionLogRepository.getLogsByProjectId(projectId).first()

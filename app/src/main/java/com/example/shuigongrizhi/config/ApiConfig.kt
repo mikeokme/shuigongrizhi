@@ -1,14 +1,22 @@
 package com.example.shuigongrizhi.config
 
 object ApiConfig {
-    // OpenWeatherMap API密钥
+    // 彩云天气 API Token
     // 注意：在生产环境中，应该将API密钥存储在更安全的地方，如BuildConfig或环境变量
-    const val OPENWEATHER_API_KEY = "ad01985ba99a733396e2b6c25e55806f"
+    const val CAIYUN_API_TOKEN = "TAkhjf8d1nlSlspN" // 演示Token，请替换为您的实际Token
+    
+    // 彩云天气 API 基础URL
+    const val CAIYUN_BASE_URL = "https://api.caiyunapp.com/v2.5/"
     
     // 默认城市坐标（江苏徐州）
     const val DEFAULT_LATITUDE = 34.2610
     const val DEFAULT_LONGITUDE = 117.1859
     
     // 默认城市名称
-    const val DEFAULT_CITY = "Xuzhou"
+    const val DEFAULT_CITY = "徐州"
+    
+    // API 参数配置
+    const val DEFAULT_LANG = "zh_CN"
+    const val DEFAULT_UNIT = "metric"
+    const val DEFAULT_GRANU = "realtime" // realtime, minutely, hourly, daily
 }

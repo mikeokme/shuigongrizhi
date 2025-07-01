@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.Date
+import com.example.shuigongrizhi.data.entity.ProjectType
 
 class Converters {
     @TypeConverter
@@ -28,6 +29,20 @@ class Converters {
             Gson().fromJson(value, listType) ?: emptyList()
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    @TypeConverter
+    fun fromProjectType(projectType: ProjectType): String {
+        return projectType.name
+    }
+
+    @TypeConverter
+    fun toProjectType(projectType: String): ProjectType {
+        return try {
+            ProjectType.valueOf(projectType)
+        } catch (e: Exception) {
+            ProjectType.其他项目
         }
     }
 }

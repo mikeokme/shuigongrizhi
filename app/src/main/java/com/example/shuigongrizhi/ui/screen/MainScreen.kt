@@ -1,7 +1,9 @@
 package com.example.shuigongrizhi.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -80,78 +82,79 @@ fun MainScreen(
                 )
             }
         }
-        // 功能区
-        Row(
+        // 功能区 - 3x3宫格布局
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
             modifier = Modifier
-                .padding(horizontal = 32.dp, vertical = 16.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                FeatureCard(
-                    title = "施工日志",
-                    iconRes = R.drawable.ic_launcher_foreground,
-                    gradient = Brush.linearGradient(listOf(Color(0xFF7F53AC), Color(0xFF647DEE))),
-                    modifier = Modifier.size(96.dp),
-                    onClick = onLogClick
-                )
-                FeatureCard(
-                    title = "拍照录像",
-                    iconRes = R.drawable.ic_champagne,
-                    gradient = Brush.linearGradient(listOf(Color(0xFFCB2D3E), Color(0xFFEF473A))),
-                    modifier = Modifier.size(96.dp),
-                    onClick = onCameraClick
-                )
-                FeatureCard(
-                    title = "媒体管理",
-                    iconRes = R.drawable.ic_cognac,
-                    gradient = Brush.linearGradient(listOf(Color(0xFF43CEA2), Color(0xFF185A9D))),
-                    modifier = Modifier.size(96.dp),
-                    onClick = onMediaClick
-                )
-                FeatureCard(
-                    title = "PDF文档",
-                    iconRes = R.drawable.ic_launcher_foreground,
-                    gradient = Brush.linearGradient(listOf(Color(0xFFFF6B6B), Color(0xFF4ECDC4))),
-                    modifier = Modifier.size(96.dp),
-                    onClick = onPdfViewerClick
-                )
-            }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                WeatherCard(
-                    weatherState = weatherState,
-                    modifier = Modifier.size(96.dp),
-                    onClick = onWeatherClick
-                )
-                FeatureCard(
-                    title = "位置服务",
-                    iconRes = R.drawable.ic_gps_fixed,
-                    gradient = Brush.linearGradient(listOf(Color(0xFF8E54E9), Color(0xFF4776E6))),
-                    modifier = Modifier.size(96.dp),
-                    onClick = onLocationClick
-                )
-                FeatureCard(
-                    title = "项目管理",
-                    iconRes = R.drawable.ic_launcher_foreground,
-                    gradient = Brush.linearGradient(listOf(Color(0xFF43CEA2), Color(0xFF4568DC))),
-                    modifier = Modifier.size(96.dp),
-                    onClick = onProjectClick
-                )
-                FeatureCard(
-                    title = "待开发区域",
-                    iconRes = R.drawable.ic_feedback,
-                    gradient = Brush.linearGradient(listOf(Color(0xFFFF416C), Color(0xFFFF4B2B))),
-                    modifier = Modifier.size(96.dp),
-                    onClick = onFeedbackClick
-                )
+            items(9) { index ->
+                when (index) {
+                    0 -> FeatureCard(
+                        title = "施工日志",
+                        iconRes = R.drawable.ic_construction_log,
+                        gradient = Brush.linearGradient(listOf(Color(0xFF7F53AC), Color(0xFF647DEE))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onLogClick
+                    )
+                    1 -> WeatherCard(
+                        weatherState = weatherState,
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onWeatherClick
+                    )
+                    2 -> FeatureCard(
+                        title = "拍照录像",
+                        iconRes = R.drawable.ic_camera,
+                        gradient = Brush.linearGradient(listOf(Color(0xFFCB2D3E), Color(0xFFEF473A))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onCameraClick
+                    )
+                    3 -> FeatureCard(
+                        title = "位置服务",
+                        iconRes = R.drawable.ic_location,
+                        gradient = Brush.linearGradient(listOf(Color(0xFF8E54E9), Color(0xFF4776E6))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onLocationClick
+                    )
+                    4 -> FeatureCard(
+                        title = "媒体管理",
+                        iconRes = R.drawable.ic_media,
+                        gradient = Brush.linearGradient(listOf(Color(0xFF43CEA2), Color(0xFF185A9D))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onMediaClick
+                    )
+                    5 -> FeatureCard(
+                        title = "项目管理",
+                        iconRes = R.drawable.ic_project,
+                        gradient = Brush.linearGradient(listOf(Color(0xFF43CEA2), Color(0xFF4568DC))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onProjectClick
+                    )
+                    6 -> FeatureCard(
+                        title = "PDF文档",
+                        iconRes = R.drawable.ic_pdf,
+                        gradient = Brush.linearGradient(listOf(Color(0xFFFF6B6B), Color(0xFF4ECDC4))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onPdfViewerClick
+                    )
+                    7 -> FeatureCard(
+                        title = "设置",
+                        iconRes = R.drawable.ic_settings,
+                        gradient = Brush.linearGradient(listOf(Color(0xFF9C27B0), Color(0xFF673AB7))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onSettingsClick
+                    )
+                    8 -> FeatureCard(
+                        title = "待开发区域",
+                        iconRes = R.drawable.ic_development,
+                        gradient = Brush.linearGradient(listOf(Color(0xFFFF416C), Color(0xFFFF4B2B))),
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onFeedbackClick
+                    )
+                }
             }
         }
 
@@ -241,93 +244,79 @@ fun WeatherCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
-    Card(
+    Box(
         modifier = modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .padding(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        onClick = onClick
+            .aspectRatio(1f)
+            .background(
+                brush = Brush.linearGradient(
+                    listOf(Color(0xFF56CCF2), Color(0xFF2F80ED))
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.linearGradient(
-                        listOf(Color(0xFF56CCF2), Color(0xFF2F80ED))
-                    )
+        when (weatherState) {
+            is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.White
                 )
-                .padding(16.dp)
-        ) {
-            when (weatherState) {
-                is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+            }
+            is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Success -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "${weatherState.weather.result.realtime.temperature.toInt()}°C",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "天气",
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
                 }
-                is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Success -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "${weatherState.weather.main.temp.toInt()}°C",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        WeatherAnimation(weatherCondition = weatherState.weather.weather[0].main)
-                        Text(
-                            text = weatherState.weather.name,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                        )
-                    }
+            }
+            is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Error -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CloudOff,
+                        contentDescription = "天气错误",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "天气",
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
                 }
-                is com.example.shuigongrizhi.ui.viewmodel.WeatherState.Error -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CloudOff,
-                            contentDescription = "天气错误",
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Text(
-                            text = "天气信息获取失败",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-                else -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Cloud,
-                            contentDescription = "天气",
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Text(
-                            text = "天气信息",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
+            }
+            else -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Cloud,
+                        contentDescription = "天气",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "天气",
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
                 }
             }
         }

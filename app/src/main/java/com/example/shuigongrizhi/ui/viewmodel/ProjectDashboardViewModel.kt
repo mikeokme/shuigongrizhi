@@ -47,7 +47,8 @@ class ProjectDashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val project = projectRepository.getProjectById(id)
+                val projectResult = projectRepository.getProjectById(id)
+                val project = (projectResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                 project?.let {
                     _dashboardState.value = _dashboardState.value.copy(project = it)
                     loadLogs()

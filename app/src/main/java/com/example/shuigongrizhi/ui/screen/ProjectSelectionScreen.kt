@@ -29,9 +29,10 @@ fun ProjectSelectionScreen(
     onProjectSelected: (Project) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val projects by viewModel.projects.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val projects = uiState.data ?: emptyList()
+    val isLoading = uiState.isLoading
+    val error = uiState.error
 
     // 每次进入页面时刷新项目列表
     LaunchedEffect(Unit) {
@@ -41,6 +42,7 @@ fun ProjectSelectionScreen(
     // 错误处理
     error?.let { errorMessage ->
         LaunchedEffect(errorMessage) {
+            // 显示错误信息
             viewModel.clearError()
         }
     }
