@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -25,6 +27,7 @@ fun FeedbackScreen(
 ) {
     val context = LocalContext.current
     val authorEmail = "yb89725@hotmail.com"
+    val scrollState = rememberScrollState()
     
     Scaffold(
         topBar = {
@@ -59,6 +62,7 @@ fun FeedbackScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
+                .verticalScroll(scrollState)
                 .padding(paddingValues)
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -23,42 +25,45 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shuigongrizhi.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiscoveryScreen(
     onBackClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
     onDesktopClick: () -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF231942))
-    ) {
-        // 顶部栏
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Place,
-                contentDescription = null,
-                tint = Color(0xFF8D6EFF),
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Discovery",
-                color = Color(0xFF8D6EFF),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Place,
+                    contentDescription = null,
+                    tint = Color(0xFF8D6EFF),
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Discovery",
+                    color = Color(0xFF8D6EFF),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        containerColor = Color(0xFF231942)
+    ) { paddingValues ->
         // 功能卡片区
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -114,7 +119,5 @@ fun DiscoveryScreen(
                 )
             }
         }
-        // 添加底部空间，确保内容不被底部导航栏遮挡
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }

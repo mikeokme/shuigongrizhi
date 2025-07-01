@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -18,40 +20,39 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shuigongrizhi.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DesktopScreen(
     onNavigateBack: () -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF231942))
-    ) {
-        // 顶部栏
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
-        ) {
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = Modifier.align(Alignment.CenterStart)
+    Scaffold(
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "返回",
-                    tint = Color(0xFF8D6EFF)
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "返回",
+                        tint = Color(0xFF8D6EFF)
+                    )
+                }
+                Text(
+                    text = "桌面",
+                    color = Color(0xFF8D6EFF),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
-            Text(
-                text = "桌面",
-                color = Color(0xFF8D6EFF),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-        
+        },
+        containerColor = Color(0xFF231942)
+    ) { paddingValues ->
         // 桌面应用网格
         val desktopApps = listOf(
             DesktopApp("日历", Icons.Default.CalendarToday),
@@ -64,18 +65,33 @@ fun DesktopScreen(
             DesktopApp("联系人", Icons.Default.Contacts)
         )
         
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(4),
-            contentPadding = PaddingValues(16.dp),
-            modifier = Modifier.weight(1f)
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            items(desktopApps) { app ->
-                DesktopAppItem(app)
+            // 将应用分成每行4个的网格
+            for (i in desktopApps.indices step 4) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    for (j in 0 until 4) {
+                        if (i + j < desktopApps.size) {
+                            DesktopAppItem(desktopApps[i + j])
+                        } else {
+                            // 空占位符，保持布局平衡
+                            Spacer(modifier = Modifier.width(64.dp))
+                        }
+                    }
+                }
             }
         }
-        
-        // 添加底部空间，确保内容不被底部导航栏遮挡
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
