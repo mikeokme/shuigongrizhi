@@ -21,6 +21,8 @@ import java.util.*
 
 class PdfGenerator(private val context: Context) {
     
+    private val pdfManager = PdfManager(context)
+    
     private val paint = Paint()
     private val textPaint = Paint()
     private val titlePaint = Paint()
@@ -106,8 +108,7 @@ class PdfGenerator(private val context: Context) {
         pdfDocument.finishPage(page)
         
         // 保存文件
-        val fileName = "施工日志_${project.name}_${SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(constructionLog.date)}.pdf"
-        val file = File(context.getExternalFilesDir(null), fileName)
+        val file = pdfManager.createPdfFile(project.name, constructionLog.date)
         pdfDocument.writeTo(FileOutputStream(file))
         pdfDocument.close()
         

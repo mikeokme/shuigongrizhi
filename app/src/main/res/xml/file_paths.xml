@@ -23,4 +23,10 @@
     
     <!-- 文档存储目录 -->
     <external-files-path name="documents" path="Documents" />
+    
+    <!-- PDF施工日志存储目录 -->
+    <external-files-path name="construction_logs" path="Documents/ConstructionLogs" />
+    
+    <!-- 外部存储公共文档目录 -->
+    <external-path name="external_documents" path="Documents/ConstructionLogs" />
 </paths>

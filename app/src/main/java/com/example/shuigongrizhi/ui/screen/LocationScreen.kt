@@ -38,7 +38,7 @@ fun LocationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("位置服务") },
+                title = { Text(text = "位置服务") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "返回")
@@ -84,7 +84,7 @@ fun LocationScreen(
                             FilterChip(
                                 selected = uiState.mapProvider == provider,
                                 onClick = { viewModel.setMapProvider(provider) },
-                                label = { Text(provider.name) }
+                                label = { Text(text = provider.name) }
                             )
                         }
                     }
@@ -104,13 +104,13 @@ fun LocationScreen(
                 ) {
                     when (uiState.mapProvider) {
                         MapProvider.GOOGLE -> {
-                            Text("Google 地图区域\n（请集成 Google Maps Compose）")
+                            Text(text = "Google 地图区域\n（请集成 Google Maps Compose）")
                         }
                         MapProvider.GAODE -> {
-                            Text("高德地图区域\n（请集成高德地图SDK）")
+                            Text(text = "高德地图区域\n（请集成高德地图SDK）")
                         }
                         MapProvider.BAIDU -> {
-                            Text("百度地图区域\n（请集成百度地图SDK）")
+                            Text(text = "百度地图区域\n（请集成百度地图SDK）")
                         }
                     }
                 }
@@ -150,7 +150,7 @@ fun LocationScreen(
                                 modifier = Modifier.size(16.dp),
                                 strokeWidth = 2.dp
                             )
-                            Text("正在获取位置...")
+                            Text(text = "正在获取位置...")
                         }
                     } else {
                         // 定位来源指示器
@@ -166,8 +166,7 @@ fun LocationScreen(
                                     Text(
                                         text = viewModel.getLocationSourceText(source),
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.labelSmall
+                                        style = MaterialTheme.typography.labelSmall.copy(color = Color.White)
                                     )
                                 }
                             }
@@ -196,8 +195,7 @@ fun LocationScreen(
                             )
                             Text(
                                 text = error,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error)
                             )
                         }
                     }
@@ -288,7 +286,7 @@ private fun HistoryItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = record.address,
+                text = record.address ?: "未知地址",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )

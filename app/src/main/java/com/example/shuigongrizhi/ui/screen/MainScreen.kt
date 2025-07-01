@@ -30,6 +30,7 @@ fun MainScreen(
     onProjectClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onProjectSelectionClick: () -> Unit = {},
+    onPdfViewerClick: () -> Unit = {},
     weatherViewModel: com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val weatherState by weatherViewModel.weatherState.collectAsState()
@@ -109,6 +110,13 @@ fun MainScreen(
                     modifier = Modifier.size(96.dp),
                     onClick = onMediaClick
                 )
+                FeatureCard(
+                    title = "PDF文档",
+                    iconRes = R.drawable.ic_launcher_foreground,
+                    gradient = Brush.linearGradient(listOf(Color(0xFFFF6B6B), Color(0xFF4ECDC4))),
+                    modifier = Modifier.size(96.dp),
+                    onClick = onPdfViewerClick
+                )
             }
             Column(
                 modifier = Modifier.weight(1f),
@@ -136,7 +144,7 @@ fun MainScreen(
                 )
             }
         }
-        // 企业文化对联区域
+        // 企业文化对联
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,8 +154,8 @@ fun MainScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "生如蝼蚁，当有鸿鹄之志；命如纸薄，应有不屈之心。",
-                    color = Color(0xFFFFD700), // 金色
+                    text = "生如蝼蚁，当有鸿鹄之志；\n命如纸薄，应有不屈之心。",
+                    color = Color(0xFFFFD700),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -157,11 +165,15 @@ fun MainScreen(
                 )
             }
         }
-        // 底部项目信息说明
+
+        // 用固定高度的Spacer让内容更紧凑
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 项目信息说明
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 40.dp),
+                .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -177,17 +189,25 @@ fun MainScreen(
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = "|",
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                Text(
                     text = "开发者：醉生梦死",
                     color = Color.White,
                     fontSize = 14.sp,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.End
+                )
+            }
+            // 两行之间插入一根竖线
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .fillMaxHeight()
+                        .background(Color.White)
                 )
             }
             Row(
@@ -203,12 +223,6 @@ fun MainScreen(
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = "|",
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                Text(
                     text = "射阳盐场项目出品",
                     color = Color.White,
                     fontSize = 14.sp,
@@ -217,6 +231,8 @@ fun MainScreen(
                 )
             }
         }
+        // 底部导航栏
+        BottomNavBar(selectedIndex = 2)
     }
 }
 

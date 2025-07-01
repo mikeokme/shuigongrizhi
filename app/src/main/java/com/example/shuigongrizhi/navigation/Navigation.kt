@@ -39,6 +39,7 @@ object NavigationRoutes {
     const val MEDIA_GALLERY = "media_gallery/{projectId}"
     const val MEDIA_DETAIL = "media_detail/{mediaFileId}"
     const val LOCATION = "location"
+    const val PDF_VIEWER = "pdf_viewer"
 }
 
 @Composable
@@ -63,7 +64,8 @@ fun AppNavigation(
                     onMediaClick = { /* TODO: 跳转到媒体管理页面 */ },
                     onProjectClick = { navController.navigate(NavigationRoutes.PROJECT_LIST) },
                     onProjectSelectionClick = { navController.navigate(NavigationRoutes.PROJECT_SELECTION) },
-                    onSettingsClick = { /* TODO: 跳转到设置页面 */ }
+                    onSettingsClick = { /* TODO: 跳转到设置页面 */ },
+                    onPdfViewerClick = { navController.navigate(NavigationRoutes.PDF_VIEWER) }
                 )
             }
             // 项目列表页面
@@ -225,6 +227,9 @@ fun AppNavigation(
                         // TODO: 实现PDF导出功能
                         // 这里可以调用PDF生成服务
                         navController.popBackStack()
+                    },
+                    onViewPdf = {
+                        navController.navigate(NavigationRoutes.PDF_VIEWER)
                     }
                 )
             }
@@ -377,6 +382,15 @@ fun AppNavigation(
                 val locationDao = db.locationRecordDao()
                 val viewModel = remember { com.example.shuigongrizhi.ui.viewmodel.LocationViewModel(context as android.app.Application, locationDao) }
                 LocationScreen(viewModel = viewModel, onNavigateBack = { navController.popBackStack() })
+            }
+            
+            // PDF查看器页面
+            composable(NavigationRoutes.PDF_VIEWER) {
+                val viewModel: PdfViewerViewModel = hiltViewModel()
+                PdfViewerScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
             }
         }
     }

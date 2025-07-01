@@ -6,6 +6,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +33,8 @@ enum class ExportType {
 fun ExportScreen(
     projectId: Long,
     onNavigateBack: () -> Unit,
-    onExportPdf: (Long, ExportType, String, String) -> Unit
+    onExportPdf: (Long, ExportType, String, String) -> Unit,
+    onViewPdf: () -> Unit = {}
 ) {
     var selectedPeriod by remember { mutableStateOf(ExportType.MONTHLY) }
     var selectedTimeRange by remember { mutableStateOf("") }
@@ -180,6 +182,27 @@ fun ExportScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 查看PDF文档按钮
+            OutlinedButton(
+                onClick = onViewPdf,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Visibility,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "查看PDF文档",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
     }
