@@ -28,6 +28,7 @@ data class WeatherData(
     val temperature: String = "",
     val humidity: String = "",
     val windSpeed: String = "",
+    val windLevel: String = "",
     val windDirection: String = "",
     val pressure: String = "",
     val visibility: String = "",
@@ -111,6 +112,7 @@ class WeatherViewModel @Inject constructor(
         }
         
         val windDirection = getWindDirection(response.wind.deg)
+                val windLevel = getWindLevel(response.wind.speed.toDouble())
         val currentTime = java.text.SimpleDateFormat(
             "yyyy-MM-dd HH:mm", 
             java.util.Locale.getDefault()
@@ -122,6 +124,7 @@ class WeatherViewModel @Inject constructor(
             temperature = "${response.main.temp.toInt()}°C",
             humidity = "${response.main.humidity}%",
             windSpeed = "${response.wind.speed} m/s",
+            windLevel = windLevel,
             windDirection = windDirection,
             pressure = "${response.main.pressure} hPa",
             visibility = "${response.visibility / 1000} km",
@@ -146,12 +149,30 @@ class WeatherViewModel @Inject constructor(
             else -> "无风"
         }
     }
+
+    private fun getWindLevel(speed: Double): String {
+        return when {
+            speed < 0.3 -> "0级"
+            speed < 1.6 -> "1级"
+            speed < 3.4 -> "2级"
+            speed < 5.5 -> "3级"
+            speed < 8.0 -> "4级"
+            speed < 10.8 -> "5级"
+            speed < 13.9 -> "6级"
+            speed < 17.2 -> "7级"
+            speed < 20.8 -> "8级"
+            speed < 24.5 -> "9级"
+            speed < 28.5 -> "10级"
+            speed < 32.7 -> "11级"
+            else -> "12级以上"
+        }
+    }
     
     fun clearError() {
         _weatherState.value = WeatherState.Idle
     }
     
-    fun refreshWeather() {
-        getCurrentWeather()
+    fun refreshWeather(context: Context) {
+        getCurrentWeatherAuto(context)
     }
 }

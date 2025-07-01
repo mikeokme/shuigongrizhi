@@ -25,6 +25,7 @@ import com.example.shuigongrizhi.utils.PdfManager
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.shuigongrizhi.ui.screen.formatFileSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -361,19 +362,5 @@ fun PdfFileItem(
                 }
             }
         )
-    }
-}
-
-/**
- * 格式化文件大小
- */
-fun formatFileSize(bytes: Long): String {
-    val kb = bytes / 1024.0
-    val mb = kb / 1024.0
-    
-    return when {
-        mb >= 1 -> String.format("%.1f MB", mb)
-        kb >= 1 -> String.format("%.1f KB", kb)
-        else -> "$bytes B"
     }
 }

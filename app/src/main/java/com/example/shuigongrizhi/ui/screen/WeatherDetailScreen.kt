@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel
 import androidx.compose.ui.platform.LocalContext
+import com.example.shuigongrizhi.ui.screen.WeatherAnimation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +76,7 @@ fun WeatherDetailScreen(
             },
             actions = {
                 IconButton(
-                    onClick = { viewModel.refreshWeather() }
+                    onClick = { viewModel.refreshWeather(context) }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -121,6 +122,7 @@ fun WeatherDetailScreen(
                         WeatherDetailsGrid(
                             humidity = weatherData.humidity,
                             windSpeed = weatherData.windSpeed,
+                            windLevel = weatherData.windLevel,
                             windDirection = weatherData.windDirection,
                             pressure = weatherData.pressure,
                             visibility = weatherData.visibility
@@ -234,12 +236,7 @@ fun MainWeatherCard(
                 color = Color.White
             )
             
-            Text(
-                text = condition,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.White
-            )
+            WeatherAnimation(weatherCondition = condition)
             
             Text(
                 text = description,
@@ -262,6 +259,7 @@ fun MainWeatherCard(
 fun WeatherDetailsGrid(
     humidity: String,
     windSpeed: String,
+    windLevel: String,
     windDirection: String,
     pressure: String,
     visibility: String
@@ -282,7 +280,7 @@ fun WeatherDetailsGrid(
             WeatherDetailItem(
                 icon = Icons.Default.Air,
                 title = "风速",
-                value = windSpeed,
+                value = "$windSpeed ($windLevel)",
                 modifier = Modifier.weight(1f)
             )
         }

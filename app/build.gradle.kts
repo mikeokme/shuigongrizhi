@@ -111,6 +111,9 @@ dependencies {
     // ExoPlayer (media3)
     implementation("androidx.media3:media3-exoplayer:1.2.1")
     implementation("androidx.media3:media3-ui:1.2.1")
+
+    // Lottie for animations
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

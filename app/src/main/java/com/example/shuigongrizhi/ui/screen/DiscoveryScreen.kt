@@ -111,6 +111,11 @@ fun DiscoveryScreen() {
             }
         }
         // 底部导航栏
-        BottomNavBar(selectedIndex = 2)
+        BottomNavBar(
+            selectedIndex = 0,
+            onBackClick = { /* 返回上级目录 */ },
+            onDesktopClick = { /* 跳转到桌面功能 */ },
+            onHomeClick = { /* 跳转到首页 */ }
+        )
     }
-} 
+}

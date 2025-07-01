@@ -40,6 +40,7 @@ object NavigationRoutes {
     const val MEDIA_DETAIL = "media_detail/{mediaFileId}"
     const val LOCATION = "location"
     const val PDF_VIEWER = "pdf_viewer"
+    const val DESKTOP = "desktop"
 }
 
 @Composable
@@ -47,7 +48,17 @@ fun AppNavigation(
     navController: NavHostController
 ) {
     Scaffold(
-        bottomBar = { BottomNavBar(selectedIndex = 2) }
+        bottomBar = { 
+            BottomNavBar(
+                selectedIndex = 1, // 默认选中首页
+                onBackClick = { navController.popBackStack() },
+                onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) },
+                onHomeClick = { navController.navigate(NavigationRoutes.MAIN) {
+                    // 清除回退栈，使首页成为唯一目的地
+                    popUpTo(NavigationRoutes.MAIN) { inclusive = true }
+                }}
+            )
+        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -382,6 +393,13 @@ fun AppNavigation(
                 val locationDao = db.locationRecordDao()
                 val viewModel = remember { com.example.shuigongrizhi.ui.viewmodel.LocationViewModel(context as android.app.Application, locationDao) }
                 LocationScreen(viewModel = viewModel, onNavigateBack = { navController.popBackStack() })
+            }
+            
+            // 桌面页面
+            composable(NavigationRoutes.DESKTOP) {
+                DesktopScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
             
             // PDF查看器页面

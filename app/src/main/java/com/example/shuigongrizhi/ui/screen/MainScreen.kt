@@ -19,6 +19,7 @@ import com.example.shuigongrizhi.R
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import com.example.shuigongrizhi.ui.screen.WeatherAnimation
 
 @Composable
 fun MainScreen(
@@ -31,13 +32,15 @@ fun MainScreen(
     onSettingsClick: () -> Unit = {},
     onProjectSelectionClick: () -> Unit = {},
     onPdfViewerClick: () -> Unit = {},
+    onDesktopClick: () -> Unit = {},
     weatherViewModel: com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val weatherState by weatherViewModel.weatherState.collectAsState()
     
+    val context = androidx.compose.ui.platform.LocalContext.current
     // 自动加载天气数据
     LaunchedEffect(Unit) {
-        weatherViewModel.getCurrentWeather()
+        weatherViewModel.getCurrentWeatherAuto(context)
     }
     Column(
         modifier = Modifier
@@ -79,7 +82,6 @@ fun MainScreen(
         // 功能区
         Row(
             modifier = Modifier
-                .weight(1f)
                 .padding(horizontal = 32.dp, vertical = 16.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(24.dp)
@@ -144,6 +146,10 @@ fun MainScreen(
                 )
             }
         }
+
+        // 下移对联和项目信息说明
+        Spacer(modifier = Modifier.weight(1f))
+
         // 企业文化对联
         Box(
             modifier = Modifier
@@ -166,7 +172,6 @@ fun MainScreen(
             }
         }
 
-        // 用固定高度的Spacer让内容更紧凑
         Spacer(modifier = Modifier.height(24.dp))
 
         // 项目信息说明
@@ -196,20 +201,6 @@ fun MainScreen(
                     textAlign = TextAlign.End
                 )
             }
-            // 两行之间插入一根竖线
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(1.dp)
-                        .fillMaxHeight()
-                        .background(Color.White)
-                )
-            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -232,7 +223,12 @@ fun MainScreen(
             }
         }
         // 底部导航栏
-        BottomNavBar(selectedIndex = 2)
+        BottomNavBar(
+            selectedIndex = 1,
+            onBackClick = { /* 在主页面，返回按钮不执行任何操作 */ },
+            onDesktopClick = onDesktopClick, // 跳转到桌面功能
+            onHomeClick = { /* 已在首页，不执行任何操作 */ }
+        )
     }
 }
 
@@ -286,11 +282,7 @@ fun WeatherCard(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        Text(
-                            text = weatherState.weather.weather[0].description,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
+                        WeatherAnimation(weatherCondition = weatherState.weather.weather[0].main)
                         Text(
                             text = weatherState.weather.name,
                             fontSize = 12.sp,

@@ -85,7 +85,19 @@ fun LogDetailScreen(
                     state.pdfFile?.let { pdfFile ->
                         IconButton(
                             onClick = {
-                                // TODO: 实现分享功能
+                                // 实现分享功能
+                                val uri = androidx.core.content.FileProvider.getUriForFile(
+                                    context,
+                                    context.packageName + ".fileprovider",
+                                    pdfFile
+                                )
+                                val shareIntent = android.content.Intent().apply {
+                                    action = android.content.Intent.ACTION_SEND
+                                    type = "application/pdf"
+                                    putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
+                                context.startActivity(android.content.Intent.createChooser(shareIntent, "分享PDF文件"))
                             }
                         ) {
                             Icon(Icons.Default.Share, contentDescription = "分享")

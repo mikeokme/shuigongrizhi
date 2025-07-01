@@ -16,13 +16,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BottomNavBar(selectedIndex: Int) {
+fun BottomNavBar(
+    selectedIndex: Int,
+    onBackClick: () -> Unit = {},
+    onDesktopClick: () -> Unit = {},
+    onHomeClick: () -> Unit = {}
+) {
     val items = listOf(
-        Pair(Icons.Default.LocationOn, "发现"),
-        Pair(Icons.Default.Bookmark, "收藏"),
-        Pair(Icons.Default.Home, "首页"),
-        Pair(Icons.Default.EmojiEvents, "成就"),
-        Pair(Icons.Default.Person, "我的")
+        Triple(Icons.Default.ArrowBack, "返回", onBackClick),
+        Triple(Icons.Default.Home, "首页", onHomeClick),
+        Triple(Icons.Default.DesktopWindows, "桌面", onDesktopClick)
     )
     NavigationBar(
         containerColor = Color(0xFF2D2540),
@@ -31,7 +34,7 @@ fun BottomNavBar(selectedIndex: Int) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = index == selectedIndex,
-                onClick = {},
+                onClick = { item.third() },
                 icon = {
                     Icon(
                         imageVector = item.first,
@@ -48,4 +51,4 @@ fun BottomNavBar(selectedIndex: Int) {
             )
         }
     }
-} 
+}
