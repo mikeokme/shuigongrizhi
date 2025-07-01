@@ -41,6 +41,7 @@ object NavigationRoutes {
     const val LOCATION = "location"
     const val PDF_VIEWER = "pdf_viewer"
     const val DESKTOP = "desktop"
+    const val DISCOVERY = "discovery"
 }
 
 @Composable
@@ -49,16 +50,16 @@ fun AppNavigation(
 ) {
     Scaffold(
         bottomBar = { 
-            BottomNavBar(
-                selectedIndex = 1, // 默认选中首页
-                onBackClick = { navController.popBackStack() },
-                onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) },
-                onHomeClick = { navController.navigate(NavigationRoutes.MAIN) {
-                    // 清除回退栈，使首页成为唯一目的地
-                    popUpTo(NavigationRoutes.MAIN) { inclusive = true }
-                }}
-            )
-        }
+             BottomNavBar(
+                 selectedIndex = 1, // 默认选中首页
+                 onBackClick = { navController.navigate(NavigationRoutes.DISCOVERY) },
+                 onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) },
+                 onHomeClick = { navController.navigate(NavigationRoutes.MAIN) {
+                     // 清除回退栈，使首页成为唯一目的地
+                     popUpTo(NavigationRoutes.MAIN) { inclusive = true }
+                 }}
+             )
+         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -76,7 +77,8 @@ fun AppNavigation(
                     onProjectClick = { navController.navigate(NavigationRoutes.PROJECT_LIST) },
                     onProjectSelectionClick = { navController.navigate(NavigationRoutes.PROJECT_SELECTION) },
                     onSettingsClick = { /* TODO: 跳转到设置页面 */ },
-                    onPdfViewerClick = { navController.navigate(NavigationRoutes.PDF_VIEWER) }
+                    onPdfViewerClick = { navController.navigate(NavigationRoutes.PDF_VIEWER) },
+                    onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) }
                 )
             }
             // 项目列表页面
@@ -399,6 +401,17 @@ fun AppNavigation(
             composable(NavigationRoutes.DESKTOP) {
                 DesktopScreen(
                     onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            
+            // 发现页面
+            composable(NavigationRoutes.DISCOVERY) {
+                DiscoveryScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onHomeClick = { navController.navigate(NavigationRoutes.MAIN) {
+                        popUpTo(NavigationRoutes.MAIN) { inclusive = true }
+                    }},
+                    onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) }
                 )
             }
             

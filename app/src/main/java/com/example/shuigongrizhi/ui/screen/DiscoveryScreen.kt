@@ -24,7 +24,11 @@ import androidx.compose.ui.unit.sp
 import com.example.shuigongrizhi.R
 
 @Composable
-fun DiscoveryScreen() {
+fun DiscoveryScreen(
+    onBackClick: () -> Unit = {},
+    onHomeClick: () -> Unit = {},
+    onDesktopClick: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -113,9 +117,9 @@ fun DiscoveryScreen() {
         // 底部导航栏
         BottomNavBar(
             selectedIndex = 0,
-            onBackClick = { /* 返回上级目录 */ },
-            onDesktopClick = { /* 跳转到桌面功能 */ },
-            onHomeClick = { /* 跳转到首页 */ }
+            onBackClick = onBackClick,
+            onDesktopClick = onDesktopClick,
+            onHomeClick = onHomeClick
         )
     }
 }
