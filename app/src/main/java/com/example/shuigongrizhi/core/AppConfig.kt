@@ -39,6 +39,8 @@ class AppConfig @Inject constructor(
         private const val KEY_EXPORT_FORMAT = "export_format"
         private const val KEY_SHOW_TIPS = "show_tips"
         private const val KEY_DEBUG_MODE = "debug_mode"
+        private const val KEY_WEATHER_API_TOKEN = "weather_api_token"
+        private const val KEY_WEATHER_TOKEN_VERIFIED = "weather_token_verified"
     }
     
     /**
@@ -138,6 +140,17 @@ class AppConfig @Inject constructor(
     var isDebugMode: Boolean
         get() = sharedPreferences.getBoolean(KEY_DEBUG_MODE, BuildConfig.DEBUG)
         set(value) = sharedPreferences.edit { putBoolean(KEY_DEBUG_MODE, value) }
+    
+    /**
+     * 天气API配置
+     */
+    var weatherApiToken: String
+        get() = sharedPreferences.getString(KEY_WEATHER_API_TOKEN, "") ?: ""
+        set(value) = sharedPreferences.edit { putString(KEY_WEATHER_API_TOKEN, value) }
+    
+    var isWeatherTokenVerified: Boolean
+        get() = sharedPreferences.getBoolean(KEY_WEATHER_TOKEN_VERIFIED, false)
+        set(value) = sharedPreferences.edit { putBoolean(KEY_WEATHER_TOKEN_VERIFIED, value) }
     
     /**
      * 重置所有配置到默认值
