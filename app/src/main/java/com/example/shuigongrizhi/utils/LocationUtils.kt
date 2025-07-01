@@ -2,6 +2,7 @@ package com.example.shuigongrizhi.utils
 
 import android.Manifest
 import android.content.Context
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import androidx.core.content.ContextCompat
@@ -10,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URL
+import java.util.*
 
 object LocationUtils {
     suspend fun getBestLocation(context: Context): Pair<Double, Double>? = withContext(Dispatchers.IO) {
@@ -39,4 +41,25 @@ object LocationUtils {
         // 3. 都失败
         null
     }
-} 
+
+    suspend fun getAddressFromLatLng(context: Context, latitude: Double, longitude: Double): String? = withContext(Dispatchers.IO) {
+        try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            if (addresses?.isNotEmpty() == true) {
+                val address = addresses[0]
+                return@withContext address.getAddressLine(0) ?: "未知地址"
+            }
+        } catch (e: Exception) {
+            // Geocoder failed, try reverse geocoding with API
+            try {
+                val url = "https://api.map.baidu.com/reverse_geocoding/v3/?ak=YOUR_API_KEY&output=json&coordtype=wgs84ll&location=$latitude,$longitude"
+                // For now, return a simple formatted address
+                return@withContext "纬度: ${String.format("%.6f", latitude)}, 经度: ${String.format("%.6f", longitude)}"
+            } catch (apiException: Exception) {
+                return@withContext "纬度: ${String.format("%.6f", latitude)}, 经度: ${String.format("%.6f", longitude)}"
+            }
+        }
+        return@withContext "未知地址"
+    }
+}

@@ -17,6 +17,9 @@ import com.example.shuigongrizhi.ui.screen.CameraScreen
 import com.example.shuigongrizhi.ui.screen.MediaGalleryScreen
 import com.example.shuigongrizhi.ui.screen.MediaDetailScreen
 import com.example.shuigongrizhi.ui.screen.BottomNavBar
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
 
 // 导航路由常量
 object NavigationRoutes {
@@ -28,11 +31,14 @@ object NavigationRoutes {
     const val PROJECT_FORM_WITH_ID = "project_form/{projectId}"
     const val PROJECT_DASHBOARD = "project_dashboard/{projectId}"
     const val LOG_ENTRY = "log_entry/{projectId}/{date}"
+    const val LOG_LIST = "log_list/{projectId}"
+    const val LOG_DETAIL = "log_detail/{logId}"
     const val EXPORT = "export/{projectId}"
     const val WEATHER_DETAIL = "weather_detail"
     const val CAMERA = "camera/{projectId}"
     const val MEDIA_GALLERY = "media_gallery/{projectId}"
     const val MEDIA_DETAIL = "media_detail/{mediaFileId}"
+    const val LOCATION = "location"
 }
 
 @Composable
@@ -53,7 +59,7 @@ fun AppNavigation(
                     onLogClick = { navController.navigate(NavigationRoutes.PROJECT_LIST) },
                     onWeatherClick = { navController.navigate(NavigationRoutes.WEATHER_DETAIL) },
                     onCameraClick = { navController.navigate(NavigationRoutes.PROJECT_SELECTION_FOR_CAMERA) },
-                    onLocationClick = { /* TODO: 跳转到位置服务页面 */ },
+                    onLocationClick = { navController.navigate(NavigationRoutes.LOCATION) },
                     onMediaClick = { /* TODO: 跳转到媒体管理页面 */ },
                     onProjectClick = { navController.navigate(NavigationRoutes.PROJECT_LIST) },
                     onProjectSelectionClick = { navController.navigate(NavigationRoutes.PROJECT_SELECTION) },
@@ -168,6 +174,9 @@ fun AppNavigation(
                     },
                     onNavigateToExport = { pId ->
                         navController.navigate("export/$pId")
+                    },
+                    onNavigateToLogList = { pId ->
+                        navController.navigateToLogList(pId)
                     }
                 )
             }
@@ -281,11 +290,8 @@ fun AppNavigation(
             ) { backStackEntry ->
                 val mediaFileId = backStackEntry.arguments?.getLong("mediaFileId") ?: 0L
                 val viewModel: MediaGalleryViewModel = hiltViewModel()
-                
-                // 获取媒体文件详情
-                val mediaFiles by viewModel.mediaFiles.collectAsState()
-                val mediaFile = mediaFiles.find { it.id == mediaFileId }
-                
+                val mediaFiles = viewModel.mediaFiles.collectAsState()
+                val mediaFile = mediaFiles.value.find { it.id == mediaFileId }
                 if (mediaFile != null) {
                     MediaDetailScreen(
                         mediaFile = mediaFile,
@@ -300,13 +306,64 @@ fun AppNavigation(
                         }
                     )
                 } else {
-                    // 媒体文件不存在，返回上一页
                     LaunchedEffect(Unit) {
                         navController.popBackStack()
                     }
                 }
             }
             
+            // 日志列表页面
+            composable(
+                route = NavigationRoutes.LOG_LIST,
+                arguments = listOf(
+                    navArgument("projectId") {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
+                val viewModel: LogListViewModel = hiltViewModel()
+                LogListScreen(
+                    viewModel = viewModel,
+                    projectId = projectId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToLogEntry = { pId, date ->
+                        navController.navigateToLogEntry(pId, date)
+                    },
+                    onNavigateToLogDetail = { logId ->
+                        navController.navigateToLogDetail(logId)
+                    }
+                )
+            }
+            
+            // 日志详情页面
+            composable(
+                route = NavigationRoutes.LOG_DETAIL,
+                arguments = listOf(
+                    navArgument("logId") {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val logId = backStackEntry.arguments?.getLong("logId") ?: 0L
+                val viewModel: LogDetailViewModel = hiltViewModel()
+                LogDetailScreen(
+                    viewModel = viewModel,
+                    logId = logId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToEdit = { projectId, date ->
+                        navController.navigateToLogEntry(projectId, date)
+                    },
+                    onNavigateToMediaGallery = { projectId ->
+                        navController.navigateToMediaGallery(projectId)
+                    }
+                )
+            }
+
             // 天气详情页面
             composable(NavigationRoutes.WEATHER_DETAIL) {
                 val viewModel: WeatherViewModel = hiltViewModel()
@@ -316,6 +373,17 @@ fun AppNavigation(
                         navController.popBackStack()
                     }
                 )
+            }
+
+            // 位置页面
+            composable(NavigationRoutes.LOCATION) {
+                // 这里可用 hiltViewModel 或自定义 ViewModelProvider 传 dao
+                // 伪代码如下，实际需根据你的依赖注入方式调整：
+                val context = LocalContext.current.applicationContext
+                val db = com.example.shuigongrizhi.data.database.AppDatabase.getDatabase(context)
+                val locationDao = db.locationRecordDao()
+                val viewModel = remember { com.example.shuigongrizhi.ui.viewmodel.LocationViewModel(context as android.app.Application, locationDao) }
+                LocationScreen(viewModel = viewModel, onNavigateBack = { navController.popBackStack() })
             }
         }
     }
@@ -352,4 +420,12 @@ fun NavHostController.navigateToMediaGallery(projectId: Long) {
 
 fun NavHostController.navigateToMediaDetail(mediaFileId: Long) {
     navigate("media_detail/$mediaFileId")
+}
+
+fun NavHostController.navigateToLogList(projectId: Long) {
+    navigate("log_list/$projectId")
+}
+
+fun NavHostController.navigateToLogDetail(logId: Long) {
+    navigate("log_detail/$logId")
 }

@@ -23,6 +23,21 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import java.text.ParseException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,8 +52,17 @@ fun ProjectFormScreen(
     val error by viewModel.error.collectAsState()
 
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val yymmddFormat = SimpleDateFormat("yyMMdd", Locale.getDefault())
     val startDateDialogState = rememberMaterialDialogState()
     val endDateDialogState = rememberMaterialDialogState()
+
+    // 日期输入模式状态
+    var startDateInputMode by remember { mutableStateOf("picker") } // "picker" 或 "manual"
+    var endDateInputMode by remember { mutableStateOf("picker") }
+    
+    // 手动输入的日期文本
+    var startDateText by remember { mutableStateOf("") }
+    var endDateText by remember { mutableStateOf("") }
 
     // 错误处理和成功提示
     var showSnackbar by remember { mutableStateOf(false) }
@@ -73,6 +97,50 @@ fun ProjectFormScreen(
             isErrorSnackbar = true
             showSnackbar = true
             viewModel.clearError()
+        }
+    }
+
+    // 初始化手动输入文本
+    LaunchedEffect(formState.startDate) {
+        if (formState.startDate != null) {
+            startDateText = yymmddFormat.format(formState.startDate)
+        }
+    }
+    
+    LaunchedEffect(formState.endDate) {
+        if (formState.endDate != null) {
+            endDateText = yymmddFormat.format(formState.endDate)
+        }
+    }
+
+    // 日期输入转换器
+    val yymmddTransformation = object : VisualTransformation {
+        override fun filter(text: AnnotatedString): TransformedText {
+            val input = text.text
+            val formatted = buildString {
+                input.forEachIndexed { index, char ->
+                    if (index == 2 || index == 4) append("-")
+                    append(char)
+                }
+            }
+            return TransformedText(
+                AnnotatedString(formatted),
+                object : OffsetMapping {
+                    override fun originalToTransformed(offset: Int): Int = offset + (offset / 2)
+                    override fun transformedToOriginal(offset: Int): Int = offset - (offset / 2)
+                }
+            )
+        }
+    }
+
+    // 解析 yymmdd 格式日期
+    fun parseYymmddDate(dateText: String): Date? {
+        return try {
+            if (dateText.length == 6) {
+                yymmddFormat.parse(dateText)
+            } else null
+        } catch (e: ParseException) {
+            null
         }
     }
 
@@ -198,23 +266,98 @@ fun ProjectFormScreen(
             )
 
             // 开始日期
-            OutlinedTextField(
-                value = formState.startDate?.let { dateFormat.format(it) } ?: "",
-                onValueChange = {},
-                label = { Text("开始日期") },
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                isError = formState.startDateError != null,
-                supportingText = formState.startDateError?.let { { Text(it) } },
-                trailingIcon = {
-                    IconButton(onClick = { startDateDialogState.show() }) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "选择日期"
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "开始日期",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    // 输入模式切换
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = startDateInputMode == "picker",
+                            onClick = { startDateInputMode = "picker" },
+                            label = { Text("日期选择") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                        FilterChip(
+                            selected = startDateInputMode == "manual",
+                            onClick = { startDateInputMode = "manual" },
+                            label = { Text("手动输入") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                    }
+                    
+                    // 日期选择器模式
+                    if (startDateInputMode == "picker") {
+                        OutlinedTextField(
+                            value = formState.startDate?.let { dateFormat.format(it) } ?: "",
+                            onValueChange = {},
+                            label = { Text("选择开始日期") },
+                            modifier = Modifier.fillMaxWidth(),
+                            readOnly = true,
+                            isError = formState.startDateError != null,
+                            supportingText = formState.startDateError?.let { { Text(it) } },
+                            trailingIcon = {
+                                IconButton(onClick = { startDateDialogState.show() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "选择日期"
+                                    )
+                                }
+                            }
+                        )
+                    } else {
+                        // 手动输入模式
+                        OutlinedTextField(
+                            value = startDateText,
+                            onValueChange = { text ->
+                                val filtered = text.filter { it.isDigit() }.take(6)
+                                startDateText = filtered
+                                val parsedDate = parseYymmddDate(filtered)
+                                viewModel.updateStartDate(parsedDate)
+                            },
+                            label = { Text("输入日期 (YYMMDD)") },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            visualTransformation = yymmddTransformation,
+                            isError = formState.startDateError != null,
+                            supportingText = {
+                                Text(
+                                    text = formState.startDateError ?: "格式：YYMMDD，如：240101"
+                                )
+                            }
                         )
                     }
                 }
-            )
+            }
+            
             MaterialDialog(
                 dialogState = startDateDialogState,
                 buttons = {
@@ -225,25 +368,98 @@ fun ProjectFormScreen(
                 datepicker { date: LocalDate ->
                     val selectedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
                     viewModel.updateStartDate(selectedDate)
+                    startDateText = yymmddFormat.format(selectedDate)
                 }
             }
 
             // 结束日期
-            OutlinedTextField(
-                value = formState.endDate?.let { dateFormat.format(it) } ?: "",
-                onValueChange = {},
-                label = { Text("结束日期") },
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                trailingIcon = {
-                    IconButton(onClick = { endDateDialogState.show() }) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "选择日期"
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "结束日期 (可选)",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    // 输入模式切换
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = endDateInputMode == "picker",
+                            onClick = { endDateInputMode = "picker" },
+                            label = { Text("日期选择") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                        FilterChip(
+                            selected = endDateInputMode == "manual",
+                            onClick = { endDateInputMode = "manual" },
+                            label = { Text("手动输入") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                    }
+                    
+                    // 日期选择器模式
+                    if (endDateInputMode == "picker") {
+                        OutlinedTextField(
+                            value = formState.endDate?.let { dateFormat.format(it) } ?: "",
+                            onValueChange = {},
+                            label = { Text("选择结束日期") },
+                            modifier = Modifier.fillMaxWidth(),
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = { endDateDialogState.show() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "选择日期"
+                                    )
+                                }
+                            }
+                        )
+                    } else {
+                        // 手动输入模式
+                        OutlinedTextField(
+                            value = endDateText,
+                            onValueChange = { text ->
+                                val filtered = text.filter { it.isDigit() }.take(6)
+                                endDateText = filtered
+                                val parsedDate = parseYymmddDate(filtered)
+                                viewModel.updateEndDate(parsedDate)
+                            },
+                            label = { Text("输入日期 (YYMMDD)") },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            visualTransformation = yymmddTransformation,
+                            supportingText = {
+                                Text("格式：YYMMDD，如：241231 (可选)")
+                            }
                         )
                     }
                 }
-            )
+            }
+            
             MaterialDialog(
                 dialogState = endDateDialogState,
                 buttons = {
@@ -254,6 +470,7 @@ fun ProjectFormScreen(
                 datepicker { date: LocalDate ->
                     val selectedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
                     viewModel.updateEndDate(selectedDate)
+                    endDateText = yymmddFormat.format(selectedDate)
                 }
             }
 

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,7 +36,8 @@ fun ProjectDashboardScreen(
     projectId: Long,
     onNavigateBack: () -> Unit,
     onNavigateToLogEntry: (Long, String) -> Unit,
-    onNavigateToExport: (Long) -> Unit
+    onNavigateToExport: (Long) -> Unit,
+    onNavigateToLogList: (Long) -> Unit = {}
 ) {
     val dashboardState by viewModel.dashboardState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -71,6 +73,14 @@ fun ProjectDashboardScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { onNavigateToLogList(projectId) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.List,
+                            contentDescription = "日志列表"
+                        )
+                    }
                     IconButton(
                         onClick = { onNavigateToExport(projectId) }
                     ) {

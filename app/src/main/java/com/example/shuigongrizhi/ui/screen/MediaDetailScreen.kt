@@ -28,6 +28,7 @@ import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.example.shuigongrizhi.data.entity.MediaFile
 import com.example.shuigongrizhi.data.entity.MediaType
+import com.example.shuigongrizhi.ui.screen.formatFileSize
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -321,14 +322,4 @@ fun InfoRow(
             modifier = Modifier.padding(top = 2.dp)
         )
     }
-}
-
-private fun formatFileSize(bytes: Long): String {
-    if (bytes < 1024) return "${bytes}B"
-    val kb = bytes / 1024.0
-    if (kb < 1024) return String.format("%.1fKB", kb)
-    val mb = kb / 1024.0
-    if (mb < 1024) return String.format("%.1fMB", mb)
-    val gb = mb / 1024.0
-    return String.format("%.1fGB", gb)
 }
