@@ -42,6 +42,7 @@ object NavigationRoutes {
     const val PDF_VIEWER = "pdf_viewer"
     const val DESKTOP = "desktop"
     const val DISCOVERY = "discovery"
+    const val FEEDBACK = "feedback"
 }
 
 @Composable
@@ -78,7 +79,8 @@ fun AppNavigation(
                     onProjectSelectionClick = { navController.navigate(NavigationRoutes.PROJECT_SELECTION) },
                     onSettingsClick = { /* TODO: 跳转到设置页面 */ },
                     onPdfViewerClick = { navController.navigate(NavigationRoutes.PDF_VIEWER) },
-                    onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) }
+                    onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) },
+                    onFeedbackClick = { navController.navigate(NavigationRoutes.FEEDBACK) }
                 )
             }
             // 项目列表页面
@@ -421,6 +423,13 @@ fun AppNavigation(
                 PdfViewerScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.popBackStack() }
+                )
+            }
+            
+            // 反馈界面
+            composable(NavigationRoutes.FEEDBACK) {
+                FeedbackScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }

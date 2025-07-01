@@ -33,6 +33,7 @@ fun MainScreen(
     onProjectSelectionClick: () -> Unit = {},
     onPdfViewerClick: () -> Unit = {},
     onDesktopClick: () -> Unit = {},
+    onFeedbackClick: () -> Unit = {},
     weatherViewModel: com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val weatherState by weatherViewModel.weatherState.collectAsState()
@@ -144,6 +145,13 @@ fun MainScreen(
                     modifier = Modifier.size(96.dp),
                     onClick = onProjectClick
                 )
+                FeatureCard(
+                    title = "待开发区域",
+                    iconRes = R.drawable.ic_feedback,
+                    gradient = Brush.linearGradient(listOf(Color(0xFFFF416C), Color(0xFFFF4B2B))),
+                    modifier = Modifier.size(96.dp),
+                    onClick = onFeedbackClick
+                )
             }
         }
 
@@ -222,13 +230,8 @@ fun MainScreen(
                 )
             }
         }
-        // 底部导航栏
-        BottomNavBar(
-            selectedIndex = 1,
-            onBackClick = { /* 在主页面，返回按钮不执行任何操作 */ },
-            onDesktopClick = onDesktopClick, // 跳转到桌面功能
-            onHomeClick = { /* 已在首页，不执行任何操作 */ }
-        )
+        // 添加底部空间，确保内容不被底部导航栏遮挡
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

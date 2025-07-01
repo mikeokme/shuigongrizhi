@@ -114,12 +114,7 @@ fun DiscoveryScreen(
                 )
             }
         }
-        // 底部导航栏
-        BottomNavBar(
-            selectedIndex = 0,
-            onBackClick = onBackClick,
-            onDesktopClick = onDesktopClick,
-            onHomeClick = onHomeClick
-        )
+        // 添加底部空间，确保内容不被底部导航栏遮挡
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

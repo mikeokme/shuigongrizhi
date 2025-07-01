@@ -74,13 +74,8 @@ fun DesktopScreen(
             }
         }
         
-        // 底部导航栏
-        BottomNavBar(
-            selectedIndex = 2,
-            onBackClick = onNavigateBack,
-            onDesktopClick = { /* 已在桌面，不执行任何操作 */ },
-            onHomeClick = { /* 跳转到首页 */ }
-        )
+        // 添加底部空间，确保内容不被底部导航栏遮挡
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
