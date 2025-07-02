@@ -295,7 +295,7 @@ fun WeatherCard(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "天气",
+                        text = "天气情况",
                         fontSize = 16.sp, // 增大标签字体
                         fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.9f),
@@ -315,7 +315,7 @@ fun WeatherCard(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "天气",
+                        text = "天气情况",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.9f),
@@ -335,7 +335,7 @@ fun WeatherCard(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "天气",
+                        text = "天气情况",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.9f),

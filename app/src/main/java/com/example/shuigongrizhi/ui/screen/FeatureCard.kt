@@ -65,23 +65,23 @@ fun FeatureCard(
                     painter = painterResource(id = iconRes),
                     contentDescription = title,
                     tint = Color.White,
-                    modifier = Modifier.size(52.dp) // 增大图标尺寸
+                    modifier = Modifier.size(40.dp) // 缩小图标尺寸
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = title,
                     tint = Color.White,
-                    modifier = Modifier.size(52.dp)
+                    modifier = Modifier.size(40.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp)) // 缩小logo与文字间隙
+            Spacer(modifier = Modifier.height(6.dp)) // 进一步缩小间隙
             Text(
                 text = title,
                 color = Color.White,
-                fontSize = 15.sp, // 稍微增大字体
+                fontSize = 13.sp, // 缩小字体
                 fontWeight = FontWeight.Medium,
-                style = MaterialTheme.typography.bodyMedium, // 使用一致的字体样式
+                style = MaterialTheme.typography.bodySmall, // 使用更小的字体样式
                 maxLines = 2 // 允许两行显示
             )
         }
