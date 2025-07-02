@@ -249,7 +249,7 @@ fun ProjectCard(
                             },
                             onClick = {
                                 showMenu = false
-                                // TODO: 实现导出功能
+                                onExport()
                             }
                         )
                         if (!isDefaultProject) {
