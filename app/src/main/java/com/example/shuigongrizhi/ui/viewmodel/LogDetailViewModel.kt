@@ -3,9 +3,9 @@ package com.example.shuigongrizhi.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
+// import dagger.hilt.android.qualifiers.ApplicationContext // 临时禁用
+// import javax.inject.Inject // 临时禁用
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.data.entity.MediaFile
@@ -30,13 +30,19 @@ data class LogDetailState(
     val isGeneratingPdf: Boolean = false
 )
 
-@HiltViewModel
-class LogDetailViewModel @Inject constructor(
+// @HiltViewModel // 临时禁用
+class LogDetailViewModel /* @Inject constructor(
     private val constructionLogRepository: ConstructionLogRepository,
     private val projectRepository: ProjectRepository,
     private val mediaFileRepository: MediaFileRepository,
     @ApplicationContext private val context: Context
-) : ViewModel() {
+) */ : ViewModel() {
+    
+    // 临时直接实例化依赖
+    private val constructionLogRepository = ConstructionLogRepository()
+    private val projectRepository = ProjectRepository()
+    private val mediaFileRepository: MediaFileRepository? = null
+    private val context: Context? = null
     
     private val _state = MutableStateFlow(LogDetailState())
     val state: StateFlow<LogDetailState> = _state.asStateFlow()

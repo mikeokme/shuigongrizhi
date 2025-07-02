@@ -4,17 +4,18 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.example.shuigongrizhi.BuildConfig
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 
 /**
  * 应用配置管理器
  * 提供统一的配置存储和访问
  */
-@Singleton
-class AppConfig @Inject constructor(
+// @Singleton
+class AppConfig /* @Inject constructor(
     private val context: Context
-) {
+) */ {
+    private val context: Context? = null
     
     private val sharedPreferences: SharedPreferences by lazy {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

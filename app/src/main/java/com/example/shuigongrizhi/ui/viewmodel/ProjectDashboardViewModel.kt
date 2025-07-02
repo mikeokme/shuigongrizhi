@@ -2,8 +2,8 @@ package com.example.shuigongrizhi.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+// import dagger.hilt.android.lifecycle.HiltViewModel
+// import javax.inject.Inject
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
@@ -24,11 +24,13 @@ data class DashboardState(
     val logDates: Set<String> = emptySet()
 )
 
-@HiltViewModel
-class ProjectDashboardViewModel @Inject constructor(
+// @HiltViewModel
+class ProjectDashboardViewModel /* @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val constructionLogRepository: ConstructionLogRepository
-) : ViewModel() {
+) */ : ViewModel() {
+    private val projectRepository: ProjectRepository = ProjectRepository()
+    private val constructionLogRepository: ConstructionLogRepository = ConstructionLogRepository()
     
     private val _dashboardState = MutableStateFlow(DashboardState())
     val dashboardState: StateFlow<DashboardState> = _dashboardState.asStateFlow()

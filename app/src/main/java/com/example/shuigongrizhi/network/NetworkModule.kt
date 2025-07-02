@@ -3,28 +3,28 @@ package com.example.shuigongrizhi.network
 import com.example.shuigongrizhi.BuildConfig
 import com.example.shuigongrizhi.core.Constants
 import com.example.shuigongrizhi.core.Logger
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+// import dagger.Module
+// import dagger.Provides
+// import dagger.hilt.InstallIn
+// import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
-import javax.inject.Qualifier
-import javax.inject.Singleton
+// import javax.inject.Qualifier
+// import javax.inject.Singleton
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
+// @Qualifier
+// @Retention(AnnotationRetention.BINARY)
 annotation class WeatherRetrofit
 
-@Module
-@InstallIn(SingletonComponent::class)
+// @Module
+// @InstallIn(SingletonComponent::class)
 object NetworkModule {
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor { message ->
             Logger.network(message)
@@ -37,8 +37,8 @@ object NetworkModule {
         }
     }
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
@@ -56,9 +56,9 @@ object NetworkModule {
             .build()
     }
     
-    @Provides
-    @Singleton
-    @WeatherRetrofit
+    // @Provides
+    // @Singleton
+    // @WeatherRetrofit
     fun provideWeatherRetrofit(
         okHttpClient: OkHttpClient
     ): Retrofit {
@@ -69,10 +69,10 @@ object NetworkModule {
             .build()
     }
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideWeatherService(
-        @WeatherRetrofit retrofit: Retrofit
+        /* @WeatherRetrofit */ retrofit: Retrofit
     ): WeatherService {
         return retrofit.create(WeatherService::class.java)
     }

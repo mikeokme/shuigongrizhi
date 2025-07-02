@@ -10,21 +10,21 @@ import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
 import com.example.shuigongrizhi.data.repository.MediaFileRepository
 import com.example.shuigongrizhi.data.repository.ProjectRepository
 import com.example.shuigongrizhi.core.AppConfig
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+// import dagger.Module
+// import dagger.Provides
+// import dagger.hilt.InstallIn
+// import dagger.hilt.android.qualifiers.ApplicationContext
+// import dagger.hilt.components.SingletonComponent
+// import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
+// @Module
+// @InstallIn(SingletonComponent::class)
 object DatabaseModule {
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideAppDatabase(
-        @ApplicationContext context: Context
+        /* @ApplicationContext */ context: Context
     ): AppDatabase {
         return Room.databaseBuilder(
             context,
@@ -36,49 +36,49 @@ object DatabaseModule {
             .build()
     }
     
-    @Provides
+    // @Provides
     fun provideProjectDao(database: AppDatabase): ProjectDao {
         return database.projectDao()
     }
     
-    @Provides
+    // @Provides
     fun provideConstructionLogDao(database: AppDatabase): ConstructionLogDao {
         return database.constructionLogDao()
     }
     
-    @Provides
+    // @Provides
     fun provideMediaFileDao(database: AppDatabase): MediaFileDao {
         return database.mediaFileDao()
     }
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideProjectRepository(
         projectDao: ProjectDao
     ): ProjectRepository {
         return ProjectRepository(projectDao)
     }
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideConstructionLogRepository(
         constructionLogDao: ConstructionLogDao
     ): ConstructionLogRepository {
         return ConstructionLogRepository(constructionLogDao)
     }
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideMediaFileRepository(
         mediaFileDao: MediaFileDao
     ): MediaFileRepository {
         return MediaFileRepository(mediaFileDao)
     }
     
-    @Provides
-    @Singleton
+    // @Provides
+    // @Singleton
     fun provideAppConfig(
-        @ApplicationContext context: Context
+        /* @ApplicationContext */ context: Context
     ): AppConfig {
         return AppConfig(context)
     }

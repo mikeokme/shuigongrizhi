@@ -11,18 +11,20 @@ import kotlinx.coroutines.withContext
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 
 /**
  * 文件管理器
  * 提供统一的文件操作和媒体文件处理功能
  */
-@Singleton
-class FileManager @Inject constructor(
+// @Singleton
+class FileManager /* @Inject constructor(
     private val context: Context,
     private val appConfig: AppConfig
-) {
+) */ {
+    private val context: Context? = null
+    private val appConfig: AppConfig? = null
     
     companion object {
         private const val IMAGES_DIR = "images"
@@ -39,7 +41,7 @@ class FileManager @Inject constructor(
      * 获取应用根目录
      */
     fun getAppRootDir(): File {
-        return File(context.getExternalFilesDir(null), Constants.Storage.APP_FOLDER_NAME)
+        return File(context?.getExternalFilesDir(null) ?: File("app"), Constants.Storage.APP_FOLDER_NAME)
     }
     
     /**
@@ -167,7 +169,7 @@ class FileManager @Inject constructor(
      */
     suspend fun loadImageFromUri(uri: Uri): Result<Bitmap> = withContext(Dispatchers.IO) {
         try {
-            val inputStream = context.contentResolver.openInputStream(uri)
+            val inputStream = context?.contentResolver?.openInputStream(uri)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
             
@@ -372,7 +374,7 @@ class FileManager @Inject constructor(
      * 获取存储空间信息
      */
     fun getStorageInfo(): StorageInfo {
-        val externalDir = context.getExternalFilesDir(null)
+        val externalDir = context?.getExternalFilesDir(null)
         val totalSpace = externalDir?.totalSpace ?: 0L
         val freeSpace = externalDir?.freeSpace ?: 0L
         val usedSpace = totalSpace - freeSpace

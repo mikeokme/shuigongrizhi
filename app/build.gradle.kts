@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
+    // id("dagger.hilt.android.plugin") // 临时禁用
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
     id("kotlin-parcelize")
 }
@@ -140,10 +140,10 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
     
-    // Hilt
-    implementation("com.google.dagger:hilt-android:2.48")
-    ksp("com.google.dagger:hilt-compiler:2.48")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    // Hilt - 临时禁用
+    // implementation("com.google.dagger:hilt-android:2.48")
+    // ksp("com.google.dagger:hilt-compiler:2.48")
+    // implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")

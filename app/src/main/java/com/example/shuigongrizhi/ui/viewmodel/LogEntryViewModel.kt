@@ -40,15 +40,21 @@ data class LogEntryState(
     val isLoadingWeather: Boolean = false
 )
 
-@HiltViewModel
-class LogEntryViewModel @Inject constructor(
+// @HiltViewModel // 临时禁用
+class LogEntryViewModel /* @Inject constructor(
     private val constructionLogRepository: ConstructionLogRepository,
     private val projectRepository: ProjectRepository,
     private val weatherRepository: com.example.shuigongrizhi.data.repository.WeatherRepository,
     @ApplicationContext private val context: Context
-) : ViewModel() {
+) */ : ViewModel() {
     
-    private val projectDataManager = ProjectDataManager(context)
+    // 临时直接实例化依赖
+    private val constructionLogRepository = ConstructionLogRepository()
+    private val projectRepository = ProjectRepository()
+    private val weatherRepository: com.example.shuigongrizhi.data.repository.WeatherRepository? = null
+    private val context: Context? = null
+    
+    // private val projectDataManager = ProjectDataManager(context) // 临时禁用
     
     private val _logState = MutableStateFlow(LogEntryState())
     val logState: StateFlow<LogEntryState> = _logState.asStateFlow()
@@ -363,12 +369,13 @@ class LogEntryViewModel @Inject constructor(
                         val logs = constructionLogRepository.getLogsByProjectId(projectId).first()
                         
                         // 执行自动备份
-                        val backupSuccess = projectDataManager.autoBackupProject(proj, logs)
-                        if (backupSuccess) {
-                            android.util.Log.d("LogEntry", "项目数据自动备份成功")
-                        } else {
-                            android.util.Log.w("LogEntry", "项目数据自动备份失败")
-                        }
+                        // val backupSuccess = projectDataManager?.autoBackupProject(proj, logs)
+                        // if (backupSuccess == true) {
+                        //     android.util.Log.d("LogEntry", "项目数据自动备份成功")
+                        // } else {
+                        //     android.util.Log.w("LogEntry", "项目数据自动备份失败")
+                        // }
+                        android.util.Log.d("LogEntry", "自动备份功能暂时禁用")
                     }
                 } catch (e: Exception) {
                     android.util.Log.e("LogEntry", "自动备份过程中发生错误", e)

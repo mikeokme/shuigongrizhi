@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shuigongrizhi.core.AppConfig
 import com.example.shuigongrizhi.data.repository.WeatherRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+// import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+// import javax.inject.Inject
 
 data class WeatherSettingsUiState(
     val isLoading: Boolean = false,
@@ -20,11 +20,13 @@ data class WeatherSettingsUiState(
     val testResult: Result<String>? = null
 )
 
-@HiltViewModel
-class WeatherSettingsViewModel @Inject constructor(
+// @HiltViewModel
+class WeatherSettingsViewModel /* @Inject constructor(
     private val appConfig: AppConfig,
     private val weatherRepository: WeatherRepository
-) : ViewModel() {
+) */ : ViewModel() {
+    private val appConfig: AppConfig? = null
+    private val weatherRepository: WeatherRepository? = null
     
     private val _uiState = MutableStateFlow(WeatherSettingsUiState())
     val uiState: StateFlow<WeatherSettingsUiState> = _uiState.asStateFlow()

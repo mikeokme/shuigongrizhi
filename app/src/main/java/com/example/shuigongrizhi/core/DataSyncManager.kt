@@ -16,19 +16,22 @@ import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 
 /**
  * 数据同步管理器
  * 提供数据备份、恢复和同步功能
  */
-@Singleton
-class DataSyncManager @Inject constructor(
+// @Singleton
+class DataSyncManager /* @Inject constructor(
     private val context: Context,
     private val fileManager: FileManager,
     private val appConfig: AppConfig
-) {
+) */ {
+    private val context: Context? = null
+    private val fileManager: FileManager? = null
+    private val appConfig: AppConfig? = null
     
     companion object {
         private const val BACKUP_FILE_PREFIX = "shuigong_backup"
@@ -67,7 +70,7 @@ class DataSyncManager @Inject constructor(
             val timestamp = System.currentTimeMillis()
             val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
             val backupFileName = "${BACKUP_FILE_PREFIX}_${dateFormat.format(Date(timestamp))}.${BACKUP_FILE_EXTENSION}"
-            val backupFile = File(fileManager.getBackupDir(), backupFileName)
+            val backupFile = File(fileManager?.getBackupDir() ?: File("backup"), backupFileName)
             
             // 创建备份元数据
             val metadata = BackupMetadata(
@@ -227,7 +230,7 @@ class DataSyncManager @Inject constructor(
      */
     suspend fun getBackupList(): Result<List<BackupInfo>> = withContext(Dispatchers.IO) {
         try {
-            val backupDir = fileManager.getBackupDir()
+            val backupDir = fileManager?.getBackupDir() ?: File("backup")
             val backupFiles = backupDir.listFiles { file ->
                 file.isFile && file.name.startsWith(BACKUP_FILE_PREFIX) && file.name.endsWith(BACKUP_FILE_EXTENSION)
             } ?: emptyArray()
@@ -278,9 +281,9 @@ class DataSyncManager @Inject constructor(
      * 检查是否需要自动备份
      */
     fun shouldAutoBackup(): Boolean {
-        if (!appConfig.isAutoBackupEnabled) return false
+        if (appConfig?.isAutoBackupEnabled != true) return false
         
-        val lastBackupTime = appConfig.lastBackupTime
+        val lastBackupTime = appConfig?.lastBackupTime ?: 0L
         val currentTime = System.currentTimeMillis()
         val daysSinceLastBackup = (currentTime - lastBackupTime) / (24 * 60 * 60 * 1000)
         
@@ -303,7 +306,7 @@ class DataSyncManager @Inject constructor(
      * 添加数据库到ZIP
      */
     private fun addDatabaseToZip(zipOut: ZipOutputStream) {
-        val dbFile = context.getDatabasePath(Constants.Database.NAME)
+        val dbFile = context?.getDatabasePath(Constants.Database.NAME) ?: File("database")
         if (dbFile.exists()) {
             val entry = ZipEntry(DATABASE_BACKUP_NAME)
             zipOut.putNextEntry(entry)
@@ -322,7 +325,7 @@ class DataSyncManager @Inject constructor(
         val entry = ZipEntry(CONFIG_BACKUP_NAME)
         zipOut.putNextEntry(entry)
         
-        val configData = appConfig.getConfigSummary().toString()
+        val configData = appConfig?.getConfigSummary()?.toString() ?: "{}"
         zipOut.write(configData.toByteArray())
         zipOut.closeEntry()
     }
@@ -331,7 +334,7 @@ class DataSyncManager @Inject constructor(
      * 添加图片到ZIP
      */
     private fun addImagesToZip(zipOut: ZipOutputStream) {
-        val imagesDir = fileManager.getImagesDir()
+        val imagesDir = fileManager?.getImagesDir() ?: File("images")
         addDirectoryToZip(zipOut, imagesDir, IMAGES_BACKUP_DIR)
     }
     
@@ -339,7 +342,7 @@ class DataSyncManager @Inject constructor(
      * 添加视频到ZIP
      */
     private fun addVideosToZip(zipOut: ZipOutputStream) {
-        val videosDir = fileManager.getVideosDir()
+        val videosDir = fileManager?.getVideosDir() ?: File("videos")
         addDirectoryToZip(zipOut, videosDir, VIDEOS_BACKUP_DIR)
     }
     
@@ -375,7 +378,7 @@ class DataSyncManager @Inject constructor(
      * 从ZIP恢复数据库
      */
     private fun restoreDatabaseFromZip(zipIn: ZipInputStream) {
-        val dbFile = context.getDatabasePath(Constants.Database.NAME)
+        val dbFile = context?.getDatabasePath(Constants.Database.NAME) ?: File("database")
         dbFile.parentFile?.mkdirs()
         
         FileOutputStream(dbFile).use { output ->
@@ -397,7 +400,7 @@ class DataSyncManager @Inject constructor(
      */
     private fun restoreImageFromZip(zipIn: ZipInputStream, entryName: String) {
         val fileName = entryName.substringAfter("$IMAGES_BACKUP_DIR/")
-        val imageFile = File(fileManager.getImagesDir(), fileName)
+        val imageFile = File(fileManager?.getImagesDir() ?: File("images"), fileName)
         imageFile.parentFile?.mkdirs()
         
         FileOutputStream(imageFile).use { output ->
@@ -410,7 +413,7 @@ class DataSyncManager @Inject constructor(
      */
     private fun restoreVideoFromZip(zipIn: ZipInputStream, entryName: String) {
         val fileName = entryName.substringAfter("$VIDEOS_BACKUP_DIR/")
-        val videoFile = File(fileManager.getVideosDir(), fileName)
+        val videoFile = File(fileManager?.getVideosDir() ?: File("videos"), fileName)
         videoFile.parentFile?.mkdirs()
         
         FileOutputStream(videoFile).use { output ->
@@ -444,7 +447,7 @@ class DataSyncManager @Inject constructor(
      */
     private fun cleanOldBackups() {
         try {
-            val backupDir = fileManager.getBackupDir()
+            val backupDir = fileManager?.getBackupDir() ?: File("backup")
             val backupFiles = backupDir.listFiles { file ->
                 file.isFile && file.name.startsWith(BACKUP_FILE_PREFIX) && file.name.endsWith(BACKUP_FILE_EXTENSION)
             } ?: return

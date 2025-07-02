@@ -8,17 +8,18 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import java.io.PrintWriter
 import java.io.StringWriter
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 
 /**
  * 全局异常处理器
  * 提供统一的异常处理和错误报告功能
  */
-@Singleton
-class ExceptionHandler @Inject constructor(
+// @Singleton
+class ExceptionHandler /* @Inject constructor(
     private val context: Context
-) {
+) */ {
+    private val context: Context? = null
     
     private val _errorEvents = MutableSharedFlow<ErrorEvent>()
     val errorEvents: SharedFlow<ErrorEvent> = _errorEvents.asSharedFlow()

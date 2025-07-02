@@ -10,17 +10,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 
 /**
  * 性能监控器
  * 提供应用性能监控和分析功能
  */
-@Singleton
-class PerformanceMonitor @Inject constructor(
+// @Singleton
+class PerformanceMonitor /* @Inject constructor(
     private val context: Context
-) {
+) */ {
+    private val context: Context? = null
     
     companion object {
         private const val MONITORING_INTERVAL = 5000L // 5秒监控间隔

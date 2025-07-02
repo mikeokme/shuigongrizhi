@@ -3,6 +3,7 @@ package com.example.shuigongrizhi.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -28,7 +29,6 @@ import com.example.shuigongrizhi.ui.components.EmptyState
 import com.example.shuigongrizhi.ui.viewmodel.ProjectListViewModel
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,13 +73,37 @@ fun ProjectListScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = stringResource(R.string.settings),
-                            modifier = Modifier.size(IconSize.medium),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
+                    var showMenu by remember { mutableStateOf(false) }
+                    
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "更多选项",
+                                modifier = Modifier.size(IconSize.medium),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("清理重复项目") },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.cleanupDuplicateProjects()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("设置") },
+                                onClick = {
+                                    showMenu = false
+                                    onNavigateToSettings()
+                                }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

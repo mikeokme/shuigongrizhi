@@ -8,8 +8,8 @@ import com.example.shuigongrizhi.data.entity.MediaFile
 import com.example.shuigongrizhi.data.entity.MediaType
 import com.example.shuigongrizhi.data.repository.MediaFileRepository
 import com.example.shuigongrizhi.utils.CameraManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
+// import dagger.hilt.android.qualifiers.ApplicationContext // 临时禁用
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
+// import javax.inject.Inject // 临时禁用
 
 data class PhotoDescriptionState(
     val isLoading: Boolean = false,
@@ -25,11 +25,15 @@ data class PhotoDescriptionState(
     val saveSuccess: Boolean = false
 )
 
-@HiltViewModel
-class PhotoDescriptionViewModel @Inject constructor(
+// @HiltViewModel // 临时禁用
+class PhotoDescriptionViewModel /* @Inject constructor(
     private val mediaFileRepository: MediaFileRepository,
     @ApplicationContext private val context: Context
-) : ViewModel() {
+) */ : ViewModel() {
+    
+    // 临时直接实例化依赖
+    private val mediaFileRepository: MediaFileRepository? = null
+    private val context: Context? = null
     
     private lateinit var cameraManager: CameraManager
     

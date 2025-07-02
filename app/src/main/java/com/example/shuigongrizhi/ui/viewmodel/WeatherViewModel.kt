@@ -8,12 +8,12 @@ import com.example.shuigongrizhi.data.repository.WeatherRepository
 import com.example.shuigongrizhi.network.WeatherResponse
 import com.example.shuigongrizhi.config.ApiConfig
 import com.example.shuigongrizhi.utils.LocationUtils
-import dagger.hilt.android.lifecycle.HiltViewModel
+// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+// import javax.inject.Inject // 临时禁用
 
 sealed class WeatherState {
     object Idle : WeatherState()
@@ -42,10 +42,13 @@ data class WeatherData(
     val error: String? = null
 )
 
-@HiltViewModel
-class WeatherViewModel @Inject constructor(
+// @HiltViewModel // 临时禁用
+class WeatherViewModel /* @Inject constructor(
     private val weatherRepository: WeatherRepository
-) : ViewModel() {
+) */ : ViewModel() {
+    
+    // 临时直接实例化依赖
+    private val weatherRepository: WeatherRepository? = null
     
     private val _weatherState = MutableStateFlow<WeatherState>(WeatherState.Idle)
     val weatherState: StateFlow<WeatherState> = _weatherState.asStateFlow()

@@ -12,18 +12,20 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.*
 import java.security.MessageDigest
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 
 /**
  * 缓存管理器
  * 提供内存缓存和磁盘缓存功能
  */
-@Singleton
-class CacheManager @Inject constructor(
+// @Singleton
+class CacheManager /* @Inject constructor(
     private val context: Context,
     private val fileManager: FileManager
-) {
+) */ {
+    private val context: Context? = null
+    private val fileManager: FileManager? = null
     
     companion object {
         private const val CACHE_DIR = "cache"

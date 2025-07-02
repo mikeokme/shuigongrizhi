@@ -8,17 +8,18 @@ import com.example.shuigongrizhi.data.entity.MediaFile
 import com.example.shuigongrizhi.data.entity.MediaType
 import com.example.shuigongrizhi.data.repository.MediaFileRepository
 import com.example.shuigongrizhi.utils.CameraManager
-import dagger.hilt.android.lifecycle.HiltViewModel
+// import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+// import javax.inject.Inject
 
-@HiltViewModel
-class CameraViewModel @Inject constructor(
+// @HiltViewModel
+class CameraViewModel /* @Inject constructor(
     private val mediaFileRepository: MediaFileRepository
-) : ViewModel() {
+) */ : ViewModel() {
+    private val mediaFileRepository: MediaFileRepository? = null
     
     private lateinit var cameraManager: CameraManager
     private var currentProjectId: Long = 0

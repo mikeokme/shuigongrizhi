@@ -15,14 +15,15 @@ import com.example.shuigongrizhi.core.PermissionManager
 import com.example.shuigongrizhi.core.showToast
 import com.example.shuigongrizhi.navigation.AppNavigation
 import com.example.shuigongrizhi.ui.theme.ShuigongrizhiTheme
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+// import dagger.hilt.android.AndroidEntryPoint
+// import javax.inject.Inject
 
-@AndroidEntryPoint
+// @AndroidEntryPoint // 临时禁用
 class MainActivity : ComponentActivity() {
     
-    @Inject
-    lateinit var appConfig: AppConfig
+    // @Inject // 临时禁用
+    // lateinit var appConfig: AppConfig
+    private val appConfig = AppConfig() // 临时直接实例化
     
     private lateinit var permissionManager: PermissionManager
     

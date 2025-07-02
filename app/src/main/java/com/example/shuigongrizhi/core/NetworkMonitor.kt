@@ -10,19 +10,20 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 
 /**
  * 网络状态监听器
  * 提供实时的网络连接状态监控
  */
-@Singleton
-class NetworkMonitor @Inject constructor(
+// @Singleton
+class NetworkMonitor /* @Inject constructor(
     private val context: Context
-) {
+) */ {
+    private val context: Context? = null
     
-    private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
     
     /**
      * 网络状态Flow
@@ -49,20 +50,22 @@ class NetworkMonitor @Inject constructor(
         }
         
         // 注册网络回调
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connectivityManager.registerDefaultNetworkCallback(callback)
-        } else {
-            val request = NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build()
-            connectivityManager.registerNetworkCallback(request, callback)
+        connectivityManager?.let { cm ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                cm.registerDefaultNetworkCallback(callback)
+            } else {
+                val request = NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    .build()
+                cm.registerNetworkCallback(request, callback)
+            }
         }
         
         // 发送初始状态
         trySend(getCurrentNetworkState())
         
         awaitClose {
-            connectivityManager.unregisterNetworkCallback(callback)
+            connectivityManager?.unregisterNetworkCallback(callback)
         }
     }.distinctUntilChanged()
     
@@ -71,8 +74,8 @@ class NetworkMonitor @Inject constructor(
      */
     fun getCurrentNetworkState(): NetworkState {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network = connectivityManager.activeNetwork
-            val capabilities = network?.let { connectivityManager.getNetworkCapabilities(it) }
+            val network = connectivityManager?.activeNetwork
+            val capabilities = network?.let { connectivityManager?.getNetworkCapabilities(it) }
             
             when {
                 capabilities == null -> NetworkState.Disconnected
@@ -89,7 +92,7 @@ class NetworkMonitor @Inject constructor(
             }
         } else {
             @Suppress("DEPRECATION")
-            val networkInfo = connectivityManager.activeNetworkInfo
+            val networkInfo = connectivityManager?.activeNetworkInfo
             if (networkInfo?.isConnected == true) {
                 val type = when (networkInfo.type) {
                     ConnectivityManager.TYPE_WIFI -> NetworkType.WIFI
@@ -124,7 +127,7 @@ class NetworkMonitor @Inject constructor(
      */
     fun isMeteredNetwork(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            connectivityManager.isActiveNetworkMetered
+            connectivityManager?.isActiveNetworkMetered ?: false
         } else {
             // 对于旧版本，假设移动网络为计费网络
             getNetworkType() == NetworkType.CELLULAR
@@ -136,8 +139,8 @@ class NetworkMonitor @Inject constructor(
      */
     fun getWifiSignalStrength(): Int? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val network = connectivityManager.activeNetwork
-            val capabilities = network?.let { connectivityManager.getNetworkCapabilities(it) }
+            val network = connectivityManager?.activeNetwork
+            val capabilities = network?.let { connectivityManager?.getNetworkCapabilities(it) }
             capabilities?.signalStrength
         } else {
             null

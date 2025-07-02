@@ -14,28 +14,30 @@ import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import javax.inject.Inject
-import javax.inject.Singleton
+// import javax.inject.Inject
+// import javax.inject.Singleton
 import kotlin.random.Random
 
-@Singleton
-class WeatherRepository @Inject constructor(
+// @Singleton
+class WeatherRepository /* @Inject constructor(
     private val weatherService: WeatherService,
     private val appConfig: AppConfig
-) {
+) */ {
+    private val weatherService: WeatherService? = null
+    private val appConfig: AppConfig? = null
     
     /**
      * 获取当前使用的API Token
      */
     private fun getCurrentToken(): String {
-        return appConfig.weatherApiToken.takeIf { it.isNotEmpty() } ?: ApiConfig.CAIYUN_API_TOKEN
+        return appConfig?.weatherApiToken?.takeIf { it.isNotEmpty() } ?: ApiConfig.CAIYUN_API_TOKEN
     }
     
     /**
      * 检查是否启用无API模式
      */
     private fun isNoApiMode(): Boolean {
-        return appConfig.weatherApiToken.isEmpty() && ApiConfig.CAIYUN_API_TOKEN.isEmpty()
+        return (appConfig?.weatherApiToken?.isEmpty() ?: true) && ApiConfig.CAIYUN_API_TOKEN.isEmpty()
     }
     
     /**
@@ -90,14 +92,14 @@ class WeatherRepository @Inject constructor(
         } else {
             // API模式，调用真实API
             executeWithRetry {
-                weatherService.getCurrentWeather(
+                weatherService?.getCurrentWeather(
                     token = getCurrentToken(),
                     longitude = longitude,
                     latitude = latitude,
                     lang = ApiConfig.DEFAULT_LANG,
                     unit = ApiConfig.DEFAULT_UNIT,
                     granu = ApiConfig.DEFAULT_GRANU
-                )
+                ) ?: throw Exception("WeatherService not available")
             }
         }
     }
@@ -117,14 +119,14 @@ class WeatherRepository @Inject constructor(
             // API模式，调用真实API
             executeWithRetry {
                 // 使用默认坐标，实际应用中可以先通过地理编码API获取坐标
-                weatherService.getCurrentWeather(
+                weatherService?.getCurrentWeather(
                     token = getCurrentToken(),
                     longitude = ApiConfig.DEFAULT_LONGITUDE,
                     latitude = ApiConfig.DEFAULT_LATITUDE,
                     lang = ApiConfig.DEFAULT_LANG,
                     unit = ApiConfig.DEFAULT_UNIT,
                     granu = ApiConfig.DEFAULT_GRANU
-                )
+                ) ?: throw Exception("WeatherService not available")
             }
         }
     }
@@ -143,14 +145,14 @@ class WeatherRepository @Inject constructor(
         } else {
             // API模式，调用真实API
             executeWithRetry {
-                weatherService.getCurrentWeather(
+                weatherService?.getCurrentWeather(
                     token = getCurrentToken(),
                     longitude = longitude,
                     latitude = latitude,
                     lang = ApiConfig.DEFAULT_LANG,
                     unit = ApiConfig.DEFAULT_UNIT,
                     granu = "realtime"
-                )
+                ) ?: throw Exception("WeatherService not available")
             }
         }
     }
@@ -169,14 +171,14 @@ class WeatherRepository @Inject constructor(
         } else {
             // API模式，调用真实API
             executeWithRetry {
-                weatherService.getCurrentWeather(
+                weatherService?.getCurrentWeather(
                     token = getCurrentToken(),
                     longitude = longitude,
                     latitude = latitude,
                     lang = ApiConfig.DEFAULT_LANG,
                     unit = ApiConfig.DEFAULT_UNIT,
                     granu = "hourly"
-                )
+                ) ?: throw Exception("WeatherService not available")
             }
         }
     }
@@ -195,14 +197,14 @@ class WeatherRepository @Inject constructor(
         } else {
             // API模式，调用真实API
             executeWithRetry {
-                weatherService.getCurrentWeather(
+                weatherService?.getCurrentWeather(
                     token = getCurrentToken(),
                     longitude = longitude,
                     latitude = latitude,
                     lang = ApiConfig.DEFAULT_LANG,
                     unit = ApiConfig.DEFAULT_UNIT,
                     granu = "daily"
-                )
+                ) ?: throw Exception("WeatherService not available")
             }
         }
     }
@@ -305,14 +307,14 @@ class WeatherRepository @Inject constructor(
         } else {
             // API模式，测试真实Token
             try {
-                val response = weatherService.getCurrentWeather(
+                val response = weatherService?.getCurrentWeather(
                     token = token,
                     longitude = ApiConfig.DEFAULT_LONGITUDE,
                     latitude = ApiConfig.DEFAULT_LATITUDE,
                     lang = ApiConfig.DEFAULT_LANG,
                     unit = ApiConfig.DEFAULT_UNIT,
                     granu = ApiConfig.DEFAULT_GRANU
-                )
+                ) ?: throw Exception("WeatherService not available")
                 
                 // 如果请求成功，返回成功信息
                 Result.success("Token验证成功，可以正常获取天气数据")

@@ -3,9 +3,9 @@ package com.example.shuigongrizhi.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+// import dagger.hilt.android.lifecycle.HiltViewModel
+// import dagger.hilt.android.qualifiers.ApplicationContext
+// import javax.inject.Inject
 import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.data.repository.ProjectRepository
 import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
@@ -29,14 +29,19 @@ data class ProjectFormState(
     val startDateError: String? = null
 )
 
-@HiltViewModel
-class ProjectFormViewModel @Inject constructor(
+// @HiltViewModel // 临时禁用
+class ProjectFormViewModel /* @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val constructionLogRepository: ConstructionLogRepository,
     @ApplicationContext private val context: Context
-) : ViewModel() {
+) */ : ViewModel() {
     
-    private val projectDataManager = ProjectDataManager(context)
+    // 临时直接实例化依赖
+    private val projectRepository = ProjectRepository()
+    private val constructionLogRepository = ConstructionLogRepository()
+    // private val context: Context? = null // 临时设为null
+    
+    // private val projectDataManager = ProjectDataManager(context) // 临时禁用
     private val _formState = MutableStateFlow(ProjectFormState())
     val formState: StateFlow<ProjectFormState> = _formState.asStateFlow()
 
@@ -161,7 +166,8 @@ class ProjectFormViewModel @Inject constructor(
                 kotlinx.coroutines.delay(100) // 给数据库操作一些时间
                 android.util.Log.d("ProjectForm", "Save operation completed: $result")
                 
-                // 自动备份项目数据
+                // 自动备份项目数据 - 临时禁用
+                /*
                 try {
                     val savedProject = if (editingProjectId != null) {
                         val result = projectRepository.getProjectById(editingProjectId!!)
@@ -188,6 +194,7 @@ class ProjectFormViewModel @Inject constructor(
                 } catch (e: Exception) {
                     android.util.Log.e("ProjectForm", "自动备份过程中发生错误", e)
                 }
+                */
                 
                 // 保存成功
                 android.util.Log.d("ProjectForm", "项目保存成功，ID: $result")
