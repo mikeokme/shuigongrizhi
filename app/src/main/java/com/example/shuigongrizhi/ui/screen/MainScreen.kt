@@ -50,11 +50,11 @@ fun MainScreen(
             .fillMaxSize()
             .background(Color(0xFF231942))
     ) {
-        // 顶部栏
+        // 顶部栏 - 减少顶部边距，内容上移
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
+                .padding(top = 8.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Home,
@@ -160,7 +160,7 @@ fun MainScreen(
         // 下移对联和项目信息说明
         Spacer(modifier = Modifier.weight(1f))
 
-        // 企业文化对联 - 优化字体一致性和对比度
+        // 企业文化对联 - 分散齐边对齐
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -169,17 +169,163 @@ fun MainScreen(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "生如蝼蚁，当有鸿鹄之志；\n命如纸薄，应有不屈之心。",
-                    color = Color(0xFFF5F5F5), // 改为更高对比度的浅色
-                    fontSize = 20.sp, // 稍微减小字体大小
-                    fontWeight = FontWeight.Medium, // 使用Medium权重保持一致性
-                    textAlign = TextAlign.Justify, // 改为两端对齐实现分散齐边
-                    letterSpacing = 2.5.sp, // 增加字间距实现分散效果
-                    lineHeight = 32.sp, // 增加行高改善视觉效果
-                    style = MaterialTheme.typography.titleMedium, // 使用一致的字体样式
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // 第一行：生如蝼蚁，当有鸿鹄之志
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "生",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "如",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "蝼",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "蚁",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "，",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "当",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "有",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "鸿",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "鹄",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "之",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "志",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "；",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                // 第二行：命如纸薄，应有不屈之心
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "命",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "如",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "纸",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "薄",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "，",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "应",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "有",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "不",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "屈",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "之",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "心",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "。",
+                        color = Color(0xFFF5F5F5),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
 

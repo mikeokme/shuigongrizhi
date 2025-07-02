@@ -232,6 +232,41 @@ class ProjectListViewModel @Inject constructor(
     }
     
     /**
+     * 导出项目数据
+     */
+    fun exportProject(project: Project) {
+        launchSafely(showLoading = false) {
+            Logger.business("开始导出项目: ${project.name}")
+            
+            try {
+                // 获取项目相关的施工日志
+                val logs = when (val result = constructionLogRepository.getLogsByProjectId(project.id)) {
+                    is Result.Success -> result.data
+                    is Result.Error -> {
+                        Logger.exception(result.exception, "获取项目日志失败")
+                        emptyList()
+                    }
+                    is Result.Loading -> emptyList()
+                }
+                
+                // 使用ProjectDataManager进行备份导出
+                val projectDataManager = com.example.shuigongrizhi.utils.ProjectDataManager(
+                    // 需要Context，这里暂时使用TODO标记
+                    // TODO: 需要传入Context或使用Application Context
+                )
+                
+                // 暂时记录导出请求，具体实现需要在UI层处理
+                Logger.business("项目导出请求已记录: ${project.name}, 日志数量: ${logs.size}")
+                sendSuccess("项目导出功能开发中，敬请期待")
+                
+            } catch (e: Exception) {
+                Logger.exception(e, "导出项目失败")
+                sendError("导出项目失败: ${e.message}")
+            }
+        }
+    }
+    
+    /**
      * 检查是否为默认项目
      */
     fun isDefaultProject(project: Project): Boolean {

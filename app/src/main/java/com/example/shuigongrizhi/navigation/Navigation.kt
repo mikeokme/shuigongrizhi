@@ -3,6 +3,7 @@ package com.example.shuigongrizhi.navigation
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,7 +80,10 @@ fun AppNavigation(
         NavHost(
             navController = navController,
             startDestination = NavigationRoutes.MAIN,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(
+                bottom = innerPadding.calculateBottomPadding(),
+                top = 0.dp // 移除顶部边距，让内容上移
+            )
         ) {
             // 主界面
             composable(NavigationRoutes.MAIN) {

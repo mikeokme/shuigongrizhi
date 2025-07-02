@@ -126,7 +126,8 @@ fun ProjectListScreen(
                     ProjectList(
                         projects = projects,
                         onProjectClick = onNavigateToProject,
-                        onDeleteProject = viewModel::deleteProject
+                        onDeleteProject = viewModel::deleteProject,
+                        onExportProject = viewModel::exportProject
                     )
                 }
             }
@@ -140,7 +141,8 @@ fun ProjectListScreen(
 fun ProjectList(
     projects: List<Project>,
     onProjectClick: (Long) -> Unit,
-    onDeleteProject: (Project) -> Unit
+    onDeleteProject: (Project) -> Unit,
+    onExportProject: (Project) -> Unit
 ) {
     val responsivePadding = ResponsiveUtils.getResponsivePadding()
     
@@ -153,7 +155,8 @@ fun ProjectList(
             ProjectCard(
                 project = project,
                 onClick = { onProjectClick(project.id) },
-                onDelete = { onDeleteProject(project) }
+                onDelete = { onDeleteProject(project) },
+                onExport = { onExportProject(project) }
             )
         }
     }
@@ -163,7 +166,8 @@ fun ProjectList(
 fun ProjectCard(
     project: Project,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onExport: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -225,7 +229,7 @@ fun ProjectCard(
                         DropdownMenuItem(
                             text = { 
                                 Text(
-                                    "查看详情",
+                                    "进入详情",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 ) 
@@ -233,6 +237,19 @@ fun ProjectCard(
                             onClick = {
                                 showMenu = false
                                 onClick()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { 
+                                Text(
+                                    "导出项目",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                ) 
+                            },
+                            onClick = {
+                                showMenu = false
+                                // TODO: 实现导出功能
                             }
                         )
                         if (!isDefaultProject) {
@@ -283,34 +300,7 @@ fun ProjectCard(
             }
         }
     }
-    DropdownMenu(
-        expanded = showMenu,
-        onDismissRequest = { showMenu = false }
-    ) {
-        DropdownMenuItem(
-            text = { Text("进入详情") },
-            onClick = {
-                showMenu = false
-                onClick()
-            }
-        )
-        DropdownMenuItem(
-            text = { Text("导出") },
-            onClick = {
-                showMenu = false
-                // TODO: 导出操作，可在此处实现
-            }
-        )
-        if (!isDefaultProject) {
-            DropdownMenuItem(
-                text = { Text("删除") },
-                onClick = {
-                    showMenu = false
-                    showDeleteDialog = true
-                }
-            )
-        }
-    }
+
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },

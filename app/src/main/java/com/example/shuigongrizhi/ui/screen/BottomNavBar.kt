@@ -36,7 +36,7 @@ fun BottomNavBar(
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = AppShadows.medium,
-        modifier = Modifier.height(BottomNavDefaults.height)
+        modifier = Modifier.height(100.dp) // 增加高度让导航图标下移
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
