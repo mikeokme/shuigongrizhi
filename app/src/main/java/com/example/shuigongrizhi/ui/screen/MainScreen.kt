@@ -107,7 +107,7 @@ fun MainScreen(
                     2 -> FeatureCard(
                         title = "拍照录像",
                         iconRes = R.drawable.ic_camera,
-                        gradient = Brush.linearGradient(listOf(Color(0xFFCB2D3E), Color(0xFFEF473A))),
+                        gradient = Brush.linearGradient(listOf(Color(0xFF87CEEB), Color(0xFF4682B4))),
                         modifier = Modifier.aspectRatio(1f),
                         onClick = onCameraClick
                     )

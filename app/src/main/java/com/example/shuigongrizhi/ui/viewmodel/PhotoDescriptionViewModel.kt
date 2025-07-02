@@ -83,8 +83,7 @@ class PhotoDescriptionViewModel @Inject constructor(
                         fileType = MediaType.PHOTO,
                         fileSize = savedFile.length(),
                         createdAt = currentDate,
-                        description = buildPhotoDescription(description, location, notes),
-                        projectId = projectId
+                        description = buildPhotoDescription(description, location, notes)
                     )
                     
                     // 保存到数据库

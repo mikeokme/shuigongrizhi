@@ -75,7 +75,7 @@ fun FeatureCard(
                     modifier = Modifier.size(52.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(14.dp)) // 增加间距
+            Spacer(modifier = Modifier.height(8.dp)) // 缩小logo与文字间隙
             Text(
                 text = title,
                 color = Color.White,
