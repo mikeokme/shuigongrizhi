@@ -8,6 +8,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.shuigongrizhi.ui.theme.*
 
 @Composable
 fun BottomNavBar(
@@ -28,12 +30,13 @@ fun BottomNavBar(
     val items = listOf(
         Triple(Icons.Default.Home, "主页", onHomeClick),
         Triple(Icons.Default.Assignment, "项目管理", onProjectClick),
-        Triple(Icons.Default.PhotoLibrary, "媒体管理", onMediaClick),
-        Triple(Icons.Default.Settings, "设置", onDesktopClick)
+        // 移除媒体管理选项，避免弹窗干扰
+        Triple(Icons.Default.Build, "常用工具", onDesktopClick)
     )
     NavigationBar(
-        containerColor = Color(0xFF2D2540),
-        tonalElevation = 0.dp
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = AppShadows.medium,
+        modifier = Modifier.height(BottomNavDefaults.height)
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -43,17 +46,22 @@ fun BottomNavBar(
                     Icon(
                         imageVector = item.first,
                         contentDescription = item.second,
-                        tint = if (index == selectedIndex) Color(0xFF8D6EFF) else Color(0xFFB0A8B9),
-                        modifier = Modifier.size(28.dp) // 增大图标尺寸
+                        modifier = Modifier.size(BottomNavDefaults.iconSize)
                     )
                 },
                 label = {
                     Text(
                         text = item.second,
-                        color = if (index == selectedIndex) Color(0xFF8D6EFF) else Color(0xFFB0A8B9),
-                        fontSize = 12.sp // 设置合适的字体大小
+                        fontSize = BottomNavDefaults.fontSize
                     )
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                )
             )
         }
     }

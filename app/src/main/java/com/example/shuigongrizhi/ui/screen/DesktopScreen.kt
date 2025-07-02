@@ -19,18 +19,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shuigongrizhi.R
+import com.example.shuigongrizhi.ui.theme.*
+import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
+import com.example.shuigongrizhi.ui.utils.getResponsiveGridConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DesktopScreen(
     onNavigateBack: () -> Unit = {}
 ) {
+    val gridConfig = getResponsiveGridConfig()
+    
     Scaffold(
         topBar = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
+                    .padding(
+                        top = Spacing.large,
+                        start = Spacing.large,
+                        end = Spacing.large,
+                        bottom = Spacing.medium
+                    )
             ) {
                 IconButton(
                     onClick = onNavigateBack,
@@ -39,57 +49,48 @@ fun DesktopScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "返回",
-                        tint = Color(0xFF8D6EFF)
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(IconSize.large)
                     )
                 }
                 Text(
-                    text = "桌面",
-                    color = Color(0xFF8D6EFF),
-                    fontSize = 22.sp,
+                    text = "常用工具",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
         },
-        containerColor = Color(0xFF231942)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        // 桌面应用网格
-        val desktopApps = listOf(
-            DesktopApp("日历", Icons.Default.CalendarToday),
+        // 常用工具网格
+        val commonTools = listOf(
             DesktopApp("计算器", Icons.Default.Calculate),
-            DesktopApp("笔记", Icons.Default.Note),
-            DesktopApp("天气", Icons.Default.Cloud),
-            DesktopApp("相册", Icons.Default.PhotoLibrary),
-            DesktopApp("设置", Icons.Default.Settings),
-            DesktopApp("文件", Icons.Default.Folder),
-            DesktopApp("联系人", Icons.Default.Contacts)
+            DesktopApp("日历", Icons.Default.CalendarToday),
+            DesktopApp("二维码", Icons.Default.QrCode),
+            DesktopApp("单位换算", Icons.Default.SwapHoriz),
+            DesktopApp("时间工具", Icons.Default.AccessTime),
+            DesktopApp("文件管理", Icons.Default.Folder),
+            DesktopApp("笔记本", Icons.Default.Note),
+            DesktopApp("系统设置", Icons.Default.Settings),
+            DesktopApp("网络工具", Icons.Default.Wifi),
+            DesktopApp("测量工具", Icons.Default.Straighten),
+            DesktopApp("颜色工具", Icons.Default.Palette),
+            DesktopApp("备份恢复", Icons.Default.Backup)
         )
         
-        val scrollState = rememberScrollState()
-        Column(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(gridConfig.columns),
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(gridConfig.contentPadding),
+            verticalArrangement = Arrangement.spacedBy(gridConfig.spacing),
+            horizontalArrangement = Arrangement.spacedBy(gridConfig.spacing)
         ) {
-            // 将应用分成每行4个的网格
-            for (i in desktopApps.indices step 4) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    for (j in 0 until 4) {
-                        if (i + j < desktopApps.size) {
-                            DesktopAppItem(desktopApps[i + j])
-                        } else {
-                            // 空占位符，保持布局平衡
-                            Spacer(modifier = Modifier.width(64.dp))
-                        }
-                    }
-                }
+            items(commonTools) { tool ->
+                DesktopAppItem(tool)
             }
         }
     }
@@ -99,17 +100,21 @@ data class DesktopApp(val name: String, val icon: androidx.compose.ui.graphics.v
 
 @Composable
 fun DesktopAppItem(app: DesktopApp) {
+    val maxWidth = ResponsiveUtils.getMaxCardWidth()
+    
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier
+            .let { if (maxWidth != androidx.compose.ui.unit.Dp.Unspecified) it.widthIn(max = maxWidth) else it }
+            .padding(Spacing.small)
     ) {
         Card(
             modifier = Modifier
-                .size(64.dp)
-                .padding(4.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF2D2540)
-            )
+                .size(IconSize.huge)
+                .padding(Spacing.extraSmall),
+            colors = AppCardDefaults.cardColors(),
+            elevation = AppCardDefaults.cardElevation(),
+            shape = AppCardDefaults.shape
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -118,17 +123,18 @@ fun DesktopAppItem(app: DesktopApp) {
                 Icon(
                     imageVector = app.icon,
                     contentDescription = app.name,
-                    tint = Color(0xFF8D6EFF),
-                    modifier = Modifier.size(32.dp)
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(IconSize.large)
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(Spacing.extraSmall))
         Text(
             text = app.name,
-            color = Color.White,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            maxLines = 2
         )
     }
 }

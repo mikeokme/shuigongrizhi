@@ -18,6 +18,9 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import com.example.shuigongrizhi.ui.theme.*
+import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
+import com.example.shuigongrizhi.ui.utils.getResponsivePadding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -57,19 +60,23 @@ fun ProjectDashboardScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = dashboardState.project?.name ?: "项目详情",
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.back),
+                            modifier = Modifier.size(IconSize.large),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -79,7 +86,9 @@ fun ProjectDashboardScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.List,
-                            contentDescription = "日志列表"
+                            contentDescription = "日志列表",
+                            modifier = Modifier.size(IconSize.medium),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     IconButton(
@@ -87,10 +96,16 @@ fun ProjectDashboardScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Download,
-                            contentDescription = stringResource(R.string.export_logs)
+                            contentDescription = stringResource(R.string.export_logs),
+                            modifier = Modifier.size(IconSize.medium),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         },
         floatingActionButton = {
@@ -123,7 +138,8 @@ fun ProjectDashboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp)
+                    .padding(ResponsiveUtils.getResponsivePadding()),
+                verticalArrangement = Arrangement.spacedBy(Spacing.medium)
             ) {
                 // 项目信息卡片
                 dashboardState.project?.let { project ->
@@ -176,10 +192,15 @@ fun CalendarView(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = AppCardDefaults.elevation,
+        shape = AppCardDefaults.shape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())
         ) {
             // 月份导航
             Row(
@@ -196,14 +217,16 @@ fun CalendarView(
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowLeft,
-                        contentDescription = "上个月"
+                        contentDescription = "上个月",
+                        modifier = Modifier.size(IconSize.medium),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 
                 Text(
                     text = monthFormat.format(currentMonth),
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 IconButton(
@@ -215,7 +238,9 @@ fun CalendarView(
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowRight,
-                        contentDescription = "下个月"
+                        contentDescription = "下个月",
+                        modifier = Modifier.size(IconSize.medium),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -238,15 +263,15 @@ fun CalendarView(
                 }
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.medium))
             
             // 日期网格
             val dates = generateCalendarDates(currentMonth)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(7),
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(Spacing.small),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.small)
             ) {
                 items(dates) { date ->
                     val hasLog = logDates.contains(dateFormat.format(date))
@@ -282,7 +307,7 @@ fun CalendarDateItem(
     
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(ButtonSize.medium)
             .clip(CircleShape)
             .background(
                 when {
@@ -373,37 +398,45 @@ fun LogSummaryCard(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = AppCardDefaults.elevation,
+        shape = AppCardDefaults.shape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())
         ) {
             Text(
                 text = dateFormat.format(selectedDate),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.small))
             
             if (selectedLog != null) {
                 // 显示日志摘要
                 if (selectedLog.weatherCondition.isNotBlank()) {
                     Text(
                         text = "天气：${selectedLog.weatherCondition} ${selectedLog.temperature}",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 
                 if (selectedLog.mainContent.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(Spacing.extraSmall))
                     Text(
                         text = "主要工作：${selectedLog.mainContent.take(50)}${if (selectedLog.mainContent.length > 50) "..." else ""}",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.small))
                 
                 Button(
                     onClick = onEditClick,
@@ -418,7 +451,7 @@ fun LogSummaryCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.small))
                 
                 Button(
                     onClick = onEditClick,
@@ -432,49 +465,72 @@ fun LogSummaryCard(
 }
 
 @Composable
-fun ProjectInfoCard(project: com.example.shuigongrizhi.data.entity.Project) {
+fun ProjectInfoRow(label: String, value: String) {
+    Column(
+        modifier = Modifier.padding(vertical = Spacing.extraSmall)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+fun ProjectInfoCard(
+    project: com.example.shuigongrizhi.data.entity.Project,
+    onEditClick: () -> Unit
+) {
     val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = AppCardDefaults.elevation,
+        shape = AppCardDefaults.shape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = project.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    text = "项目信息",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(
-                    text = project.type.name,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                IconButton(onClick = onEditClick) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "编辑项目",
+                        modifier = Modifier.size(IconSize.medium),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
+            
+            Spacer(modifier = Modifier.height(Spacing.small))
+            
+            ProjectInfoRow("项目名称", project.name)
+            ProjectInfoRow("项目类型", project.type.name)
             if (!project.manager.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "负责人：${project.manager}",
-                    style = MaterialTheme.typography.bodySmall
-                )
+                ProjectInfoRow("项目经理", project.manager)
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${project.startDate.let { dateFormat.format(it) }}" +
-                    (project.endDate?.let { " - ${dateFormat.format(it)}" } ?: ""),
-                style = MaterialTheme.typography.bodySmall
-            )
+            ProjectInfoRow("开始日期", dateFormat.format(project.startDate))
+            ProjectInfoRow("结束日期", project.endDate?.let { dateFormat.format(it) } ?: "未设定")
             if (!project.description.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = project.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 4
-                )
+                ProjectInfoRow("项目描述", project.description)
             }
         }
     }

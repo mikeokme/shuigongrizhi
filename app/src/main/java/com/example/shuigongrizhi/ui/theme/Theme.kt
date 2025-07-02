@@ -13,33 +13,51 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = Primary,
-    secondary = Secondary,
-    tertiary = Tertiary,
-    background = DeepPurple,
-    surface = DarkPurple,
     onPrimary = TextWhite,
+    primaryContainer = PrimaryVariant,
+    onPrimaryContainer = TextWhite,
+    secondary = Secondary,
     onSecondary = TextWhite,
+    secondaryContainer = Secondary,
+    onSecondaryContainer = TextWhite,
+    tertiary = Tertiary,
     onTertiary = TextWhite,
+    background = DeepPurple,
     onBackground = TextWhite,
-    onSurface = TextWhite
+    surface = DarkPurple,
+    onSurface = TextWhite,
+    surfaceVariant = CardBackground,
+    onSurfaceVariant = TextGray,
+    outline = TextGray,
+    error = Error,
+    onError = TextWhite
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Primary,
-    secondary = Secondary,
-    tertiary = Tertiary,
-    background = DeepPurple,
-    surface = DarkPurple,
     onPrimary = TextWhite,
+    primaryContainer = PrimaryVariant,
+    onPrimaryContainer = TextWhite,
+    secondary = Secondary,
     onSecondary = TextWhite,
+    secondaryContainer = Secondary,
+    onSecondaryContainer = TextWhite,
+    tertiary = Tertiary,
     onTertiary = TextWhite,
-    onBackground = TextWhite,
-    onSurface = TextWhite
+    background = TextWhite,
+    onBackground = DeepPurple,
+    surface = TextWhite,
+    onSurface = DeepPurple,
+    surfaceVariant = SurfaceVariant,
+    onSurfaceVariant = TextGray,
+    outline = TextGray,
+    error = Error,
+    onError = TextWhite
 )
 
 @Composable
 fun ShuigongrizhiTheme(
-    darkTheme: Boolean = true, // 默认使用深色主题
+    darkTheme: Boolean = isSystemInDarkTheme(), // 跟随系统主题
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false, // 禁用动态颜色以保持一致的主题
     content: @Composable () -> Unit
@@ -49,10 +67,13 @@ fun ShuigongrizhiTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
-        else -> DarkColorScheme // 即使在浅色模式下也使用深色主题
+        else -> LightColorScheme // 支持浅色主题
     }
+
+    // 设置状态栏颜色
+    val activity = LocalContext.current as? Activity
+    activity?.window?.statusBarColor = colorScheme.background.hashCode()
 
     MaterialTheme(
         colorScheme = colorScheme,

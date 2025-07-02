@@ -54,13 +54,14 @@ fun AppNavigation(
     Scaffold(
         bottomBar = { 
              BottomNavBar(
-                 selectedIndex = 1, // 默认选中首页
-                 onBackClick = { navController.navigate(NavigationRoutes.DISCOVERY) },
-                 onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) },
+                 selectedIndex = 0, // 默认选中首页
                  onHomeClick = { navController.navigate(NavigationRoutes.MAIN) {
                      // 清除回退栈，使首页成为唯一目的地
                      popUpTo(NavigationRoutes.MAIN) { inclusive = true }
-                 }}
+                 }},
+                 onProjectClick = { navController.navigate(NavigationRoutes.PROJECT_LIST) },
+                 onMediaClick = { navController.navigate(NavigationRoutes.PROJECT_SELECTION) },
+                 onDesktopClick = { navController.navigate(NavigationRoutes.DESKTOP) }
              )
          }
     ) { innerPadding ->

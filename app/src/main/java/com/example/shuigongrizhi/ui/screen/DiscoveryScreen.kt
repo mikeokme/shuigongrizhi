@@ -48,7 +48,7 @@ fun DiscoveryScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Discovery",
+                    text = "发现",
                     color = Color(0xFF8D6EFF),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
@@ -72,13 +72,13 @@ fun DiscoveryScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 FeatureCard(
-                    title = "Champagne",
+                    title = "香槟",
                     iconRes = R.drawable.ic_champagne,
                     gradient = Brush.linearGradient(listOf(Color(0xFF7F53AC), Color(0xFF647DEE))),
                     modifier = Modifier.weight(1f)
                 )
                 FeatureCard(
-                    title = "Sparkaling",
+                    title = "起泡酒",
                     iconRes = R.drawable.ic_sparkaling,
                     gradient = Brush.linearGradient(listOf(Color(0xFF56CCF2), Color(0xFF2F80ED))),
                     modifier = Modifier.weight(1f)
@@ -89,13 +89,13 @@ fun DiscoveryScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 FeatureCard(
-                    title = "Red Wine",
+                    title = "红酒",
                     iconRes = R.drawable.ic_red_wine,
                     gradient = Brush.linearGradient(listOf(Color(0xFFCB2D3E), Color(0xFFEF473A))),
                     modifier = Modifier.weight(1f)
                 )
                 FeatureCard(
-                    title = "Rose Wine",
+                    title = "玫瑰酒",
                     iconRes = R.drawable.ic_rose_wine,
                     gradient = Brush.linearGradient(listOf(Color(0xFF8E54E9), Color(0xFF4776E6))),
                     modifier = Modifier.weight(1f)
@@ -106,13 +106,13 @@ fun DiscoveryScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 FeatureCard(
-                    title = "Sweet Wine",
+                    title = "甜酒",
                     iconRes = R.drawable.ic_sweet_wine,
                     gradient = Brush.linearGradient(listOf(Color(0xFF43CEA2), Color(0xFF185A9D))),
                     modifier = Modifier.weight(1f)
                 )
                 FeatureCard(
-                    title = "Cognac",
+                    title = "干邑",
                     iconRes = R.drawable.ic_cognac,
                     gradient = Brush.linearGradient(listOf(Color(0xFFB06AB3), Color(0xFF4568DC))),
                     modifier = Modifier.weight(1f)

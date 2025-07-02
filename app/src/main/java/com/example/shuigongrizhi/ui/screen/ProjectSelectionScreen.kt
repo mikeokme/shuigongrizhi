@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import com.example.shuigongrizhi.R
 import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.ui.viewmodel.ProjectListViewModel
+import com.example.shuigongrizhi.ui.theme.*
+import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
+import com.example.shuigongrizhi.ui.utils.getResponsivePadding
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,22 +48,30 @@ fun ProjectSelectionScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "选择项目",
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.back),
+                            modifier = Modifier.size(IconSize.large),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { paddingValues ->
@@ -96,7 +107,7 @@ fun ProjectSelectionScreen(
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(ResponsiveUtils.getResponsivePadding()),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(projects) { project ->
@@ -117,71 +128,74 @@ fun ProjectSelectionScreen(
 fun ProjectSelectionCard(
     project: Project,
     isSelected: Boolean,
-    onSelect: () -> Unit
+    onClick: () -> Unit
 ) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onSelect() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        ),
-        elevation = CardDefaults.cardElevation(4.dp)
+            .clickable { onClick() },
+        colors = if (isSelected) {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        } else {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        elevation = AppCardDefaults.elevation,
+        shape = AppCardDefaults.shape
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(ResponsiveUtils.getResponsivePadding()),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = project.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = project.type.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                Text(
+                    text = project.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Spacer(modifier = Modifier.height(Spacing.extraSmall))
+                
+                Text(
+                    text = project.type.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 
                 if (!project.manager.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "负责人：${project.manager}",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${dateFormat.format(project.startDate)}" +
                         (project.endDate?.let { " - ${dateFormat.format(it)}" } ?: ""),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 if (!project.description.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(Spacing.extraSmall))
                     Text(
                         text = project.description,
                         style = MaterialTheme.typography.bodySmall,
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -189,10 +203,10 @@ fun ProjectSelectionCard(
             }
             
             if (isSelected) {
-                Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "已选择",
+                    modifier = Modifier.size(IconSize.medium),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

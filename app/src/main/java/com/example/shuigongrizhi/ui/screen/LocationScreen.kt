@@ -104,7 +104,7 @@ fun LocationScreen(
                 ) {
                     when (uiState.mapProvider) {
                         MapProvider.GOOGLE -> {
-                            Text(text = "Google 地图区域\n（请集成 Google Maps Compose）")
+                            Text(text = "谷歌地图区域\n（请集成 Google Maps Compose）")
                         }
                         MapProvider.GAODE -> {
                             Text(text = "高德地图区域\n（请集成高德地图SDK）")

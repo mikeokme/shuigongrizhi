@@ -61,7 +61,7 @@ fun MainScreen(
                 contentDescription = null,
                 tint = Color(0xFF8D6EFF),
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(32.dp)
                     .align(Alignment.CenterStart)
             )
             Text(
@@ -119,11 +119,11 @@ fun MainScreen(
                         onClick = onLocationClick
                     )
                     4 -> FeatureCard(
-                        title = "媒体管理",
-                        iconRes = R.drawable.ic_media,
+                        title = "数据备份",
+                        iconRes = R.drawable.ic_backup,
                         gradient = Brush.linearGradient(listOf(Color(0xFF43CEA2), Color(0xFF185A9D))),
                         modifier = Modifier.aspectRatio(1f),
-                        onClick = onMediaClick
+                        onClick = { /* 数据备份功能 */ }
                     )
                     5 -> FeatureCard(
                         title = "项目管理",
@@ -174,8 +174,9 @@ fun MainScreen(
                     color = Color(0xFFF5F5F5), // 改为更高对比度的浅色
                     fontSize = 20.sp, // 稍微减小字体大小
                     fontWeight = FontWeight.Medium, // 使用Medium权重保持一致性
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 1.sp, // 减少字间距
+                    textAlign = TextAlign.Justify, // 改为两端对齐实现分散齐边
+                    letterSpacing = 2.5.sp, // 增加字间距实现分散效果
+                    lineHeight = 32.sp, // 增加行高改善视觉效果
                     style = MaterialTheme.typography.titleMedium, // 使用一致的字体样式
                     modifier = Modifier.fillMaxWidth()
                 )

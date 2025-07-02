@@ -19,9 +19,15 @@ import com.example.shuigongrizhi.R
 import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.data.entity.ProjectType
 import com.example.shuigongrizhi.ui.components.GradientCard
+import com.example.shuigongrizhi.ui.theme.*
+import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
+import com.example.shuigongrizhi.ui.utils.getResponsivePadding
 import com.example.shuigongrizhi.ui.components.ProjectTypeCard
-import com.example.shuigongrizhi.ui.theme.DeepPurple
-import com.example.shuigongrizhi.ui.theme.TextWhite
+import com.example.shuigongrizhi.ui.components.LoadingIndicator
+import com.example.shuigongrizhi.ui.components.EmptyState
+import com.example.shuigongrizhi.ui.theme.*
+import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
+import com.example.shuigongrizhi.ui.utils.getResponsivePadding
 import com.example.shuigongrizhi.ui.viewmodel.ProjectListViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,62 +62,68 @@ fun ProjectListScreen(
         }
     }
 
+    val responsivePadding = ResponsiveUtils.getResponsivePadding()
+    
     Scaffold(
-        containerColor = DeepPurple,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.project_list_title),
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
+                        text = stringResource(R.string.project_list),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DeepPurple,
-                    titleContentColor = TextWhite,
-                    actionIconContentColor = TextWhite
-                ),
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.settings),
-                            tint = TextWhite
+                            modifier = Modifier.size(IconSize.medium),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToCreateProject,
-                modifier = Modifier.padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.create_project),
-                    tint = TextWhite
+                    modifier = Modifier.size(IconSize.medium)
                 )
             }
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
             when {
                 isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
+                    LoadingIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        message = "加载项目列表中..."
                     )
                 }
                 projects.isEmpty() -> {
-                    EmptyProjectsView(
+                    EmptyState(
                         modifier = Modifier.align(Alignment.Center),
-                        textColor = TextWhite
+                        title = "暂无项目",
+                        description = "点击右下角的 + 按钮创建您的第一个项目",
+                        actionText = "创建项目",
+                        onActionClick = onNavigateToCreateProject
                     )
                 }
                 else -> {
@@ -126,22 +138,7 @@ fun ProjectListScreen(
     }
 }
 
-@Composable
-fun EmptyProjectsView(
-    modifier: Modifier = Modifier,
-    textColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant
-) {
-    Column(
-        modifier = modifier.padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(R.string.no_projects_hint),
-            style = MaterialTheme.typography.bodyLarge,
-            color = textColor
-        )
-    }
-}
+
 
 @Composable
 fun ProjectList(
@@ -149,10 +146,12 @@ fun ProjectList(
     onProjectClick: (Long) -> Unit,
     onDeleteProject: (Project) -> Unit
 ) {
+    val responsivePadding = ResponsiveUtils.getResponsivePadding()
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        contentPadding = PaddingValues(responsivePadding),
+        verticalArrangement = Arrangement.spacedBy(Spacing.medium)
     ) {
         items(projects) { project ->
             ProjectCard(
@@ -181,68 +180,110 @@ fun ProjectCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { showMenu = true },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDefaultProject) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        ),
-        elevation = CardDefaults.cardElevation(4.dp)
+        colors = if (isDefaultProject) {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        } else {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        elevation = AppCardDefaults.elevation,
+        shape = AppCardDefaults.shape
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = project.name,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        color = if (isDefaultProject) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    if (isDefaultProject) {
-                        Surface(
-                            shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(
-                                text = "默认",
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold
+                    Text(
+                        text = project.type.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (isDefaultProject) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                Box {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "更多选项",
+                            modifier = Modifier.size(IconSize.medium),
+                            tint = if (isDefaultProject) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { 
+                                Text(
+                                    "查看详情",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                ) 
+                            },
+                            onClick = {
+                                showMenu = false
+                                onClick()
+                            }
+                        )
+                        if (!isDefaultProject) {
+                            DropdownMenuItem(
+                                text = { 
+                                    Text(
+                                        "删除项目",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.error
+                                    ) 
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    showDeleteDialog = true
+                                }
                             )
                         }
                     }
                 }
-                Text(
-                    text = project.type.name,
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
+            
+            Spacer(modifier = Modifier.height(Spacing.small))
+            
             if (!project.manager.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "负责人：${project.manager}",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isDefaultProject) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            
             Text(
-                text = "${project.startDate.let { dateFormat.format(it) }}" +
+                text = "${dateFormat.format(project.startDate)}" +
                     (project.endDate?.let { " - ${dateFormat.format(it)}" } ?: ""),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = if (isDefaultProject) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
             )
+            
             if (!project.description.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing.extraSmall))
                 Text(
                     text = project.description,
                     style = MaterialTheme.typography.bodySmall,
+                    color = if (isDefaultProject) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )

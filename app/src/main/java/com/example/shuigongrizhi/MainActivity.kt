@@ -9,15 +9,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.example.shuigongrizhi.core.AppConfig
 import com.example.shuigongrizhi.core.Logger
 import com.example.shuigongrizhi.core.PermissionManager
 import com.example.shuigongrizhi.core.showToast
 import com.example.shuigongrizhi.navigation.AppNavigation
 import com.example.shuigongrizhi.ui.theme.ShuigongrizhiTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    
+    @Inject
+    lateinit var appConfig: AppConfig
     
     private lateinit var permissionManager: PermissionManager
     
@@ -53,6 +58,12 @@ class MainActivity : ComponentActivity() {
     private fun checkAndRequestPermissions() {
         Logger.business("开始检查应用权限")
         
+        // 如果是首次启动，强制请求所有权限
+        if (appConfig.isFirstLaunch) {
+            Logger.business("首次启动，请求所有必要权限")
+            showToast("首次启动，正在申请必要权限...")
+        }
+        
         permissionManager.checkAndRequestPermissions { permissions ->
             val grantedPermissions = permissions.filter { it.value }
             val deniedPermissions = permissions.filter { !it.value }
@@ -61,7 +72,19 @@ class MainActivity : ComponentActivity() {
             
             if (deniedPermissions.isNotEmpty()) {
                 Logger.business("被拒绝的权限: ${deniedPermissions.keys.joinToString()}")
-                showToast("部分权限被拒绝，某些功能可能受限")
+                if (appConfig.isFirstLaunch) {
+                    showToast("部分权限被拒绝，建议在设置中手动开启以获得完整功能")
+                } else {
+                    showToast("部分权限被拒绝，某些功能可能受限")
+                }
+            } else if (appConfig.isFirstLaunch) {
+                showToast("权限申请完成，欢迎使用淮工施工日志系统！")
+            }
+            
+            // 标记首次启动完成
+            if (appConfig.isFirstLaunch) {
+                appConfig.markFirstLaunchCompleted()
+                Logger.business("首次启动流程完成")
             }
             
             // 无论权限状态如何，都尝试设置应用目录
