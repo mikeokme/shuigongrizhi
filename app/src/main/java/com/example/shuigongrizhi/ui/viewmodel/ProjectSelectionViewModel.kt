@@ -17,7 +17,7 @@ class ProjectSelectionViewModel /* @Inject constructor(
 ) */ : ViewModel() {
     
     // 临时直接实例化依赖
-    private val projectRepository = ProjectRepository()
+    private val projectRepo = ProjectRepository()
     
     private val _selectedProject = MutableStateFlow<Project?>(null)
     val selectedProject: StateFlow<Project?> = _selectedProject.asStateFlow()
@@ -39,7 +39,7 @@ class ProjectSelectionViewModel /* @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                projectRepository.getAllProjects().collect { result ->
+                projectRepo.getAllProjects().collect { result ->
                     if (result is com.example.shuigongrizhi.core.Result.Success) {
                         _projects.value = result.data
                     } else if (result is com.example.shuigongrizhi.core.Result.Error) {

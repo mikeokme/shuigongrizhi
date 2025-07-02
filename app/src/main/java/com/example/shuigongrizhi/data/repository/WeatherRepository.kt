@@ -14,17 +14,15 @@ import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-// import javax.inject.Inject
+import javax.inject.Inject
 // import javax.inject.Singleton
 import kotlin.random.Random
 
 // @Singleton
-class WeatherRepository /* @Inject constructor(
+class WeatherRepository @Inject constructor(
     private val weatherService: WeatherService,
     private val appConfig: AppConfig
-) */ {
-    private val weatherService: WeatherService? = null
-    private val appConfig: AppConfig? = null
+) {
     
     /**
      * 获取当前使用的API Token

@@ -7,28 +7,35 @@ import com.example.shuigongrizhi.data.entity.Project
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-// import javax.inject.Inject
-// import javax.inject.Singleton
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * 项目数据仓库
  * 遵循Repository模式，提供数据访问的抽象层
  * 使用Result包装类进行错误处理
  */
-// @Singleton // 临时禁用
-class ProjectRepository /* @Inject constructor(
+@Singleton
+class ProjectRepository @Inject constructor(
     private val projectDao: ProjectDao
-) */ {
-    
-    // 临时创建空的DAO实例
-    private val projectDao: ProjectDao? = null
+) {
+
+    private suspend fun <T> safeDatabaseCall(errorMessage: String, call: suspend () -> T): Result<T> {
+        return try {
+            Result.Success(call())
+        } catch (e: Exception) {
+            Result.Error(DatabaseException.QueryFailed("$errorMessage: ${e.message}"))
+        }
+    }
     
     /**
      * 获取所有项目
      * @return Flow<Result<List<Project>>>
      */
     fun getAllProjects(): Flow<Result<List<Project>>> {
-        return kotlinx.coroutines.flow.flowOf(Result.Success(emptyList<Project>()) as Result<List<Project>>)
+        return projectDao.getAllProjects()
+            .map<List<Project>, Result<List<Project>>> { Result.Success(it) }
+            .catch { e -> emit(Result.Error(DatabaseException.QueryFailed(e.message ?: "查询所有项目失败"))) }
     }
 
     /**
@@ -37,7 +44,7 @@ class ProjectRepository /* @Inject constructor(
      * @return Result<Project?>
      */
     suspend fun getProjectById(id: Long): Result<Project?> {
-        return Result.Success(null) // 临时返回null
+        return safeDatabaseCall("根据ID查询项目失败") { projectDao.getProjectById(id) }
     }
 
     /**
@@ -46,7 +53,7 @@ class ProjectRepository /* @Inject constructor(
      * @return Result<Long> 返回插入的项目ID
      */
     suspend fun insertProject(project: Project): Result<Long> {
-        return Result.Success(1L) // 临时返回固定ID
+        return safeDatabaseCall("插入项目失败") { projectDao.insertProject(project) }
     }
 
     /**
@@ -55,7 +62,10 @@ class ProjectRepository /* @Inject constructor(
      * @return Result<Unit>
      */
     suspend fun updateProject(project: Project): Result<Unit> {
-        return Result.Success(Unit) // 临时空实现
+        return safeDatabaseCall("更新项目失败") { 
+            projectDao.updateProject(project)
+            Result.Success(Unit)
+        }
     }
 
     /**
@@ -64,7 +74,10 @@ class ProjectRepository /* @Inject constructor(
      * @return Result<Unit>
      */
     suspend fun deleteProject(project: Project): Result<Unit> {
-        return Result.Success(Unit) // 临时空实现
+        return safeDatabaseCall("删除项目失败") { 
+            projectDao.deleteProject(project)
+            Result.Success(Unit)
+        }
     }
 
     /**
@@ -73,7 +86,10 @@ class ProjectRepository /* @Inject constructor(
      * @return Result<Unit>
      */
     suspend fun deleteProjectById(id: Long): Result<Unit> {
-        return Result.Success(Unit) // 临时空实现
+        return safeDatabaseCall("根据ID删除项目失败") { 
+            projectDao.deleteProjectById(id)
+            Result.Success(Unit)
+        }
     }
     
     /**
@@ -83,6 +99,13 @@ class ProjectRepository /* @Inject constructor(
      * @return Result<Boolean>
      */
     suspend fun isProjectNameExists(name: String, excludeId: Long? = null): Result<Boolean> {
-        return Result.Success(false) // 临时返回false
+        return safeDatabaseCall("检查项目名称是否存在失败") {
+            val count = if (excludeId == null) {
+                projectDao.countProjectByName(name)
+            } else {
+                projectDao.countProjectByNameAndIdNot(name, excludeId)
+            }
+            count > 0
+        }
     }
 }

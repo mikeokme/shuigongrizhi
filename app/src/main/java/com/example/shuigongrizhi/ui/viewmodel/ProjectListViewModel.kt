@@ -1,8 +1,8 @@
 package com.example.shuigongrizhi.ui.viewmodel
 
 import androidx.lifecycle.viewModelScope
-// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
-// import javax.inject.Inject // 临时禁用
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import com.example.shuigongrizhi.core.BaseViewModel
 import com.example.shuigongrizhi.core.Constants
 import com.example.shuigongrizhi.core.Logger
@@ -26,15 +26,11 @@ import java.util.Calendar
  * 项目列表ViewModel
  * 遵循MVVM架构模式，使用UiState管理UI状态
  */
-// @HiltViewModel // 临时禁用
-class ProjectListViewModel /* @Inject constructor(
-    private val projectRepository: ProjectRepository,
-    private val constructionLogRepository: ConstructionLogRepository
-) */ : BaseViewModel() {
-    
-    // 临时直接实例化依赖
-    private val projectRepository = ProjectRepository()
-    private val constructionLogRepository = ConstructionLogRepository()
+@HiltViewModel
+class ProjectListViewModel @Inject constructor(
+    private val projectRepo: ProjectRepository,
+    private val constructionLogRepo: ConstructionLogRepository
+) : BaseViewModel() {
     // UI状态管理
     private val _uiState = MutableStateFlow(UiState<List<Project>>())
     val uiState: StateFlow<UiState<List<Project>>> = _uiState.asStateFlow()
@@ -58,7 +54,7 @@ class ProjectListViewModel /* @Inject constructor(
         launchSafely {
             _uiState.value = UiState.loading()
             
-            projectRepository.getAllProjects().collect { result ->
+            projectRepo.getAllProjects().collect { result ->
                 when (result) {
                     is Result.Success -> {
                         val projectList = result.data
@@ -94,7 +90,7 @@ class ProjectListViewModel /* @Inject constructor(
             
             Logger.business("删除项目: ${project.name}")
             
-            when (val result = projectRepository.deleteProject(project)) {
+            when (val result = projectRepo.deleteProject(project)) {
                 is Result.Success -> {
                     Logger.business("项目删除成功: ${project.name}")
                     // 删除成功后刷新列表
@@ -134,7 +130,7 @@ class ProjectListViewModel /* @Inject constructor(
         
         // 使用同步方式检查是否已存在默认项目，避免并发创建
         try {
-            val existingProjects = when (val result = projectRepository.getAllProjects().first()) {
+            val existingProjects = when (val result = projectRepo.getAllProjects().first()) {
                 is Result.Success -> result.data
                 is Result.Error -> {
                     Logger.exception(result.exception, "检查现有项目失败")
@@ -157,7 +153,7 @@ class ProjectListViewModel /* @Inject constructor(
             // 创建默认项目
             val defaultProject = createDefaultProjectEntity()
             
-            when (val insertResult = projectRepository.insertProject(defaultProject)) {
+            when (val insertResult = projectRepo.insertProject(defaultProject)) {
                 is Result.Success -> {
                     val projectId = insertResult.data
                     Logger.business("默认项目创建成功，ID: $projectId")
@@ -226,7 +222,7 @@ class ProjectListViewModel /* @Inject constructor(
                 updatedAt = currentDate
             )
             
-            val logId = constructionLogRepository.insertLog(defaultLog)
+            val logId = constructionLogRepo.insertLog(defaultLog)
             Logger.business("默认施工日志创建成功，ID: $logId")
             
         } catch (e: Exception) {
@@ -244,7 +240,7 @@ class ProjectListViewModel /* @Inject constructor(
             
             try {
                 // 获取项目相关的施工日志
-                val logs = when (val result = constructionLogRepository.getLogsByProjectId(project.id)) {
+                val logs = when (val result = constructionLogRepo.getLogsByProjectId(project.id)) {
                     is Result.Success -> result.data
                     is Result.Error -> {
                         Logger.exception(result.exception, "获取项目日志失败")
@@ -276,7 +272,7 @@ class ProjectListViewModel /* @Inject constructor(
             Logger.business("开始清理重复项目")
             
             try {
-                val allProjects = when (val result = projectRepository.getAllProjects().first()) {
+                val allProjects = when (val result = projectRepo.getAllProjects().first()) {
                     is Result.Success -> result.data
                     is Result.Error -> {
                         Logger.exception(result.exception, "获取项目列表失败")
@@ -302,7 +298,7 @@ class ProjectListViewModel /* @Inject constructor(
                 
                 var deletedCount = 0
                 for (project in projectsToDelete) {
-                    when (val deleteResult = projectRepository.deleteProject(project)) {
+                    when (val deleteResult = projectRepo.deleteProject(project)) {
                         is Result.Success -> {
                             deletedCount++
                             Logger.business("删除重复项目成功: ID=${project.id}")

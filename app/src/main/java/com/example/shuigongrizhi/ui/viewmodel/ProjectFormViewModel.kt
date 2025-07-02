@@ -37,8 +37,8 @@ class ProjectFormViewModel /* @Inject constructor(
 ) */ : ViewModel() {
     
     // 临时直接实例化依赖
-    private val projectRepository = ProjectRepository()
-    private val constructionLogRepository = ConstructionLogRepository()
+    private val projectRepo = ProjectRepository()
+    private val constructionLogRepo = ConstructionLogRepository()
     // private val context: Context? = null // 临时设为null
     
     // private val projectDataManager = ProjectDataManager(context) // 临时禁用
@@ -59,7 +59,7 @@ class ProjectFormViewModel /* @Inject constructor(
     fun loadProject(projectId: Long) {
         viewModelScope.launch {
             try {
-                val projectResult = projectRepository.getProjectById(projectId)
+                val projectResult = projectRepo.getProjectById(projectId)
                 val project = (projectResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                 project?.let {
                     editingProjectId = it.id
@@ -153,11 +153,12 @@ class ProjectFormViewModel /* @Inject constructor(
                 }
                 
                 val result = if (editingProjectId != null) {
-                    projectRepository.updateProject(project)
+                    val updateResult = projectRepo.updateProject(project)
                     android.util.Log.d("ProjectForm", "Project updated successfully: ${project.name}")
                     "项目更新成功"
                 } else {
-                    val projectId = projectRepository.insertProject(project)
+                    val insertResult = projectRepo.insertProject(project)
+                    val projectId = (insertResult as? com.example.shuigongrizhi.core.Result.Success)?.data ?: 0L
                     android.util.Log.d("ProjectForm", "Project created with ID: $projectId, name: ${project.name}")
                     "项目创建成功，ID: $projectId"
                 }
@@ -170,18 +171,18 @@ class ProjectFormViewModel /* @Inject constructor(
                 /*
                 try {
                     val savedProject = if (editingProjectId != null) {
-                        val result = projectRepository.getProjectById(editingProjectId!!)
+                        val result = projectRepo.getProjectById(editingProjectId!!)
                         (result as? com.example.shuigongrizhi.core.Result.Success)?.data
                     } else {
                         // 获取刚创建的项目
-                        val allProjectsResult = projectRepository.getAllProjects().first()
+                        val allProjectsResult = projectRepo.getAllProjects().first()
                         (allProjectsResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                             ?.find { it.name == project.name && it.type == project.type }
                     }
                     
                     savedProject?.let { proj ->
                         // 获取项目相关的日志
-                        val logs = constructionLogRepository.getLogsByProjectId(proj.id).first()
+                        val logs = constructionLogRepo.getLogsByProjectId(proj.id).first()
                         
                         // 执行自动备份
                         val backupSuccess = projectDataManager.autoBackupProject(proj, logs)

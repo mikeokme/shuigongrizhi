@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-// import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.R
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -35,9 +35,9 @@ fun MainScreen(
     onProjectSelectionClick: () -> Unit = {},
     onPdfViewerClick: () -> Unit = {},
     onDesktopClick: () -> Unit = {},
-    onFeedbackClick: () -> Unit = {},
-    weatherViewModel: com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel = remember { com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel() }
+    onFeedbackClick: () -> Unit = {}
 ) {
+    val weatherViewModel: com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel = hiltViewModel()
     val weatherState by weatherViewModel.weatherState.collectAsState()
     
     val context = androidx.compose.ui.platform.LocalContext.current

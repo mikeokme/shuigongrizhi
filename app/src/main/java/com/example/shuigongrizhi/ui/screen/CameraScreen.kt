@@ -58,6 +58,7 @@ import com.example.shuigongrizhi.ui.theme.ChampagneEnd
 import com.example.shuigongrizhi.ui.theme.ChampagneStart
 import com.example.shuigongrizhi.ui.theme.SparklingEnd
 import com.example.shuigongrizhi.ui.theme.SparklingStart
+import com.example.shuigongrizhi.core.rememberAppPermissionsState
 import com.example.shuigongrizhi.ui.viewmodel.CameraViewModel
 
 @SuppressLint("DefaultLocale")
@@ -75,27 +76,7 @@ fun CameraScreen(
     var snackbarMessage by remember { mutableStateOf("") }
     var isErrorSnackbar by remember { mutableStateOf(false) }
     
-    // 相机权限检查
-    var hasCameraPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-    
-    // 权限请求启动器
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasCameraPermission = isGranted
-        if (!isGranted) {
-            snackbarMessage = "需要相机权限才能拍照和录像"
-            isErrorSnackbar = true
-            showSnackbar = true
-        }
-    }
+
     
     // 拍照启动器
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -138,6 +119,15 @@ fun CameraScreen(
         viewModel.initializeProjectMedia(projectId)
     }
     
+    val permissionsState = rememberAppPermissionsState()
+    val hasCameraPermission = permissionsState.permissions.any { it.permission == Manifest.permission.CAMERA && it.hasPermission }
+
+    LaunchedEffect(permissionsState) {
+        if (!permissionsState.allPermissionsGranted) {
+            permissionsState.launchMultiplePermissionRequest()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -247,7 +237,7 @@ fun CameraScreen(
                         
                         Button(
                             onClick = {
-                                permissionLauncher.launch(Manifest.permission.CAMERA)
+                                permissionsState.launchMultiplePermissionRequest()
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {

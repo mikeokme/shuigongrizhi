@@ -29,8 +29,8 @@ class ProjectDashboardViewModel /* @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val constructionLogRepository: ConstructionLogRepository
 ) */ : ViewModel() {
-    private val projectRepository: ProjectRepository = ProjectRepository()
-    private val constructionLogRepository: ConstructionLogRepository = ConstructionLogRepository()
+    private val projectRepo: ProjectRepository = ProjectRepository()
+    private val constructionLogRepo: ConstructionLogRepository = ConstructionLogRepository()
     
     private val _dashboardState = MutableStateFlow(DashboardState())
     val dashboardState: StateFlow<DashboardState> = _dashboardState.asStateFlow()
@@ -49,7 +49,7 @@ class ProjectDashboardViewModel /* @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val projectResult = projectRepository.getProjectById(id)
+                val projectResult = projectRepo.getProjectById(id)
                 val project = (projectResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                 project?.let {
                     _dashboardState.value = _dashboardState.value.copy(project = it)
@@ -66,7 +66,7 @@ class ProjectDashboardViewModel /* @Inject constructor(
     private fun loadLogs() {
         viewModelScope.launch {
             try {
-                constructionLogRepository.getLogsByProjectId(projectId).collect { logs ->
+                constructionLogRepo.getLogsByProjectId(projectId).collect { logs ->
                     val logDates = logs.map { dateFormat.format(it.date) }.toSet()
                     val selectedLog = logs.find { 
                         dateFormat.format(it.date) == dateFormat.format(_dashboardState.value.selectedDate) 

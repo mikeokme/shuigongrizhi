@@ -3,9 +3,9 @@ package com.example.shuigongrizhi.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
-// import dagger.hilt.android.qualifiers.ApplicationContext // 临时禁用
-// import javax.inject.Inject // 临时禁用
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.data.entity.MediaFile
@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -30,83 +31,58 @@ data class LogDetailState(
     val isGeneratingPdf: Boolean = false
 )
 
-// @HiltViewModel // 临时禁用
-class LogDetailViewModel /* @Inject constructor(
-    private val constructionLogRepository: ConstructionLogRepository,
-    private val projectRepository: ProjectRepository,
+@HiltViewModel
+class LogDetailViewModel @Inject constructor(
+    private val constructionLogRepo: ConstructionLogRepository,
+    private val projectRepo: ProjectRepository,
     private val mediaFileRepository: MediaFileRepository,
     @ApplicationContext private val context: Context
-) */ : ViewModel() {
-    
-    // 临时直接实例化依赖
-    private val constructionLogRepository = ConstructionLogRepository()
-    private val projectRepository = ProjectRepository()
-    private val mediaFileRepository: MediaFileRepository? = null
-    private val context: Context? = null
+) : ViewModel() {
     
     private val _state = MutableStateFlow(LogDetailState())
     val state: StateFlow<LogDetailState> = _state.asStateFlow()
     
-    private val pdfGenerator = PdfGenerator(context)
+    private val pdfGenerator = context?.let { PdfGenerator(it) }
     
     fun loadLogDetail(logId: Long) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            
             try {
-                // 加载施工日志
-                val log = constructionLogRepository.getLogById(logId)
-                if (log == null) {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = "施工日志不存在"
-                    )
+                val logDeferred = async { constructionLogRepo.getLogById(logId) }
+                val mediaFilesDeferred = async { mediaFileRepository.getMediaFilesByLogId(logId).first() }
+
+                val log = logDeferred.await() ?: run {
+                    _state.value = _state.value.copy(isLoading = false, error = "施工日志不存在")
                     return@launch
                 }
-                
-                // 加载项目信息
-                val projectResult = projectRepository.getProjectById(log.projectId)
+
+                val projectResult = projectRepo.getProjectById(log.projectId)
                 val project = when (projectResult) {
                     is com.example.shuigongrizhi.core.Result.Success -> projectResult.data
                     is com.example.shuigongrizhi.core.Result.Error -> {
-                        _state.value = _state.value.copy(
-                            isLoading = false,
-                            error = "加载项目信息失败: ${projectResult.exception.message}"
-                        )
+                        _state.value = _state.value.copy(isLoading = false, error = "加载项目信息失败: ${projectResult.exception.message}")
                         return@launch
                     }
-                    is com.example.shuigongrizhi.core.Result.Loading -> {
-                        // 继续等待
-                        return@launch
-                    }
+                    is com.example.shuigongrizhi.core.Result.Loading -> return@launch // Should not happen if repository is implemented correctly
                 }
-                
+
                 if (project == null) {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = "项目信息不存在"
-                    )
+                    _state.value = _state.value.copy(isLoading = false, error = "项目信息不存在")
                     return@launch
                 }
-                
-                // 加载媒体文件
-                val mediaFiles = mediaFileRepository.getMediaFilesByLogId(logId).first()
-                
+
+                val mediaFiles = mediaFilesDeferred.await()
+
                 _state.value = _state.value.copy(
                     constructionLog = log,
                     project = project,
                     mediaFiles = mediaFiles,
                     isLoading = false
                 )
-                
                 android.util.Log.d("LogDetail", "日志详情加载成功: ${log.id}")
-                
             } catch (e: Exception) {
                 android.util.Log.e("LogDetail", "加载日志详情失败", e)
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    error = "加载失败: ${e.message}"
-                )
+                _state.value = _state.value.copy(isLoading = false, error = "加载失败: ${e.message}")
             }
         }
     }
@@ -125,7 +101,7 @@ class LogDetailViewModel /* @Inject constructor(
             _state.value = currentState.copy(isGeneratingPdf = true, error = null)
             
             try {
-                val pdfFile = pdfGenerator.generateDailyConstructionLog(
+                val pdfFile = pdfGenerator?.generateDailyConstructionLog(
                     project = project,
                     constructionLog = log,
                     mediaFiles = currentState.mediaFiles
@@ -135,8 +111,8 @@ class LogDetailViewModel /* @Inject constructor(
                     pdfFile = pdfFile,
                     isGeneratingPdf = false
                 )
-                
-                android.util.Log.d("LogDetail", "PDF生成成功: ${pdfFile.absolutePath}")
+
+                pdfFile?.let { android.util.Log.d("LogDetail", "PDF生成成功: ${it.absolutePath}") }
                 
             } catch (e: Exception) {
                 android.util.Log.e("LogDetail", "PDF生成失败", e)

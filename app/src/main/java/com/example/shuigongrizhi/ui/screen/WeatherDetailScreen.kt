@@ -27,10 +27,12 @@ import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+import androidx.hilt.navigation.compose.hiltViewModel
+
 fun WeatherDetailScreen(
-    viewModel: WeatherViewModel = remember { WeatherViewModel() },
     onNavigateBack: () -> Unit,
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit,
+    viewModel: WeatherViewModel = hiltViewModel()
 ) {
     val weatherState by viewModel.weatherState.collectAsState()
     val weatherData by viewModel.weatherData.collectAsState()
@@ -38,7 +40,9 @@ fun WeatherDetailScreen(
     val context = LocalContext.current
     // 自动加载天气数据
     LaunchedEffect(Unit) {
-        viewModel.getCurrentWeatherAuto(context)
+        if (viewModel.weatherData.value.cityName.isEmpty()) {
+            viewModel.getCurrentWeatherAuto(context)
+        }
     }
     
     // 错误处理
@@ -187,7 +191,7 @@ fun WeatherDetailScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
-                            onClick = { viewModel.getCurrentWeather() },
+                            onClick = { viewModel.getCurrentWeatherAuto(context) },
                             colors = AppButtonDefaults.buttonColors(
                                 containerColor = Color.White.copy(alpha = 0.2f)
                             )

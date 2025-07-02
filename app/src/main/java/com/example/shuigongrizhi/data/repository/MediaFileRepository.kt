@@ -3,8 +3,11 @@ package com.example.shuigongrizhi.data.repository
 import com.example.shuigongrizhi.data.dao.MediaFileDao
 import com.example.shuigongrizhi.data.entity.MediaFile
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class MediaFileRepository(private val mediaFileDao: MediaFileDao) {
+@Singleton
+class MediaFileRepository @Inject constructor(private val mediaFileDao: MediaFileDao) {
     fun getMediaFilesByLogId(logId: Long): Flow<List<MediaFile>> = 
         mediaFileDao.getMediaFilesByLogId(logId)
 

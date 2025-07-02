@@ -138,7 +138,9 @@ class CameraViewModel /* @Inject constructor(
                 if (mediaFile != null) {
                     // 设置正确的logId并保存到数据库
                     val finalMediaFile = mediaFile.copy(logId = logId)
-                    mediaFileRepository.insertMediaFile(finalMediaFile)
+                    if (mediaFileRepository != null) {
+                        mediaFileRepository.insertMediaFile(finalMediaFile)
+                    }
                     
                     // 更新存储信息
                     updateStorageInfo()
@@ -166,7 +168,9 @@ class CameraViewModel /* @Inject constructor(
                 _isLoading.value = true
                 
                 // 从数据库删除
-                mediaFileRepository.deleteMediaFile(mediaFile)
+                if (mediaFileRepository != null) {
+                    mediaFileRepository.deleteMediaFile(mediaFile)
+                }
                 
                 // 删除物理文件
                 if (::cameraManager.isInitialized) {
@@ -190,7 +194,7 @@ class CameraViewModel /* @Inject constructor(
     /**
      * 获取项目媒体文件列表
      */
-    fun getProjectMediaFiles(logId: Long) = mediaFileRepository.getMediaFilesByLogId(logId)
+    fun getProjectMediaFiles(logId: Long) = mediaFileRepository?.getMediaFilesByLogId(logId)
     
     /**
      * 更新存储信息

@@ -4,23 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
-// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-// import javax.inject.Inject // 临时禁用
+import javax.inject.Inject
 
 data class LogListState(
     val logs: List<ConstructionLog> = emptyList(),
     val filteredLogs: List<ConstructionLog> = emptyList()
 )
 
-// @HiltViewModel // 临时禁用
-class LogListViewModel /* @Inject constructor(
+@HiltViewModel
+class LogListViewModel @Inject constructor(
     private val constructionLogRepository: ConstructionLogRepository
-) */ : ViewModel() {
-    
-    // 临时直接实例化依赖
-    private val constructionLogRepository = ConstructionLogRepository()
+) : ViewModel() {
     
     private val _logListState = MutableStateFlow(LogListState())
     val logListState: StateFlow<LogListState> = _logListState.asStateFlow()

@@ -23,4 +23,10 @@ interface ProjectDao {
 
     @Query("DELETE FROM projects WHERE id = :id")
     suspend fun deleteProjectById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM projects WHERE name = :name")
+    suspend fun countProjectByName(name: String): Int
+
+    @Query("SELECT COUNT(*) FROM projects WHERE name = :name AND id != :excludeId")
+    suspend fun countProjectByNameAndIdNot(name: String, excludeId: Long): Int
 }

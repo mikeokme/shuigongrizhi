@@ -6,10 +6,10 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
+// import dagger.hilt.android.qualifiers.ApplicationContext // 临时禁用
 import java.io.File
-import javax.inject.Inject
+// import javax.inject.Inject // 临时禁用
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.MediaFile
 import com.example.shuigongrizhi.data.entity.MediaType
@@ -40,20 +40,14 @@ data class LogEntryState(
     val isLoadingWeather: Boolean = false
 )
 
-// @HiltViewModel // 临时禁用
-class LogEntryViewModel /* @Inject constructor(
-    private val constructionLogRepository: ConstructionLogRepository,
-    private val projectRepository: ProjectRepository,
+@HiltViewModel
+class LogEntryViewModel @Inject constructor(
+    private val constructionLogRepo: ConstructionLogRepository,
+    private val projectRepo: ProjectRepository,
     private val weatherRepository: com.example.shuigongrizhi.data.repository.WeatherRepository,
     @ApplicationContext private val context: Context
-) */ : ViewModel() {
-    
-    // 临时直接实例化依赖
-    private val constructionLogRepository = ConstructionLogRepository()
-    private val projectRepository = ProjectRepository()
-    private val weatherRepository: com.example.shuigongrizhi.data.repository.WeatherRepository? = null
-    private val context: Context? = null
-    
+) : ViewModel() {
+
     // private val projectDataManager = ProjectDataManager(context) // 临时禁用
     
     private val _logState = MutableStateFlow(LogEntryState())
@@ -158,7 +152,7 @@ class LogEntryViewModel /* @Inject constructor(
     private fun loadExistingLog(logId: Long) {
         viewModelScope.launch {
             try {
-                val log = constructionLogRepository.getLogById(logId)
+                val log = constructionLogRepo.getLogById(logId)
                 log?.let {
                     _logState.value = LogEntryState(
                         date = it.date,
@@ -224,19 +218,9 @@ class LogEntryViewModel /* @Inject constructor(
      */
     fun createTempImageFile(): Uri? {
         return try {
-            val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val file = File.createTempFile(
-                "IMG_${System.currentTimeMillis()}_", /* prefix */
-                ".jpg", /* suffix */
-                storageDir /* directory */
-            )
-            val uri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                file
-            )
-            currentImageUri = uri
-            uri
+            // 临时禁用，返回null
+            _error.value = "拍照功能暂时不可用"
+            null
         } catch (e: Exception) {
             _error.value = "创建临时图片文件失败: ${e.message}"
             null
@@ -261,10 +245,10 @@ class LogEntryViewModel /* @Inject constructor(
         viewModelScope.launch {
             _logState.value = _logState.value.copy(isLoadingWeather = true)
             try {
-                val result = weatherRepository.getCurrentWeather(
+                val result = weatherRepository?.getCurrentWeather(
                     latitude = lat,
                     longitude = lon
-                )
+                ) ?: return@launch
                 
                 if (result.isSuccess) {
                     val response = result.getOrThrow()
@@ -323,7 +307,7 @@ class LogEntryViewModel /* @Inject constructor(
             try {
                 val state = _logState.value
                 // 一项目一日志一日唯一性校验
-                val existing = constructionLogRepository.getLogByProjectAndDate(projectId, state.date)
+                val existing = constructionLogRepo.getLogByProjectAndDate(projectId, state.date)
                 if (editingLogId == null && existing != null) {
                     _error.value = "该项目当天日志已存在，自动切换为编辑模式。"
                     editingLogId = existing.id
@@ -347,11 +331,11 @@ class LogEntryViewModel /* @Inject constructor(
                     updatedAt = Date()
                 )
                 val result = if (editingLogId != null) {
-                    constructionLogRepository.updateLog(log)
+                    constructionLogRepo.updateLog(log)
                     android.util.Log.d("LogEntry", "Log updated successfully for project $projectId")
                     "updated"
                 } else {
-                    val logId = constructionLogRepository.insertLog(log)
+                    val logId = constructionLogRepo.insertLog(log)
                     android.util.Log.d("LogEntry", "Log inserted with ID: $logId for project $projectId")
                     logId.toString()
                 }
@@ -362,11 +346,11 @@ class LogEntryViewModel /* @Inject constructor(
                 
                 // 自动备份项目数据（包含新保存的日志）
                 try {
-                    val projectResult = projectRepository.getProjectById(projectId)
+                    val projectResult = projectRepo.getProjectById(projectId)
                     val project = (projectResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                     project?.let { proj ->
                         // 获取项目的所有日志（包括刚保存的）
-                        val logs = constructionLogRepository.getLogsByProjectId(projectId).first()
+                        val logs = constructionLogRepo.getLogsByProjectId(projectId).first()
                         
                         // 执行自动备份
                         // val backupSuccess = projectDataManager?.autoBackupProject(proj, logs)

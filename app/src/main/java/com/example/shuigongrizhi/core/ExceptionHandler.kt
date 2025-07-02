@@ -11,6 +11,21 @@ import java.io.StringWriter
 // import javax.inject.Inject
 // import javax.inject.Singleton
 
+sealed class DatabaseException(message: String) : Exception(message) {
+    class QueryFailed(message: String) : DatabaseException(message)
+    class InsertFailed(message: String) : DatabaseException(message)
+    class UpdateFailed(message: String) : DatabaseException(message)
+    class DeleteFailed(message: String) : DatabaseException(message)
+}
+
+open class NetworkException(message: String) : Exception(message)
+class NoConnectivityException : NetworkException("No internet connectivity")
+
+open class ValidationException(message: String) : Exception(message)
+class EmptyFieldException(fieldName: String) : ValidationException("$fieldName cannot be empty")
+
+open class BusinessException(message: String) : Exception(message)
+
 /**
  * 全局异常处理器
  * 提供统一的异常处理和错误报告功能

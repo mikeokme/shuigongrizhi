@@ -5,29 +5,30 @@ import com.example.shuigongrizhi.data.entity.ConstructionLog
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
-class ConstructionLogRepository(/* private val constructionLogDao: ConstructionLogDao */) {
-    
-    // 临时创建空的DAO实例
-    private val constructionLogDao: ConstructionLogDao? = null
-    fun getLogsByProjectId(projectId: Long): Flow<List<ConstructionLog>> = 
-        kotlinx.coroutines.flow.flowOf(emptyList()) // 临时返回空列表
+import javax.inject.Inject
 
-    suspend fun getLogByProjectAndDate(projectId: Long, date: Date): ConstructionLog? = 
-        null // 临时返回null
+class ConstructionLogRepository @Inject constructor(
+    private val constructionLogDao: ConstructionLogDao
+) {
+      fun getLogsByProjectId(projectId: Long): Flow<List<ConstructionLog>> = 
+         constructionLogDao.getLogsByProjectId(projectId)
 
-    suspend fun getLogById(id: Long): ConstructionLog? = null // 临时返回null
+      suspend fun getLogByProjectAndDate(projectId: Long, date: Date): ConstructionLog? = 
+         constructionLogDao.getLogByProjectAndDate(projectId, date)
 
-    suspend fun getLogsByDateRange(projectId: Long, startDate: Date, endDate: Date): List<ConstructionLog> = 
-        emptyList() // 临时返回空列表
+     suspend fun getLogById(id: Long): ConstructionLog? = constructionLogDao.getLogById(id)
 
-    suspend fun insertLog(log: ConstructionLog): Long = 0L // 临时返回0
+      suspend fun getLogsByDateRange(projectId: Long, startDate: Date, endDate: Date): List<ConstructionLog> = 
+         constructionLogDao.getLogsByDateRange(projectId, startDate, endDate)
 
-    suspend fun updateLog(log: ConstructionLog) = Unit // 临时空实现
+     suspend fun insertLog(log: ConstructionLog): Long = constructionLogDao.insertLog(log)
 
-    suspend fun deleteLog(log: ConstructionLog) = Unit // 临时空实现
+     suspend fun updateLog(log: ConstructionLog) = constructionLogDao.updateLog(log)
 
-    suspend fun deleteLogById(id: Long) = Unit // 临时空实现
+     suspend fun deleteLog(log: ConstructionLog) = constructionLogDao.deleteLog(log)
 
-    suspend fun getLogCountByProject(projectId: Long): Int = 
-        0 // 临时返回0
+     suspend fun deleteLogById(id: Long) = constructionLogDao.deleteLogById(id)
+
+      suspend fun getLogCountByProject(projectId: Long): Int = 
+         constructionLogDao.getLogCountByProject(projectId)
 }

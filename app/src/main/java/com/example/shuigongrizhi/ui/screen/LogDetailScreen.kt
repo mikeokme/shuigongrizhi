@@ -31,14 +31,14 @@ import com.example.shuigongrizhi.ui.viewmodel.LogDetailViewModel
 import com.example.shuigongrizhi.ui.viewmodel.LogDetailState
 import java.text.SimpleDateFormat
 import java.util.*
-// import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogDetailScreen(
     logId: Long,
-    viewModel: LogDetailViewModel = remember { LogDetailViewModel() },
+    viewModel: LogDetailViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
