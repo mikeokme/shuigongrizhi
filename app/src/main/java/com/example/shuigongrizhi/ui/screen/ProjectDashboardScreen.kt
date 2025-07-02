@@ -20,7 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import com.example.shuigongrizhi.ui.theme.*
 import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
-import com.example.shuigongrizhi.ui.utils.getResponsivePadding
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -143,7 +143,10 @@ fun ProjectDashboardScreen(
             ) {
                 // 项目信息卡片
                 dashboardState.project?.let { project ->
-                    ProjectInfoCard(project)
+                    ProjectInfoCard(
+                        project = project,
+                        onEditClick = { /* TODO: Navigate to edit project */ }
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 // 日历视图
@@ -192,12 +195,9 @@ fun CalendarView(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = AppCardDefaults.elevation,
+        elevation = AppCardDefaults.cardElevation(),
         shape = AppCardDefaults.shape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        )
+        colors = AppCardDefaults.cardColors()
     ) {
         Column(
             modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())
@@ -398,12 +398,9 @@ fun LogSummaryCard(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = AppCardDefaults.elevation,
+        elevation = AppCardDefaults.cardElevation(),
         shape = AppCardDefaults.shape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        )
+        colors = AppCardDefaults.cardColors()
     ) {
         Column(
             modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())
@@ -490,12 +487,9 @@ fun ProjectInfoCard(
     val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = AppCardDefaults.elevation,
+        elevation = AppCardDefaults.cardElevation(),
         shape = AppCardDefaults.shape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        )
+        colors = AppCardDefaults.cardColors()
     ) {
         Column(
             modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())

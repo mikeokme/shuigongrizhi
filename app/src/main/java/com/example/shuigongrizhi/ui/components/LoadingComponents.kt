@@ -62,9 +62,7 @@ fun ErrorMessage(
             .fillMaxWidth()
             .padding(Spacing.medium),
         shape = RoundedCornerShape(CornerRadius.medium),
-        colors = CardDefaults.cardColors(
-            containerColor = Error.copy(alpha = 0.1f)
-        )
+        colors = AppCardDefaults.cardColors()
     ) {
         Column(
             modifier = Modifier.padding(Spacing.medium),
@@ -144,9 +142,7 @@ fun SuccessMessage(
             .fillMaxWidth()
             .padding(Spacing.medium),
         shape = RoundedCornerShape(CornerRadius.medium),
-        colors = CardDefaults.cardColors(
-            containerColor = Success.copy(alpha = 0.1f)
-        )
+        colors = AppCardDefaults.cardColors()
     ) {
         Row(
             modifier = Modifier.padding(Spacing.medium),

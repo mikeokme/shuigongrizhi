@@ -18,10 +18,10 @@ object AppCardDefaults {
     
     @Composable
     fun cardElevation() = CardDefaults.cardElevation(
-        defaultElevation = CardDefaults.elevation
+        defaultElevation = 4.dp
     )
     
-    val shape = RoundedCornerShape(CardDefaults.cornerRadius)
+    val shape = RoundedCornerShape(12.dp)
 }
 
 // 按钮样式
@@ -43,7 +43,7 @@ object AppButtonDefaults {
         contentColor = MaterialTheme.colorScheme.primary
     )
     
-    val shape = RoundedCornerShape(ButtonDefaults.cornerRadius)
+    val shape = RoundedCornerShape(8.dp)
 }
 
 // 渐变色定义

@@ -56,6 +56,14 @@ object ButtonDefaults {
     val padding = Spacing.medium
 }
 
+// 按钮尺寸规范
+object ButtonSize {
+    val small = 32.dp
+    val medium = 40.dp
+    val large = 48.dp
+    val extraLarge = 56.dp
+}
+
 // 底部导航栏规范
 object BottomNavDefaults {
     val height = 80.dp
