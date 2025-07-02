@@ -120,7 +120,7 @@ class DataSyncManager /* @Inject constructor(
             cleanOldBackups()
             
             // 更新配置
-            appConfig.lastBackupTime = timestamp
+            appConfig?.lastBackupTime = timestamp
             
             val backupInfo = BackupInfo(
                 fileName = backupFileName,

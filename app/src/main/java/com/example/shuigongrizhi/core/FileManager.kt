@@ -111,7 +111,7 @@ class FileManager /* @Inject constructor(
             val finalFileName = fileName ?: generateUniqueFileName("img", "jpg")
             val file = File(getImagesDir(), finalFileName)
             
-            val finalBitmap = if (compress && appConfig.isCompressImages) {
+            val finalBitmap = if (compress && appConfig?.isCompressImages == true) {
                 compressBitmap(bitmap)
             } else {
                 bitmap
@@ -125,7 +125,7 @@ class FileManager /* @Inject constructor(
                 }
                 
                 val quality = if (format == Bitmap.CompressFormat.JPEG) {
-                    appConfig.imageQuality
+                    appConfig?.imageQuality ?: 100
                 } else {
                     100
                 }

@@ -64,7 +64,7 @@ class CacheManager /* @Inject constructor(
      * 获取缓存目录
      */
     private fun getCacheDir(): File {
-        return File(fileManager.getAppRootDir(), CACHE_DIR).apply {
+        return File(fileManager?.getAppRootDir() ?: File("cache"), CACHE_DIR).apply {
             if (!exists()) mkdirs()
         }
     }

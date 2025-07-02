@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+// import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -103,7 +103,8 @@ fun AppNavigation(
             }
             // 项目列表页面
             composable(NavigationRoutes.PROJECT_LIST) {
-                val viewModel: ProjectListViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: ProjectListViewModel = remember { ProjectListViewModel() }
                 
                 ProjectListScreen(
                     viewModel = viewModel,
@@ -121,7 +122,8 @@ fun AppNavigation(
             
             // 项目选择页面
             composable(NavigationRoutes.PROJECT_SELECTION) {
-                val viewModel: ProjectListViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: ProjectListViewModel = remember { ProjectListViewModel() }
                 ProjectSelectionScreen(
                     viewModel = viewModel,
                     onProjectSelected = { project ->
@@ -137,7 +139,8 @@ fun AppNavigation(
             
             // 相机功能的项目选择页面
             composable(NavigationRoutes.PROJECT_SELECTION_FOR_CAMERA) {
-                val viewModel: ProjectListViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: ProjectListViewModel = remember { ProjectListViewModel() }
                 ProjectSelectionScreen(
                     viewModel = viewModel,
                     onProjectSelected = { project ->
@@ -152,7 +155,8 @@ fun AppNavigation(
             
             // 创建项目页面
             composable(NavigationRoutes.PROJECT_FORM) {
-                val viewModel: ProjectFormViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: ProjectFormViewModel = remember { ProjectFormViewModel() }
                 ProjectFormScreen(
                     viewModel = viewModel,
                     projectId = null,
@@ -172,7 +176,8 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
-                val viewModel: ProjectFormViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: ProjectFormViewModel = remember { ProjectFormViewModel() }
                 ProjectFormScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -192,7 +197,8 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
-                val viewModel: ProjectDashboardViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: ProjectDashboardViewModel = remember { ProjectDashboardViewModel() }
                 ProjectDashboardScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -225,7 +231,8 @@ fun AppNavigation(
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
                 val date = backStackEntry.arguments?.getString("date") ?: ""
-                val viewModel: LogEntryViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: LogEntryViewModel = remember { LogEntryViewModel() }
                 LogEntryScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -275,7 +282,8 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
-                val viewModel: CameraViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: CameraViewModel = remember { CameraViewModel() }
                 CameraScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -303,7 +311,8 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
-                val viewModel: MediaGalleryViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: MediaGalleryViewModel = remember { MediaGalleryViewModel() }
                 MediaGalleryScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -326,7 +335,8 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val mediaFileId = backStackEntry.arguments?.getLong("mediaFileId") ?: 0L
-                val viewModel: MediaGalleryViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: MediaGalleryViewModel = remember { MediaGalleryViewModel() }
                 val mediaFiles = viewModel.mediaFiles.collectAsState()
                 val mediaFile = mediaFiles.value.find { it.id == mediaFileId }
                 if (mediaFile != null) {
@@ -364,7 +374,8 @@ fun AppNavigation(
                 val photoUriString = backStackEntry.arguments?.getString("photoUri") ?: ""
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
                 val photoUri = android.net.Uri.parse(photoUriString)
-                val viewModel: PhotoDescriptionViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: PhotoDescriptionViewModel = remember { PhotoDescriptionViewModel() }
                 PhotoDescriptionScreen(
                     photoUri = photoUri,
                     projectId = projectId,
@@ -388,7 +399,8 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
-                val viewModel: LogListViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: LogListViewModel = remember { LogListViewModel() }
                 LogListScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -424,7 +436,8 @@ fun AppNavigation(
 
             // 天气详情页面
             composable(NavigationRoutes.WEATHER_DETAIL) {
-                val viewModel: WeatherViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: WeatherViewModel = remember { WeatherViewModel() }
                 WeatherDetailScreen(
                     viewModel = viewModel,
                     onNavigateBack = {
@@ -476,7 +489,8 @@ fun AppNavigation(
             
             // PDF查看器页面
             composable(NavigationRoutes.PDF_VIEWER) {
-                val viewModel: PdfViewerViewModel = hiltViewModel()
+                val context = LocalContext.current
+                val viewModel: PdfViewerViewModel = remember { PdfViewerViewModel() }
                 PdfViewerScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.popBackStack() }

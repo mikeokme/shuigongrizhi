@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+// import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.ui.viewmodel.PdfViewerViewModel
 import com.example.shuigongrizhi.utils.PdfManager
 import java.io.File
@@ -33,7 +33,7 @@ import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 @Composable
 fun PdfViewerScreen(
     onBackClick: () -> Unit,
-    viewModel: PdfViewerViewModel = hiltViewModel()
+    viewModel: PdfViewerViewModel = remember { PdfViewerViewModel() }
 ) {
     val context = LocalContext.current
     val pdfFiles by viewModel.pdfFiles.collectAsState()

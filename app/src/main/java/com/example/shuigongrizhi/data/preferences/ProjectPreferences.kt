@@ -11,7 +11,7 @@ class ProjectPreferences /* @Inject constructor(
     @ApplicationContext private val context: Context
 ) */ {
     private val context: Context? = null
-    private val prefs: SharedPreferences = context.getSharedPreferences(
+    private val prefs: SharedPreferences? = context?.getSharedPreferences(
         "project_preferences",
         Context.MODE_PRIVATE
     )
@@ -22,25 +22,25 @@ class ProjectPreferences /* @Inject constructor(
     }
     
     fun saveLastSelectedProject(projectId: Long, projectName: String) {
-        prefs.edit()
-            .putLong(KEY_LAST_SELECTED_PROJECT_ID, projectId)
-            .putString(KEY_LAST_SELECTED_PROJECT_NAME, projectName)
-            .apply()
+        prefs?.edit()
+            ?.putLong(KEY_LAST_SELECTED_PROJECT_ID, projectId)
+            ?.putString(KEY_LAST_SELECTED_PROJECT_NAME, projectName)
+            ?.apply()
     }
     
     fun getLastSelectedProjectId(): Long {
-        return prefs.getLong(KEY_LAST_SELECTED_PROJECT_ID, -1L)
+        return prefs?.getLong(KEY_LAST_SELECTED_PROJECT_ID, -1L) ?: -1L
     }
     
     fun getLastSelectedProjectName(): String? {
-        return prefs.getString(KEY_LAST_SELECTED_PROJECT_NAME, null)
+        return prefs?.getString(KEY_LAST_SELECTED_PROJECT_NAME, null)
     }
     
     fun clearLastSelectedProject() {
-        prefs.edit()
-            .remove(KEY_LAST_SELECTED_PROJECT_ID)
-            .remove(KEY_LAST_SELECTED_PROJECT_NAME)
-            .apply()
+        prefs?.edit()
+            ?.remove(KEY_LAST_SELECTED_PROJECT_ID)
+            ?.remove(KEY_LAST_SELECTED_PROJECT_NAME)
+            ?.apply()
     }
     
     fun hasLastSelectedProject(): Boolean {

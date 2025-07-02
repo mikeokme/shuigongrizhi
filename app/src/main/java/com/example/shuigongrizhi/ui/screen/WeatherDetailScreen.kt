@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+// import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel
 import androidx.compose.ui.platform.LocalContext
 import com.example.shuigongrizhi.ui.screen.WeatherAnimation
@@ -28,7 +28,7 @@ import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherDetailScreen(
-    viewModel: WeatherViewModel = hiltViewModel(),
+    viewModel: WeatherViewModel = remember { WeatherViewModel() },
     onNavigateBack: () -> Unit,
     onNavigateToSettings: () -> Unit = {}
 ) {

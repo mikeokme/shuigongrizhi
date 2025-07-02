@@ -56,7 +56,7 @@ object DatabaseModule {
     fun provideProjectRepository(
         projectDao: ProjectDao
     ): ProjectRepository {
-        return ProjectRepository(projectDao)
+        return ProjectRepository()
     }
     
     // @Provides
@@ -64,7 +64,7 @@ object DatabaseModule {
     fun provideConstructionLogRepository(
         constructionLogDao: ConstructionLogDao
     ): ConstructionLogRepository {
-        return ConstructionLogRepository(constructionLogDao)
+        return ConstructionLogRepository()
     }
     
     // @Provides
@@ -80,6 +80,6 @@ object DatabaseModule {
     fun provideAppConfig(
         /* @ApplicationContext */ context: Context
     ): AppConfig {
-        return AppConfig(context)
+        return AppConfig()
     }
 }

@@ -41,7 +41,7 @@ class PerformanceMonitor /* @Inject constructor(
     private val frameTimings = mutableListOf<Long>()
     
     private var monitoringJob: Job? = null
-    private val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    private val activityManager = context?.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     
     // 计数器
     private val networkRequestCount = AtomicLong(0)
@@ -118,7 +118,7 @@ class PerformanceMonitor /* @Inject constructor(
      */
     private fun getMemoryInfo(): MemoryUsage {
         val memoryInfo = ActivityManager.MemoryInfo()
-        activityManager.getMemoryInfo(memoryInfo)
+        activityManager?.getMemoryInfo(memoryInfo)
         
         val runtime = Runtime.getRuntime()
         val usedMemory = runtime.totalMemory() - runtime.freeMemory()
@@ -171,7 +171,7 @@ class PerformanceMonitor /* @Inject constructor(
      */
     private fun getBatteryInfo(): BatteryInfo {
         return try {
-            val batteryIntent = context.registerReceiver(null, 
+            val batteryIntent = context?.registerReceiver(null, 
                 android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED))
             
             val level = batteryIntent?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
@@ -211,7 +211,7 @@ class PerformanceMonitor /* @Inject constructor(
      * 获取存储使用情况
      */
     private fun getStorageInfo(): StorageUsage {
-        val externalDir = context.getExternalFilesDir(null)
+        val externalDir = context?.getExternalFilesDir(null)
         val totalSpace = externalDir?.totalSpace ?: 0L
         val freeSpace = externalDir?.freeSpace ?: 0L
         val usedSpace = totalSpace - freeSpace

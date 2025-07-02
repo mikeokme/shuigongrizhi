@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+// import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 import com.example.shuigongrizhi.ui.viewmodel.WeatherSettingsViewModel
 
@@ -24,7 +24,7 @@ import com.example.shuigongrizhi.ui.viewmodel.WeatherSettingsViewModel
 @Composable
 fun WeatherSettingsScreen(
     onNavigateBack: () -> Unit,
-    viewModel: WeatherSettingsViewModel = hiltViewModel()
+    viewModel: WeatherSettingsViewModel = remember { WeatherSettingsViewModel() }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
