@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.Shuigongrizhi" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Shuigongrizhi" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Hide the action bar -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
 </resources>

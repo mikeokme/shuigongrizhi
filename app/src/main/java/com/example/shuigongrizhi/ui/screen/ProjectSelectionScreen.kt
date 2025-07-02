@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,7 +20,7 @@ import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.ui.viewmodel.ProjectListViewModel
 import com.example.shuigongrizhi.ui.theme.*
 import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
-import com.example.shuigongrizhi.ui.utils.getResponsivePadding
+
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -61,7 +61,7 @@ fun ProjectSelectionScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
                             modifier = Modifier.size(IconSize.large),
                             tint = MaterialTheme.colorScheme.onSurface
@@ -114,7 +114,7 @@ fun ProjectSelectionScreen(
                             ProjectSelectionCard(
                                 project = project,
                                 isSelected = project.id == selectedProjectId,
-                                onSelect = { onProjectSelected(project) }
+                                onClick = { onProjectSelected(project) }
                             )
                         }
                     }
@@ -137,17 +137,14 @@ fun ProjectSelectionCard(
             .fillMaxWidth()
             .clickable { onClick() },
         colors = if (isSelected) {
-            CardDefaults.cardColors(
+            AppCardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         } else {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
+            AppCardDefaults.cardColors()
         },
-        elevation = AppCardDefaults.elevation,
+        elevation = AppCardDefaults.cardElevation(),
         shape = AppCardDefaults.shape
     ) {
         Row(

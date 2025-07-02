@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,13 +22,9 @@ import com.example.shuigongrizhi.data.entity.ProjectType
 import com.example.shuigongrizhi.ui.components.GradientCard
 import com.example.shuigongrizhi.ui.theme.*
 import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
-import com.example.shuigongrizhi.ui.utils.getResponsivePadding
 import com.example.shuigongrizhi.ui.components.ProjectTypeCard
 import com.example.shuigongrizhi.ui.components.LoadingIndicator
 import com.example.shuigongrizhi.ui.components.EmptyState
-import com.example.shuigongrizhi.ui.theme.*
-import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
-import com.example.shuigongrizhi.ui.utils.getResponsivePadding
 import com.example.shuigongrizhi.ui.viewmodel.ProjectListViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -70,7 +67,7 @@ fun ProjectListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.project_list),
+                        text = stringResource(R.string.project_list_title),
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -119,11 +116,10 @@ fun ProjectListScreen(
                 }
                 projects.isEmpty() -> {
                     EmptyState(
-                        modifier = Modifier.align(Alignment.Center),
-                        title = "暂无项目",
-                        description = "点击右下角的 + 按钮创建您的第一个项目",
+                        message = "暂无项目\n点击右下角的 + 按钮创建您的第一个项目",
                         actionText = "创建项目",
-                        onActionClick = onNavigateToCreateProject
+                        onAction = onNavigateToCreateProject,
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
                 else -> {
@@ -181,17 +177,14 @@ fun ProjectCard(
             .fillMaxWidth()
             .clickable { showMenu = true },
         colors = if (isDefaultProject) {
-            CardDefaults.cardColors(
+            AppCardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         } else {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
+            AppCardDefaults.cardColors()
         },
-        elevation = AppCardDefaults.elevation,
+        elevation = AppCardDefaults.cardElevation(),
         shape = AppCardDefaults.shape
     ) {
         Column(modifier = Modifier.padding(ResponsiveUtils.getResponsivePadding())) {

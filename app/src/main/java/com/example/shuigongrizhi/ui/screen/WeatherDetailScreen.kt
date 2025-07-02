@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +22,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shuigongrizhi.ui.viewmodel.WeatherViewModel
 import androidx.compose.ui.platform.LocalContext
 import com.example.shuigongrizhi.ui.screen.WeatherAnimation
+import com.example.shuigongrizhi.ui.theme.AppButtonDefaults
+import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +72,7 @@ fun WeatherDetailScreen(
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "返回",
                         tint = Color.White
                     )
@@ -143,7 +146,7 @@ fun WeatherDetailScreen(
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
+                            colors = AppCardDefaults.cardColors(
                                 containerColor = Color.White.copy(alpha = 0.2f)
                             ),
                             shape = RoundedCornerShape(16.dp)
@@ -185,7 +188,7 @@ fun WeatherDetailScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = { viewModel.getCurrentWeather() },
-                            colors = ButtonDefaults.buttonColors(
+                            colors = AppButtonDefaults.buttonColors(
                                 containerColor = Color.White.copy(alpha = 0.2f)
                             )
                         ) {
@@ -219,7 +222,7 @@ fun MainWeatherCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
+        colors = AppCardDefaults.cardColors(
             containerColor = Color.White.copy(alpha = 0.2f)
         ),
         shape = RoundedCornerShape(20.dp)
@@ -331,7 +334,7 @@ fun WeatherDetailItem(
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
+        colors = AppCardDefaults.cardColors(
             containerColor = Color.White.copy(alpha = 0.2f)
         ),
         shape = RoundedCornerShape(16.dp)

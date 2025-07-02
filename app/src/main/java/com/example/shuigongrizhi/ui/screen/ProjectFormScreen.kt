@@ -3,9 +3,12 @@ package com.example.shuigongrizhi.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -17,7 +20,9 @@ import com.example.shuigongrizhi.data.entity.ProjectType
 import com.example.shuigongrizhi.ui.viewmodel.ProjectFormViewModel
 import com.example.shuigongrizhi.ui.theme.*
 import com.example.shuigongrizhi.ui.utils.ResponsiveUtils
-import com.example.shuigongrizhi.ui.utils.getResponsivePadding
+import com.example.shuigongrizhi.ui.theme.AppButtonDefaults
+import com.example.shuigongrizhi.ui.theme.AppCardDefaults
+
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
@@ -33,8 +38,6 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
@@ -162,7 +165,7 @@ fun ProjectFormScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
@@ -172,10 +175,7 @@ fun ProjectFormScreen(
                     TextButton(
                         onClick = { viewModel.saveProject() },
                         enabled = !isLoading && formState.name.isNotBlank() && formState.startDate != null,
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        colors = AppButtonDefaults.outlinedButtonColors()
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
@@ -312,7 +312,7 @@ fun ProjectFormScreen(
             // 开始日期
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = AppCardDefaults.cardColors()
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -429,7 +429,7 @@ fun ProjectFormScreen(
             // 结束日期
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = AppCardDefaults.cardColors()
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -565,12 +565,7 @@ fun ProjectFormScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = Spacing.medium),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
+                colors = AppButtonDefaults.buttonColors(),
                 shape = AppCardDefaults.shape
             ) {
                 if (isLoading) {

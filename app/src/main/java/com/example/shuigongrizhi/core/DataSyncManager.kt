@@ -492,6 +492,7 @@ enum class SyncState {
 /**
  * 备份类型枚举
  */
+@kotlinx.serialization.Serializable
 enum class BackupType {
     FULL,
     INCREMENTAL,

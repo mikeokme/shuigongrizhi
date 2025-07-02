@@ -19,6 +19,10 @@ data class Project(
     val manager: String? = null
 )
 
-enum class ProjectType {
-    水利, 市政, 养护, 合作项目, 其他项目
+enum class ProjectType(val displayName: String) {
+    水利("水利工程"),
+    市政("市政工程"),
+    养护("养护工程"),
+    合作项目("合作项目"),
+    其他项目("其他项目")
 }

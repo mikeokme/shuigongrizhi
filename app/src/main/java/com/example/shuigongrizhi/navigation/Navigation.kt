@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.example.shuigongrizhi.ui.screen.*
@@ -51,10 +53,19 @@ object NavigationRoutes {
 fun AppNavigation(
     navController: NavHostController
 ) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+    val selectedIndex = when (currentRoute) {
+        NavigationRoutes.MAIN -> 0
+        NavigationRoutes.PROJECT_LIST -> 1
+        NavigationRoutes.DESKTOP -> 2
+        else -> 0
+    }
+    
     Scaffold(
         bottomBar = { 
              BottomNavBar(
-                 selectedIndex = 0, // 默认选中首页
+                 selectedIndex = selectedIndex,
                  onHomeClick = { navController.navigate(NavigationRoutes.MAIN) {
                      // 清除回退栈，使首页成为唯一目的地
                      popUpTo(NavigationRoutes.MAIN) { inclusive = true }

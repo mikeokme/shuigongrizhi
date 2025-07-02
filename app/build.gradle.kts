@@ -155,6 +155,8 @@ dependencies {
     // Lottie for animations
     implementation("com.airbnb.android:lottie-compose:6.1.0")
     
+    implementation("com.google.android.material:material:1.11.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

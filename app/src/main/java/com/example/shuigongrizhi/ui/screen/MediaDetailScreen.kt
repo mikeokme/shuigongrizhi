@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,6 +33,7 @@ import com.example.shuigongrizhi.ui.screen.formatFileSize
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +71,7 @@ fun MediaDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "返回"
                         )
                     }
@@ -232,7 +234,7 @@ fun MediaInfoPanel(
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
+        colors = AppCardDefaults.cardColors(
             containerColor = Color.Black.copy(alpha = 0.8f)
         ),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)

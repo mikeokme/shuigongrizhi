@@ -11,14 +11,33 @@ import androidx.compose.ui.unit.dp
 // 卡片样式
 object AppCardDefaults {
     @Composable
-    fun cardColors() = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = MaterialTheme.colorScheme.onSurface
+    fun cardColors(
+        containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor: Color = MaterialTheme.colorScheme.onSurface,
+        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    ) = CardDefaults.cardColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        disabledContainerColor = disabledContainerColor,
+        disabledContentColor = disabledContentColor
     )
     
     @Composable
-    fun cardElevation() = CardDefaults.cardElevation(
-        defaultElevation = 4.dp
+    fun cardElevation(
+        defaultElevation: androidx.compose.ui.unit.Dp = 4.dp,
+        pressedElevation: androidx.compose.ui.unit.Dp = 8.dp,
+        focusedElevation: androidx.compose.ui.unit.Dp = 4.dp,
+        hoveredElevation: androidx.compose.ui.unit.Dp = 6.dp,
+        draggedElevation: androidx.compose.ui.unit.Dp = 8.dp,
+        disabledElevation: androidx.compose.ui.unit.Dp = 0.dp
+    ) = CardDefaults.cardElevation(
+        defaultElevation = defaultElevation,
+        pressedElevation = pressedElevation,
+        focusedElevation = focusedElevation,
+        hoveredElevation = hoveredElevation,
+        draggedElevation = draggedElevation,
+        disabledElevation = disabledElevation
     )
     
     val shape = RoundedCornerShape(12.dp)
@@ -26,6 +45,19 @@ object AppCardDefaults {
 
 // 按钮样式
 object AppButtonDefaults {
+    @Composable
+    fun buttonColors(
+        containerColor: Color = MaterialTheme.colorScheme.primary,
+        contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    ) = ButtonDefaults.buttonColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        disabledContainerColor = disabledContainerColor,
+        disabledContentColor = disabledContentColor
+    )
+    
     @Composable
     fun primaryButtonColors() = ButtonDefaults.buttonColors(
         containerColor = MaterialTheme.colorScheme.primary,

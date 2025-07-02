@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
@@ -20,6 +20,7 @@ import com.example.shuigongrizhi.ui.viewmodel.MapProvider
 import com.example.shuigongrizhi.ui.viewmodel.LocationSource
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.shuigongrizhi.ui.theme.AppCardDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +42,7 @@ fun LocationScreen(
                 title = { Text(text = "位置服务") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -66,7 +67,7 @@ fun LocationScreen(
             // 地图类型选择
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = AppCardDefaults.cardColors()
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -96,7 +97,7 @@ fun LocationScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = AppCardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -119,7 +120,7 @@ fun LocationScreen(
             // 当前位置信息
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = AppCardDefaults.cardColors()
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -205,7 +206,7 @@ fun LocationScreen(
             // 历史轨迹
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = AppCardDefaults.cardColors()
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -274,7 +275,7 @@ private fun HistoryItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = AppCardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
