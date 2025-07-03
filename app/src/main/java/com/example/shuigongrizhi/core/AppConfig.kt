@@ -12,13 +12,10 @@ import com.example.shuigongrizhi.BuildConfig
  * 提供统一的配置存储和访问
  */
 // @Singleton
-class AppConfig /* @Inject constructor(
-    private val context: Context
-) */ {
-    private val context: Context? = null
+class AppConfig(private val context: Context) {
     
-    private val sharedPreferences: SharedPreferences? by lazy {
-        context?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences by lazy {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
     
     companion object {
@@ -48,117 +45,117 @@ class AppConfig /* @Inject constructor(
      * 应用基本配置
      */
     var isFirstLaunch: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_FIRST_LAUNCH, true) ?: true
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_FIRST_LAUNCH, value) } }
+        get() = sharedPreferences.getBoolean(KEY_FIRST_LAUNCH, true)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_FIRST_LAUNCH, value) } }
     
     var appVersion: String
-        get() = sharedPreferences?.getString(KEY_APP_VERSION, BuildConfig.VERSION_NAME) ?: BuildConfig.VERSION_NAME
-        set(value) { sharedPreferences?.edit { putString(KEY_APP_VERSION, value) } }
+        get() = sharedPreferences.getString(KEY_APP_VERSION, BuildConfig.VERSION_NAME) ?: BuildConfig.VERSION_NAME
+        set(value) { sharedPreferences.edit { putString(KEY_APP_VERSION, value) } }
     
     /**
      * 备份配置
      */
     var lastBackupTime: Long
-        get() = sharedPreferences?.getLong(KEY_LAST_BACKUP_TIME, 0L) ?: 0L
-        set(value) { sharedPreferences?.edit { putLong(KEY_LAST_BACKUP_TIME, value) } }
+        get() = sharedPreferences.getLong(KEY_LAST_BACKUP_TIME, 0L)
+        set(value) { sharedPreferences.edit { putLong(KEY_LAST_BACKUP_TIME, value) } }
     
     var isAutoBackupEnabled: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_AUTO_BACKUP_ENABLED, true) ?: true
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_AUTO_BACKUP_ENABLED, value) } }
+        get() = sharedPreferences.getBoolean(KEY_AUTO_BACKUP_ENABLED, true)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_AUTO_BACKUP_ENABLED, value) } }
     
     var backupIntervalDays: Int
-        get() = sharedPreferences?.getInt(KEY_BACKUP_INTERVAL_DAYS, 7) ?: 7
-        set(value) { sharedPreferences?.edit { putInt(KEY_BACKUP_INTERVAL_DAYS, value) } }
+        get() = sharedPreferences.getInt(KEY_BACKUP_INTERVAL_DAYS, 7)
+        set(value) { sharedPreferences.edit { putInt(KEY_BACKUP_INTERVAL_DAYS, value) } }
     
     /**
      * 媒体文件配置
      */
     var isCompressImages: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_COMPRESS_IMAGES, true) ?: true
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_COMPRESS_IMAGES, value) } }
+        get() = sharedPreferences.getBoolean(KEY_COMPRESS_IMAGES, true)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_COMPRESS_IMAGES, value) } }
     
     var imageQuality: Int
-        get() = sharedPreferences?.getInt(KEY_IMAGE_QUALITY, 80) ?: 80
-        set(value) { sharedPreferences?.edit { putInt(KEY_IMAGE_QUALITY, value.coerceIn(10, 100)) } }
+        get() = sharedPreferences.getInt(KEY_IMAGE_QUALITY, 80)
+        set(value) { sharedPreferences.edit { putInt(KEY_IMAGE_QUALITY, value.coerceIn(10, 100)) } }
     
     var maxVideoDurationSeconds: Int
-        get() = sharedPreferences?.getInt(KEY_MAX_VIDEO_DURATION, 300) ?: 300 // 默认5分钟
-        set(value) { sharedPreferences?.edit { putInt(KEY_MAX_VIDEO_DURATION, value.coerceIn(30, 1800)) } }
+        get() = sharedPreferences.getInt(KEY_MAX_VIDEO_DURATION, 300) // 默认5分钟
+        set(value) { sharedPreferences.edit { putInt(KEY_MAX_VIDEO_DURATION, value.coerceIn(30, 1800)) } }
     
     /**
      * 功能配置
      */
     var isWeatherAutoFetch: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_WEATHER_AUTO_FETCH, true) ?: true
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_WEATHER_AUTO_FETCH, value) } }
+        get() = sharedPreferences.getBoolean(KEY_WEATHER_AUTO_FETCH, true)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_WEATHER_AUTO_FETCH, value) } }
     
     var isLocationEnabled: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_LOCATION_ENABLED, true) ?: true
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_LOCATION_ENABLED, value) } }
+        get() = sharedPreferences.getBoolean(KEY_LOCATION_ENABLED, true)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_LOCATION_ENABLED, value) } }
     
     /**
      * UI配置
      */
     var themeMode: ThemeMode
         get() {
-            val mode = sharedPreferences?.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name)
+            val mode = sharedPreferences.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name)
             return try {
                 ThemeMode.valueOf(mode ?: ThemeMode.SYSTEM.name)
             } catch (e: IllegalArgumentException) {
                 ThemeMode.SYSTEM
             }
         }
-        set(value) { sharedPreferences?.edit { putString(KEY_THEME_MODE, value.name) } }
+        set(value) { sharedPreferences.edit { putString(KEY_THEME_MODE, value.name) } }
     
     var language: String
-        get() = sharedPreferences?.getString(KEY_LANGUAGE, "zh") ?: "zh"
-        set(value) { sharedPreferences?.edit { putString(KEY_LANGUAGE, value) } }
+        get() = sharedPreferences.getString(KEY_LANGUAGE, "zh") ?: "zh"
+        set(value) { sharedPreferences.edit { putString(KEY_LANGUAGE, value) } }
     
     /**
      * 导出配置
      */
     var exportFormat: ExportFormat
         get() {
-            val format = sharedPreferences?.getString(KEY_EXPORT_FORMAT, ExportFormat.PDF.name)
+            val format = sharedPreferences.getString(KEY_EXPORT_FORMAT, ExportFormat.PDF.name)
             return try {
                 ExportFormat.valueOf(format ?: ExportFormat.PDF.name)
             } catch (e: IllegalArgumentException) {
                 ExportFormat.PDF
             }
         }
-        set(value) { sharedPreferences?.edit { putString(KEY_EXPORT_FORMAT, value.name) } }
+        set(value) { sharedPreferences.edit { putString(KEY_EXPORT_FORMAT, value.name) } }
     
     /**
      * 用户体验配置
      */
     var showTips: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_SHOW_TIPS, true) ?: true
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_SHOW_TIPS, value) } }
+        get() = sharedPreferences.getBoolean(KEY_SHOW_TIPS, true)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_SHOW_TIPS, value) } }
     
     /**
      * 开发配置
      */
     var isDebugMode: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_DEBUG_MODE, BuildConfig.DEBUG) ?: BuildConfig.DEBUG
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_DEBUG_MODE, value) } }
+        get() = sharedPreferences.getBoolean(KEY_DEBUG_MODE, BuildConfig.DEBUG)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_DEBUG_MODE, value) } }
     
     /**
      * 天气API配置
      */
     var weatherApiToken: String
-        get() = sharedPreferences?.getString(KEY_WEATHER_API_TOKEN, "") ?: ""
-        set(value) { sharedPreferences?.edit { putString(KEY_WEATHER_API_TOKEN, value) } }
+        get() = sharedPreferences.getString(KEY_WEATHER_API_TOKEN, "") ?: ""
+        set(value) { sharedPreferences.edit { putString(KEY_WEATHER_API_TOKEN, value) } }
     
     var isWeatherTokenVerified: Boolean
-        get() = sharedPreferences?.getBoolean(KEY_WEATHER_TOKEN_VERIFIED, false) ?: false
-        set(value) { sharedPreferences?.edit { putBoolean(KEY_WEATHER_TOKEN_VERIFIED, value) } }
+        get() = sharedPreferences.getBoolean(KEY_WEATHER_TOKEN_VERIFIED, false)
+        set(value) { sharedPreferences.edit { putBoolean(KEY_WEATHER_TOKEN_VERIFIED, value) } }
     
     /**
      * 重置所有配置到默认值
      */
     fun resetToDefaults() {
         Logger.business("重置应用配置到默认值")
-        sharedPreferences?.edit {
+        sharedPreferences.edit {
             clear()
             // 保留一些重要的配置
             putString(KEY_APP_VERSION, BuildConfig.VERSION_NAME)

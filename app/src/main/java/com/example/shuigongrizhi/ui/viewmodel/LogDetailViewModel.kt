@@ -42,7 +42,7 @@ class LogDetailViewModel @Inject constructor(
     private val _state = MutableStateFlow(LogDetailState())
     val state: StateFlow<LogDetailState> = _state.asStateFlow()
     
-    private val pdfGenerator = context?.let { PdfGenerator(it) }
+    private val pdfGenerator = PdfGenerator(context)
     
     fun loadLogDetail(logId: Long) {
         viewModelScope.launch {
@@ -101,7 +101,7 @@ class LogDetailViewModel @Inject constructor(
             _state.value = currentState.copy(isGeneratingPdf = true, error = null)
             
             try {
-                val pdfFile = pdfGenerator?.generateDailyConstructionLog(
+                val pdfFile = pdfGenerator.generateDailyConstructionLog(
                     project = project,
                     constructionLog = log,
                     mediaFiles = currentState.mediaFiles

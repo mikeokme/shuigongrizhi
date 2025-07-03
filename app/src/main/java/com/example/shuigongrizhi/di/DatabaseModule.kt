@@ -77,7 +77,7 @@ object DatabaseModule {
     
     @Provides
     @Singleton
-    fun provideAppConfig(): AppConfig {
-        return AppConfig
+    fun provideAppConfig(@ApplicationContext context: Context): AppConfig {
+        return AppConfig(context)
     }
 }

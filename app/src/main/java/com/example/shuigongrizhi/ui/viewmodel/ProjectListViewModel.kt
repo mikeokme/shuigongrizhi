@@ -154,15 +154,17 @@ class ProjectListViewModel @Inject constructor(
             val defaultProject = createDefaultProjectEntity()
             
             when (val insertResult = projectRepo.insertProject(defaultProject)) {
-                is Result.Success -> {
-                    val projectId = insertResult.data
-                    Logger.business("默认项目创建成功，ID: $projectId")
-                    
-                    // 创建默认施工日志
-                    createDefaultConstructionLog(projectId)
-                    
-                    // 项目创建成功，Flow会自动更新UI，无需手动调用loadProjects()
-                    Logger.business("默认项目和日志创建完成，等待Flow自动更新")
+                is Result.Success<*> -> {
+                    if (insertResult.data is Long) {
+                        val projectId = insertResult.data
+                        Logger.business("默认项目创建成功，ID: $projectId")
+                        
+                        // 创建默认施工日志
+                        createDefaultConstructionLog(projectId)
+                        
+                        // 项目创建成功，Flow会自动更新UI，无需手动调用loadProjects()
+                        Logger.business("默认项目和日志创建完成，等待Flow自动更新")
+                    }
                 }
                 is Result.Error -> {
                     Logger.exception(insertResult.exception, "创建默认项目失败")
@@ -170,6 +172,9 @@ class ProjectListViewModel @Inject constructor(
                 }
                 is Result.Loading -> {
                     // 通常不会到达这里
+                }
+                else -> {
+                    Logger.business("未处理的结果类型")
                 }
             }
         } catch (e: Exception) {
@@ -241,20 +246,28 @@ class ProjectListViewModel @Inject constructor(
             try {
                 // 获取项目相关的施工日志
                 val logs = when (val result = constructionLogRepo.getLogsByProjectId(project.id)) {
-                    is Result.Success -> result.data
+                    is Result.Success<*> -> {
+                        if (result.data is List<*> && (result.data as List<*>).all { it is ConstructionLog }) {
+                            result.data as List<ConstructionLog>
+                        } else {
+                            emptyList()
+                        }
+                    }
                     is Result.Error -> {
                         Logger.exception(result.exception, "获取项目日志失败")
                         emptyList()
                     }
                     is Result.Loading -> emptyList()
+                    else -> emptyList()
                 }
                 
                 // 记录导出请求信息
-                Logger.business("项目导出请求: ${project.name}, 日志数量: ${logs.size}")
+                val logsCount = logs.size
+                Logger.business("项目导出请求: ${project.name}, 日志数量: $logsCount")
                 Logger.business("项目信息: 类型=${project.type.name}, 负责人=${project.manager}, 描述=${project.description}")
                 
                 // 导出功能提示
-                Logger.business("项目 '${project.name}' 导出请求已记录，包含 ${logs.size} 条施工日志")
+                Logger.business("项目 '${project.name}' 导出请求已记录，包含 $logsCount 条施工日志")
                 _uiState.value = UiState.success(_uiState.value.data ?: emptyList())
                 
             } catch (e: Exception) {
@@ -273,19 +286,27 @@ class ProjectListViewModel @Inject constructor(
             
             try {
                 val allProjects = when (val result = projectRepo.getAllProjects().first()) {
-                    is Result.Success -> result.data
+                    is Result.Success<*> -> {
+                        if (result.data is List<*> && (result.data as List<*>).all { it is Project }) {
+                            result.data as List<Project>
+                        } else {
+                            emptyList()
+                        }
+                    }
                     is Result.Error -> {
                         Logger.exception(result.exception, "获取项目列表失败")
                         _uiState.value = UiState.error("获取项目列表失败")
                         return@launchSafely
                     }
                     is Result.Loading -> emptyList()
+                    else -> emptyList()
                 }
                 
                 // 找出所有默认项目
                 val defaultProjects = allProjects.filter { isDefaultProject(it) }
                 
-                if (defaultProjects.size <= 1) {
+                val defaultProjectsCount = defaultProjects.size
+                if (defaultProjectsCount <= 1) {
                     Logger.business("没有发现重复的默认项目")
                     _uiState.value = UiState.success(allProjects)
                     return@launchSafely
@@ -293,20 +314,24 @@ class ProjectListViewModel @Inject constructor(
                 
                 // 保留第一个默认项目，删除其余的
                 val projectsToDelete = defaultProjects.drop(1)
+                val projectsToDeleteCount = projectsToDelete.size
                 
-                Logger.business("发现 ${defaultProjects.size} 个重复的默认项目，将删除 ${projectsToDelete.size} 个")
+                Logger.business("发现 $defaultProjectsCount 个重复的默认项目，将删除 $projectsToDeleteCount 个")
                 
                 var deletedCount = 0
                 for (project in projectsToDelete) {
                     when (val deleteResult = projectRepo.deleteProject(project)) {
-                        is Result.Success -> {
-                            deletedCount++
-                            Logger.business("删除重复项目成功: ID=${project.id}")
+                        is Result.Success<*> -> {
+                            if (deleteResult.data is Boolean) {
+                                deletedCount++
+                                Logger.business("删除重复项目成功: ID=${project.id}")
+                            }
                         }
                         is Result.Error -> {
                             Logger.exception(deleteResult.exception, "删除重复项目失败: ID=${project.id}")
                         }
                         is Result.Loading -> {}
+                        else -> {}
                     }
                 }
                 

@@ -24,7 +24,7 @@ import com.example.shuigongrizhi.ui.viewmodel.WeatherSettingsViewModel
 @Composable
 fun WeatherSettingsScreen(
     onNavigateBack: () -> Unit,
-    viewModel: WeatherSettingsViewModel = remember { WeatherSettingsViewModel() }
+    viewModel: WeatherSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current

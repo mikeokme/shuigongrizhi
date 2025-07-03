@@ -6,10 +6,10 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
-// import dagger.hilt.android.qualifiers.ApplicationContext // 临时禁用
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
-// import javax.inject.Inject // 临时禁用
+import javax.inject.Inject
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.MediaFile
 import com.example.shuigongrizhi.data.entity.MediaType

@@ -19,3 +19,37 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Hilt
+-keep class * extends androidx.lifecycle.ViewModel
+-keep class dagger.hilt.android.internal.** { *; }
+-keep class hilt_aggregated_deps.** { *; }
+
+# Kotlin Coroutines
+-keepclassmembers class kotlinx.coroutines.internal.MainDispatcherFactory { 
+    public static final kotlinx.coroutines.MainCoroutineDispatcher a;
+}
+
+# Retrofit & OkHttp
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keep interface retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+
+# Gson
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep class com.google.gson.Gson
+-keep class com.google.gson.GsonBuilder
+-keep class com.google.gson.stream.** { *; }
+-keep class com.google.gson.annotations.** { *; }
+
+# iText7
+-keep class com.itextpdf.** { *; }
+-keep interface com.itextpdf.** { *; }
+-dontwarn com.itextpdf.**
+
+# Keep data models (adjust package name as needed)
+-keep class com.example.shuigongrizhi.data.model.** { *; }

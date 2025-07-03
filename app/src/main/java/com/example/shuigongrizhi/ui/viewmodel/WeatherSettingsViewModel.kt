@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shuigongrizhi.core.AppConfig
 import com.example.shuigongrizhi.data.repository.WeatherRepository
-// import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-// import javax.inject.Inject
+import javax.inject.Inject
 
 data class WeatherSettingsUiState(
     val isLoading: Boolean = false,
@@ -20,13 +20,11 @@ data class WeatherSettingsUiState(
     val testResult: Result<String>? = null
 )
 
-// @HiltViewModel
-class WeatherSettingsViewModel /* @Inject constructor(
+@HiltViewModel
+class WeatherSettingsViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val weatherRepository: WeatherRepository
-) */ : ViewModel() {
-    private val appConfig: AppConfig? = null
-    private val weatherRepository: WeatherRepository? = null
+) : ViewModel() {
     
     private val _uiState = MutableStateFlow(WeatherSettingsUiState())
     val uiState: StateFlow<WeatherSettingsUiState> = _uiState.asStateFlow()
@@ -41,8 +39,8 @@ class WeatherSettingsViewModel /* @Inject constructor(
     
     private fun loadCurrentSettings() {
         _uiState.value = _uiState.value.copy(
-            currentToken = appConfig.weatherApiToken,
-            isTokenVerified = appConfig.isWeatherTokenVerified
+            currentToken = appConfig?.weatherApiToken ?: "",
+            isTokenVerified = appConfig?.isWeatherTokenVerified ?: false
         )
     }
     
@@ -50,7 +48,7 @@ class WeatherSettingsViewModel /* @Inject constructor(
      * 获取当前Token
      */
     fun getCurrentToken(): String {
-        return appConfig.weatherApiToken
+        return appConfig?.weatherApiToken ?: ""
     }
     
     /**
@@ -68,8 +66,8 @@ class WeatherSettingsViewModel /* @Inject constructor(
                 
                 try {
                     // 清除Token，启用无API模式
-                    appConfig.weatherApiToken = ""
-                    appConfig.isWeatherTokenVerified = false
+                    appConfig?.weatherApiToken = ""
+                    appConfig?.isWeatherTokenVerified = false
                     
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -96,12 +94,12 @@ class WeatherSettingsViewModel /* @Inject constructor(
             
             try {
                 // 测试Token是否有效
-                val testResult = weatherRepository.testToken(token)
+                val testResult = weatherRepository?.testToken(token) ?: Result.failure(Exception("天气仓库未初始化"))
                 
                 if (testResult.isSuccess) {
                     // 保存Token
-                    appConfig.weatherApiToken = token
-                    appConfig.isWeatherTokenVerified = true
+                    appConfig?.weatherApiToken = token
+                    appConfig?.isWeatherTokenVerified = true
                     
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -151,12 +149,12 @@ class WeatherSettingsViewModel /* @Inject constructor(
             
             try {
                 // 测试开发者Token
-                val testResult = weatherRepository.testToken(developerToken)
+                val testResult = weatherRepository?.testToken(developerToken) ?: Result.failure(Exception("天气仓库未初始化"))
                 
                 if (testResult.isSuccess) {
                     // 保存开发者Token
-                    appConfig.weatherApiToken = developerToken
-                    appConfig.isWeatherTokenVerified = true
+                appConfig?.weatherApiToken = developerToken
+                appConfig?.isWeatherTokenVerified = true
                     
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -194,7 +192,7 @@ class WeatherSettingsViewModel /* @Inject constructor(
                 )
                 
                 try {
-                    val result = weatherRepository.testToken("")
+                    val result = weatherRepository?.testToken("") ?: Result.failure(Exception("天气仓库未初始化"))
                     
                     _uiState.value = if (result.isSuccess) {
                         _uiState.value.copy(
@@ -259,8 +257,8 @@ class WeatherSettingsViewModel /* @Inject constructor(
             
             try {
                 // 清除保存的Token
-                appConfig.weatherApiToken = ""
-                appConfig.isWeatherTokenVerified = false
+                appConfig?.weatherApiToken = ""
+                appConfig?.isWeatherTokenVerified = false
                 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,

@@ -6,31 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
-
-/**
- * 提供一个 Composable 函数来管理应用所需的核心权限。
- */
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun rememberAppPermissionsState(): MultiplePermissionsState {
-    val permissions = remember {
-        mutableListOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.READ_MEDIA_IMAGES)
-                add(Manifest.permission.READ_MEDIA_VIDEO)
-            } else {
-                add(Manifest.permission.READ_EXTERNAL_STORAGE)
-                add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-        }
-    }
-    return rememberMultiplePermissionsState(permissions = permissions)
-}
 
 /**
  * 获取特定权限的说明文本。

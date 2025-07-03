@@ -5,16 +5,16 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shuigongrizhi.utils.PdfManager
-// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-// import javax.inject.Inject // 临时禁用
+import javax.inject.Inject
 import java.io.File
 
-// @HiltViewModel // 临时禁用
-class PdfViewerViewModel /* @Inject constructor() */ : ViewModel() {
+@HiltViewModel
+class PdfViewerViewModel @Inject constructor() : ViewModel() {
     
     private val _pdfFiles = MutableStateFlow<List<File>>(emptyList())
     val pdfFiles: StateFlow<List<File>> = _pdfFiles.asStateFlow()

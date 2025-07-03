@@ -2,8 +2,8 @@ package com.example.shuigongrizhi.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// import dagger.hilt.android.lifecycle.HiltViewModel
-// import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import com.example.shuigongrizhi.data.entity.ConstructionLog
 import com.example.shuigongrizhi.data.entity.Project
 import com.example.shuigongrizhi.data.repository.ConstructionLogRepository
@@ -24,13 +24,11 @@ data class DashboardState(
     val logDates: Set<String> = emptySet()
 )
 
-// @HiltViewModel
-class ProjectDashboardViewModel /* @Inject constructor(
+@HiltViewModel
+class ProjectDashboardViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val constructionLogRepository: ConstructionLogRepository
-) */ : ViewModel() {
-    private val projectRepo: ProjectRepository = ProjectRepository()
-    private val constructionLogRepo: ConstructionLogRepository = ConstructionLogRepository()
+) : ViewModel() {
     
     private val _dashboardState = MutableStateFlow(DashboardState())
     val dashboardState: StateFlow<DashboardState> = _dashboardState.asStateFlow()
@@ -49,7 +47,7 @@ class ProjectDashboardViewModel /* @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val projectResult = projectRepo.getProjectById(id)
+                val projectResult = projectRepository.getProjectById(id)
                 val project = (projectResult as? com.example.shuigongrizhi.core.Result.Success)?.data
                 project?.let {
                     _dashboardState.value = _dashboardState.value.copy(project = it)
@@ -66,7 +64,7 @@ class ProjectDashboardViewModel /* @Inject constructor(
     private fun loadLogs() {
         viewModelScope.launch {
             try {
-                constructionLogRepo.getLogsByProjectId(projectId).collect { logs ->
+                constructionLogRepository.getLogsByProjectId(projectId).collect { logs ->
                     val logDates = logs.map { dateFormat.format(it.date) }.toSet()
                     val selectedLog = logs.find { 
                         dateFormat.format(it.date) == dateFormat.format(_dashboardState.value.selectedDate) 

@@ -34,12 +34,7 @@ abstract class BaseViewModel : ViewModel() {
      * 处理错误
      */
     protected open fun handleError(throwable: Throwable) {
-        val errorMessage = when (throwable) {
-            is NetworkException -> "网络连接失败，请检查网络设置"
-            is DatabaseException -> "数据库操作失败"
-            is ValidationException -> throwable.message ?: "数据验证失败"
-            else -> throwable.message ?: "发生未知错误"
-        }
+        val errorMessage = ExceptionHandler().generateUserMessage(throwable)
         
         viewModelScope.launch {
             _errorEvents.emit(errorMessage)
@@ -80,13 +75,3 @@ abstract class BaseViewModel : ViewModel() {
         }
     }
 }
-
-/**
- * 自定义异常类
- */
-sealed class AppException(message: String) : Exception(message)
-
-class NetworkException(message: String = "网络错误") : AppException(message)
-class DatabaseException(message: String = "数据库错误") : AppException(message)
-class ValidationException(message: String = "验证错误") : AppException(message)
-class BusinessException(message: String = "业务逻辑错误") : AppException(message)

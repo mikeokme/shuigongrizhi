@@ -153,6 +153,9 @@ dependencies {
 
     // Lottie for animations
     implementation("com.airbnb.android:lottie-compose:6.1.0")
+
+    // Accompanist Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.31.5-beta")
     
     implementation("com.google.android.material:material:1.11.0")
     

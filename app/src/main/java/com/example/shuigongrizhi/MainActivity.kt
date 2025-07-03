@@ -14,13 +14,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.shuigongrizhi.core.AppConfig
 import com.example.shuigongrizhi.core.Logger
 import com.example.shuigongrizhi.core.Utils
-import com.example.shuigongrizhi.core.rememberAppPermissionsState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.example.shuigongrizhi.core.showToast
 import com.example.shuigongrizhi.navigation.AppNavigation
 import com.example.shuigongrizhi.ui.theme.ShuigongrizhiTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import com.example.shuigongrizhi.ui.components.PermissionWrapper
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -36,35 +37,20 @@ class MainActivity : ComponentActivity() {
         Logger.lifecycle("MainActivity", "onCreate")
 
         setContent {
-            val context = LocalContext.current
-            val permissionsState = rememberAppPermissionsState()
-
-            LaunchedEffect(permissionsState) {
-                if (!permissionsState.allPermissionsGranted) {
-                    permissionsState.launchMultiplePermissionRequest()
-                }
-            }
-
-            LaunchedEffect(permissionsState.allPermissionsGranted) {
-                if (permissionsState.allPermissionsGranted) {
-                    if (appConfig.isFirstLaunch) {
-                        showToast("权限已授予，正在初始化应用...")
-                        appConfig.markFirstLaunchCompleted()
-                    }
-                    val success = Utils.File.createAppDirectories(context)
-                    if (!success) {
-                        showToast("存储目录创建失败，部分功能可能受限")
-                    }
-                }
-            }
-
             ShuigongrizhiTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val navController = rememberNavController()
-                    AppNavigation(navController = navController)
+                PermissionWrapper(appConfig = appConfig) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            val navController = rememberNavController()
+                            AppNavigation(navController = navController, onNavigate = { route -> navController.navigate(route) })
+                        }
+                    }
                 }
             }
         }

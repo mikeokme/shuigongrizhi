@@ -58,25 +58,25 @@ import com.example.shuigongrizhi.ui.theme.ChampagneEnd
 import com.example.shuigongrizhi.ui.theme.ChampagneStart
 import com.example.shuigongrizhi.ui.theme.SparklingEnd
 import com.example.shuigongrizhi.ui.theme.SparklingStart
-import com.example.shuigongrizhi.core.rememberAppPermissionsState
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.example.shuigongrizhi.ui.viewmodel.CameraViewModel
 
 @SuppressLint("DefaultLocale")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel,
     projectId: Long,
     onNavigateBack: () -> Unit,
     onNavigateToGallery: () -> Unit = {},
-    onMediaCaptured: (Uri, MediaType) -> Unit = { _, _ -> }
+    onMediaCaptured: (Uri, MediaType) -> Unit = { _, _ -> },
+    onNavigateToPhotoDescription: (Uri, Long) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     var showSnackbar by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
     var isErrorSnackbar by remember { mutableStateOf(false) }
-    
-
     
     // 拍照启动器
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -119,8 +119,8 @@ fun CameraScreen(
         viewModel.initializeProjectMedia(projectId)
     }
     
-    val permissionsState = rememberAppPermissionsState()
-    val hasCameraPermission = permissionsState.permissions.any { it.permission == Manifest.permission.CAMERA && it.hasPermission }
+    val permissionsState = rememberMultiplePermissionsState(permissions = listOf(Manifest.permission.CAMERA))
+    val hasCameraPermission = permissionsState.allPermissionsGranted
 
     LaunchedEffect(permissionsState) {
         if (!permissionsState.allPermissionsGranted) {
@@ -198,7 +198,7 @@ fun CameraScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (!hasCameraPermission) {
+            if (!permissionsState.allPermissionsGranted) {
                 // 权限请求界面
                 Card(
                     modifier = Modifier

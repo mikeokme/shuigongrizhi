@@ -8,18 +8,17 @@ import com.example.shuigongrizhi.data.entity.MediaFile
 import com.example.shuigongrizhi.data.entity.MediaType
 import com.example.shuigongrizhi.data.repository.MediaFileRepository
 import com.example.shuigongrizhi.utils.CameraManager
-// import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-// import javax.inject.Inject
+import javax.inject.Inject
 
-// @HiltViewModel
-class CameraViewModel /* @Inject constructor(
+@HiltViewModel
+class CameraViewModel @Inject constructor(
     private val mediaFileRepository: MediaFileRepository
-) */ : ViewModel() {
-    private val mediaFileRepository: MediaFileRepository? = null
+) : ViewModel() {
     
     private lateinit var cameraManager: CameraManager
     private var currentProjectId: Long = 0
@@ -138,9 +137,7 @@ class CameraViewModel /* @Inject constructor(
                 if (mediaFile != null) {
                     // 设置正确的logId并保存到数据库
                     val finalMediaFile = mediaFile.copy(logId = logId)
-                    if (mediaFileRepository != null) {
-                        mediaFileRepository.insertMediaFile(finalMediaFile)
-                    }
+                    mediaFileRepository.insertMediaFile(finalMediaFile)
                     
                     // 更新存储信息
                     updateStorageInfo()
@@ -168,9 +165,7 @@ class CameraViewModel /* @Inject constructor(
                 _isLoading.value = true
                 
                 // 从数据库删除
-                if (mediaFileRepository != null) {
-                    mediaFileRepository.deleteMediaFile(mediaFile)
-                }
+                mediaFileRepository.deleteMediaFile(mediaFile)
                 
                 // 删除物理文件
                 if (::cameraManager.isInitialized) {
@@ -194,7 +189,7 @@ class CameraViewModel /* @Inject constructor(
     /**
      * 获取项目媒体文件列表
      */
-    fun getProjectMediaFiles(logId: Long) = mediaFileRepository?.getMediaFilesByLogId(logId)
+    fun getProjectMediaFiles(logId: Long) = mediaFileRepository.getMediaFilesByLogId(logId)
     
     /**
      * 更新存储信息

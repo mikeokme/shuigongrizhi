@@ -6,21 +6,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.shuigongrizhi.data.entity.MediaFile
 import com.example.shuigongrizhi.data.repository.MediaFileRepository
 import com.example.shuigongrizhi.utils.CameraManager
-// import dagger.hilt.android.lifecycle.HiltViewModel // 临时禁用
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
-// import javax.inject.Inject // 临时禁用
+import javax.inject.Inject
 
-// @HiltViewModel // 临时禁用
-class MediaGalleryViewModel /* @Inject constructor(
+@HiltViewModel
+class MediaGalleryViewModel @Inject constructor(
     private val mediaFileRepository: MediaFileRepository
-) */ : ViewModel() {
-    
-    // 临时直接实例化依赖
-    private val mediaFileRepository: MediaFileRepository? = null
+) : ViewModel() {
     
     private lateinit var cameraManager: CameraManager
     private var currentProjectId: Long = 0
@@ -65,7 +62,7 @@ class MediaGalleryViewModel /* @Inject constructor(
                 _error.value = null
                 
                 // 获取物理文件列表
-                val physicalFiles = cameraManager?.getProjectMediaFiles(currentProjectId) ?: emptyList()
+                val physicalFiles = cameraManager.getProjectMediaFiles(currentProjectId)
                 
                 // 获取数据库中的媒体文件记录
                 val dbMediaFiles = mutableListOf<MediaFile>()
@@ -141,7 +138,7 @@ class MediaGalleryViewModel /* @Inject constructor(
                 
                 // 删除物理文件
                 if (::cameraManager.isInitialized) {
-                    cameraManager?.deleteProjectMediaFile(mediaFile.filePath)
+                    cameraManager.deleteProjectMediaFile(mediaFile.filePath)
                 }
                 
                 // 重新加载媒体文件列表
@@ -160,7 +157,7 @@ class MediaGalleryViewModel /* @Inject constructor(
      */
     private fun updateStorageInfo() {
         if (::cameraManager.isInitialized) {
-            val info = cameraManager?.getProjectMediaStorageInfo(currentProjectId) ?: emptyMap()
+            val info = cameraManager.getProjectMediaStorageInfo(currentProjectId)
             _storageInfo.value = info
         }
     }

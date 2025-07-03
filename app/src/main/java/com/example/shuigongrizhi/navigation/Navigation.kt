@@ -53,7 +53,8 @@ object NavigationRoutes {
 
 @Composable
 fun AppNavigation(
-    navController: NavHostController
+    navController: NavHostController,
+    onNavigate: (String) -> Unit
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -277,7 +278,7 @@ fun AppNavigation(
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
                 val context = LocalContext.current
-                val viewModel: CameraViewModel = remember { CameraViewModel() }
+                val viewModel: CameraViewModel = hiltViewModel()
                 CameraScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -306,7 +307,7 @@ fun AppNavigation(
             ) { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
                 val context = LocalContext.current
-                val viewModel: MediaGalleryViewModel = remember { MediaGalleryViewModel() }
+                val viewModel: MediaGalleryViewModel = hiltViewModel()
                 MediaGalleryScreen(
                     viewModel = viewModel,
                     projectId = projectId,
@@ -330,7 +331,7 @@ fun AppNavigation(
             ) { backStackEntry ->
                 val mediaFileId = backStackEntry.arguments?.getLong("mediaFileId") ?: 0L
                 val context = LocalContext.current
-                val viewModel: MediaGalleryViewModel = remember { MediaGalleryViewModel() }
+                val viewModel: MediaGalleryViewModel = hiltViewModel()
                 val mediaFiles = viewModel.mediaFiles.collectAsState()
                 val mediaFile = mediaFiles.value.find { it.id == mediaFileId }
                 if (mediaFile != null) {
@@ -369,7 +370,7 @@ fun AppNavigation(
                 val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
                 val photoUri = android.net.Uri.parse(photoUriString)
                 val context = LocalContext.current
-                val viewModel: PhotoDescriptionViewModel = remember { PhotoDescriptionViewModel() }
+                val viewModel: PhotoDescriptionViewModel = hiltViewModel()
                 PhotoDescriptionScreen(
                     photoUri = photoUri,
                     projectId = projectId,
@@ -432,7 +433,7 @@ fun AppNavigation(
             // 天气详情页面
             composable(NavigationRoutes.WEATHER_DETAIL) {
                 val context = LocalContext.current
-                val viewModel: WeatherViewModel = remember { WeatherViewModel() }
+                val viewModel: WeatherViewModel = hiltViewModel()
                 WeatherDetailScreen(
                     viewModel = viewModel,
                     onNavigateBack = {
@@ -485,7 +486,7 @@ fun AppNavigation(
             // PDF查看器页面
             composable(NavigationRoutes.PDF_VIEWER) {
                 val context = LocalContext.current
-                val viewModel: PdfViewerViewModel = remember { PdfViewerViewModel() }
+                val viewModel: PdfViewerViewModel = hiltViewModel()
                 PdfViewerScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.popBackStack() }

@@ -11,20 +11,22 @@ import java.io.StringWriter
 // import javax.inject.Inject
 // import javax.inject.Singleton
 
-sealed class DatabaseException(message: String) : Exception(message) {
+sealed class AppException(message: String) : Exception(message)
+
+sealed class DatabaseException protected constructor(message: String) : AppException(message) {
     class QueryFailed(message: String) : DatabaseException(message)
     class InsertFailed(message: String) : DatabaseException(message)
     class UpdateFailed(message: String) : DatabaseException(message)
     class DeleteFailed(message: String) : DatabaseException(message)
 }
 
-open class NetworkException(message: String) : Exception(message)
+open class NetworkException(message: String) : AppException(message)
 class NoConnectivityException : NetworkException("No internet connectivity")
 
-open class ValidationException(message: String) : Exception(message)
+open class ValidationException(message: String) : AppException(message)
 class EmptyFieldException(fieldName: String) : ValidationException("$fieldName cannot be empty")
 
-open class BusinessException(message: String) : Exception(message)
+class BusinessException(message: String) : AppException(message)
 
 /**
  * 全局异常处理器
@@ -143,7 +145,7 @@ class ExceptionHandler /* @Inject constructor(
     /**
      * 生成用户友好的错误消息
      */
-    private fun generateUserMessage(throwable: Throwable): String {
+    fun generateUserMessage(throwable: Throwable): String {
         return when (throwable) {
             is NetworkException -> "网络连接异常，请检查网络设置"
             is DatabaseException -> "数据存储异常，请稍后重试"
@@ -201,12 +203,10 @@ class ExceptionHandler /* @Inject constructor(
             appendLine()
             appendLine("=== 错误统计 ===")
             appendLine("总错误数: ${statistics.totalErrors}")
-            appendLine("严重错误数: ${statistics.criticalErrors}")
-            appendLine("网络错误数: ${statistics.networkErrors}")
-            appendLine("数据库错误数: ${statistics.databaseErrors}")
-            if (statistics.lastErrorTime > 0) {
-                appendLine("最后错误时间: ${Utils.DateTime.formatTimestamp(statistics.lastErrorTime)}")
-            }
+            appendLine("严重错误: ${statistics.criticalErrors}")
+            appendLine("网络错误: ${statistics.networkErrors}")
+            appendLine("数据库错误: ${statistics.databaseErrors}")
+            appendLine("最后错误时间: ${Utils.DateTime.formatTimestamp(statistics.lastErrorTime)}")
         }
     }
     
@@ -216,11 +216,9 @@ class ExceptionHandler /* @Inject constructor(
     private fun getDeviceInfo(): Map<String, String> {
         return mapOf(
             "设备型号" to android.os.Build.MODEL,
-            "系统版本" to "Android ${android.os.Build.VERSION.RELEASE}",
+            "Android版本" to android.os.Build.VERSION.RELEASE,
             "API级别" to android.os.Build.VERSION.SDK_INT.toString(),
-            "制造商" to android.os.Build.MANUFACTURER,
-            "设备品牌" to android.os.Build.BRAND,
-            "CPU架构" to android.os.Build.SUPPORTED_ABIS.joinToString(", ")
+            "制造商" to android.os.Build.MANUFACTURER
         )
     }
 }
